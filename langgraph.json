@@ -1,0 +1,11 @@
+{
+    "node_version": "20",
+    "dockerfile_lines": [],
+    "dependencies": [
+        "."
+    ],
+    "graphs": {
+        "pm-maestro": "./src/agent/workflow.ts:compiledGraph"
+    },
+    "env": ".env"
+}
