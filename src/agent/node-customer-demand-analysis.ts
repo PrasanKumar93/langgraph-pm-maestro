@@ -2,6 +2,7 @@ import type { OverallStateType } from "./state.js";
 
 import { ChatPromptTemplate } from "@langchain/core/prompts";
 import { RunnableSequence } from "@langchain/core/runnables";
+import { SystemMessage } from "@langchain/core/messages";
 
 import { llmOpenAi } from "./llm-open-ai.js";
 import { toolSystemSalesForce } from "./tool-system-sales-force.js";
@@ -54,6 +55,7 @@ Current progress:
   });
 
   //#region update state
+  state.messages.push(new SystemMessage(`Customer demand analysis !`));
   state.messages.push(result);
   //#endregion
 

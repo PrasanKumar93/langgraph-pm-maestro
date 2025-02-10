@@ -10,6 +10,8 @@
   - `Effort Estimation`: Estimate work required and produce breakdowns.
   - `Mini-PRD Generation`: Generate a multi-page product requirements document.
 
+Note : PRD - Product Requirements Document
+
 ## Environment variables
 
 Please set the environment variables in the **.env** file.

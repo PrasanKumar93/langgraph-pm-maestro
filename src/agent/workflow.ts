@@ -12,6 +12,7 @@ import {
 } from "./state.js";
 import { nodeCustomerDemandAnalysis } from "./node-customer-demand-analysis.js";
 import { nodeEffortEstimation } from "./node-effort-estimation.js";
+import { nodeMiniPrd } from "./node-mini-prd.js";
 import { toolSystemSalesForce } from "./tool-system-sales-force.js";
 import { toolSystemJira } from "./tool-system-jira.js";
 
@@ -66,14 +67,15 @@ const generateGraph = () => {
     .addNode("customerDemandAnalysis", nodeCustomerDemandAnalysis)
     .addNode("tools", toolNodeWithGraphState)
     .addNode("effortEstimation", nodeEffortEstimation)
-
+    .addNode("miniPrd", nodeMiniPrd)
     .addEdge(START, "customerDemandAnalysis")
     .addConditionalEdges("customerDemandAnalysis", shouldContinueTools, [
       "tools",
       "effortEstimation",
     ])
     .addEdge("tools", "customerDemandAnalysis")
-    .addEdge("effortEstimation", END);
+    .addEdge("effortEstimation", "miniPrd")
+    .addEdge("miniPrd", END);
 
   const finalGraph = graph.compile({
     checkpointer,

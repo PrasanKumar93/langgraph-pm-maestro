@@ -26,7 +26,7 @@ const OverallStateAnnotation = Annotation.Root({
   ...CustomerDemandAnalysisAnnotation.spec,
   ...EffortEstimationAnnotation.spec,
   ...executionStateAnnotation.spec,
-  outputProductPRD: Annotation<string>,
+  outputProductPRD: Annotation<any>,
 });
 //#endregion
 export { InputStateAnnotation, OverallStateAnnotation };

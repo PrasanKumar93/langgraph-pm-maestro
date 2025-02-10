@@ -1,32 +1,16 @@
 import type { OverallStateType } from "./state.js";
 
-import { dump as yamlDump } from "js-yaml";
 import { ChatPromptTemplate } from "@langchain/core/prompts";
 import { RunnableSequence } from "@langchain/core/runnables";
 import { SystemMessage } from "@langchain/core/messages";
+import { JsonOutputParser } from "@langchain/core/output_parsers";
 
 import { llmOpenAi } from "./llm-open-ai.js";
-
-const getYamlString = (data: any[]) => {
-  let retValue = "";
-  if (data?.length) {
-    const trimmedData = data.slice(0, 10); // to reduce context window
-    retValue = yamlDump(trimmedData, {
-      indent: 2,
-      quotingType: '"',
-      forceQuotes: true,
-    });
-    retValue = retValue
-      .split("\n")
-      .map((line) => "    " + line) // Add 4 spaces to each line for nesting in template
-      .join("\n");
-  }
-  return retValue;
-};
+import { getYamlFromJson } from "../utils/misc.js";
 
 const nodeEffortEstimation = async (state: OverallStateType) => {
-  let jiraDataYaml = getYamlString(state.systemJiraData);
-  let salesforceDataYaml = getYamlString(state.systemSalesForceData);
+  let jiraDataYaml = getYamlFromJson(state.systemJiraData);
+  let salesforceDataYaml = getYamlFromJson(state.systemSalesForceData);
 
   const SYSTEM_PROMPT = `
       You are an experienced product manager and software engineer.
@@ -84,8 +68,13 @@ Ensure your output is valid JSON with no extra text or markdown formatting.
   ]);
 
   const model = llmOpenAi;
+  const outputParser = new JsonOutputParser();
 
-  const chain = RunnableSequence.from([effortEstimationPrompt, model]);
+  const chain = RunnableSequence.from([
+    effortEstimationPrompt,
+    model,
+    outputParser,
+  ]);
 
   const result = await chain.invoke({
     ...state,
