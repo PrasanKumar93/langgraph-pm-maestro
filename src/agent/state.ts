@@ -16,10 +16,15 @@ const CustomerDemandAnalysisAnnotation = Annotation.Root({
   systemJiraData: Annotation<any>,
 });
 
+const EffortEstimationAnnotation = Annotation.Root({
+  effortEstimationData: Annotation<any>,
+});
+
 const OverallStateAnnotation = Annotation.Root({
   ...MessagesAnnotation.spec,
   ...InputStateAnnotation.spec,
   ...CustomerDemandAnalysisAnnotation.spec,
+  ...EffortEstimationAnnotation.spec,
   ...executionStateAnnotation.spec,
   outputProductPRD: Annotation<string>,
 });

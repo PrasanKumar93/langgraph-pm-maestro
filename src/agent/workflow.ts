@@ -11,6 +11,7 @@ import {
   OverallStateType,
 } from "./state.js";
 import { nodeCustomerDemandAnalysis } from "./node-customer-demand-analysis.js";
+import { nodeEffortEstimation } from "./node-effort-estimation.js";
 import { toolSystemSalesForce } from "./tool-system-sales-force.js";
 import { toolSystemJira } from "./tool-system-jira.js";
 
@@ -30,7 +31,7 @@ const toolNodeWithGraphState = async (state: OverallStateType) => {
 };
 
 const shouldContinueTools = (state: OverallStateType) => {
-  let nextNode = END;
+  let nextNode = "effortEstimation";
 
   // If both tools are processed, we should end regardless of tool calls in the message
   // if (state.toolSystemSalesForceProcessed && state.toolSystemJiraProcessed) {
@@ -64,13 +65,15 @@ const generateGraph = () => {
   graph
     .addNode("customerDemandAnalysis", nodeCustomerDemandAnalysis)
     .addNode("tools", toolNodeWithGraphState)
+    .addNode("effortEstimation", nodeEffortEstimation)
 
     .addEdge(START, "customerDemandAnalysis")
     .addConditionalEdges("customerDemandAnalysis", shouldContinueTools, [
       "tools",
-      END,
+      "effortEstimation",
     ])
-    .addEdge("tools", "customerDemandAnalysis");
+    .addEdge("tools", "customerDemandAnalysis")
+    .addEdge("effortEstimation", END);
 
   const finalGraph = graph.compile({
     checkpointer,
