@@ -13,6 +13,7 @@ import {
 import { nodeCustomerDemandAnalysis } from "./node-customer-demand-analysis.js";
 import { nodeEffortEstimation } from "./node-effort-estimation.js";
 import { nodeMiniPrd } from "./node-mini-prd.js";
+import { nodeMdToPdf } from "./node-md-to-pdf.js";
 import { toolSystemSalesForce } from "./tool-system-sales-force.js";
 import { toolSystemJira } from "./tool-system-jira.js";
 
@@ -68,6 +69,7 @@ const generateGraph = () => {
     .addNode("tools", toolNodeWithGraphState)
     .addNode("effortEstimation", nodeEffortEstimation)
     .addNode("miniPrd", nodeMiniPrd)
+    .addNode("markdownToPdf", nodeMdToPdf)
     .addEdge(START, "customerDemandAnalysis")
     .addConditionalEdges("customerDemandAnalysis", shouldContinueTools, [
       "tools",
@@ -75,7 +77,8 @@ const generateGraph = () => {
     ])
     .addEdge("tools", "customerDemandAnalysis")
     .addEdge("effortEstimation", "miniPrd")
-    .addEdge("miniPrd", END);
+    .addEdge("miniPrd", "markdownToPdf")
+    .addEdge("markdownToPdf", END);
 
   const finalGraph = graph.compile({
     checkpointer,

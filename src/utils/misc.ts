@@ -1,4 +1,11 @@
 import { dump as yamlDump } from "js-yaml";
+import { mdToPdf } from "md-to-pdf";
+
+interface IConvertMarkdownToPdfParams {
+  content: string;
+  destination: string;
+  css?: string;
+}
 
 const getYamlFromJson = (data: any[]) => {
   let retValue = "";
@@ -16,4 +23,15 @@ const getYamlFromJson = (data: any[]) => {
   return retValue;
 };
 
-export { getYamlFromJson };
+const convertMarkdownToPdf = async (params: IConvertMarkdownToPdfParams) => {
+  const pdf = await mdToPdf(
+    { content: params.content },
+    {
+      dest: params.destination,
+      css: params.css,
+    }
+  );
+  return pdf;
+};
+
+export { getYamlFromJson, convertMarkdownToPdf };

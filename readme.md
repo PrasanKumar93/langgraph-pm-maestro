@@ -17,12 +17,11 @@ Note : PRD - Product Requirements Document
 Please set the environment variables in the **.env** file.
 
 ```sh title="./.env"
+PORT=3001
+
 OPENAI_API_KEY=sk-proj-1234567890
 OPENAI_MODEL_NAME=gpt-4o-mini
 REDIS_URL=redis://localhost:6379
-
-# Optional
-PORT_BACKEND=3001
 ```
 
 ## Install dependencies
