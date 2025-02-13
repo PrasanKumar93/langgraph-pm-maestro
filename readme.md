@@ -22,6 +22,10 @@ PORT=3001
 OPENAI_API_KEY=sk-proj-1234567890
 OPENAI_MODEL_NAME=gpt-4o-mini
 REDIS_URL=redis://localhost:6379
+
+SLACK_SIGNING_SECRET=
+SLACK_BOT_TOKEN=
+SLACK_APP_TOKEN=
 ```
 
 ## Install dependencies
@@ -33,5 +37,5 @@ npm install
 ## Start application
 
 ```sh
-npm start
+npm run studio
 ```
