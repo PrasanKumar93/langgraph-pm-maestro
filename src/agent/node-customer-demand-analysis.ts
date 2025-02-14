@@ -8,23 +8,13 @@ import { llmOpenAi } from "./llm-open-ai.js";
 import { toolSystemSalesForce } from "./tool-system-sales-force.js";
 import { toolSystemJira } from "./tool-system-jira.js";
 
-const initializeState = (state: OverallStateType) => {
-  if (!state.systemSalesForceData) {
-    state.systemSalesForceData = [];
-  }
-  if (!state.systemJiraData) {
-    state.systemJiraData = [];
-  }
-  state.outputProductPRD = "";
-};
-
 const nodeCustomerDemandAnalysis = async (state: OverallStateType) => {
-  initializeState(state);
-
   const SYSTEM_PROMPT = `
   You are a seasoned product manager tasked with aggregating customer demand data. 
 
-Given the product feature "{inputProductFeature}", your task is to gather customer demand data from multiple systems:
+Given the product feature "${
+    state.productFeature
+  }", your task is to gather customer demand data from multiple systems:
 
 1. Salesforce  
 

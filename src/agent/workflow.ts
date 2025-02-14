@@ -10,6 +10,7 @@ import {
   OverallStateAnnotation,
   OverallStateType,
 } from "./state.js";
+import { nodeExtractProductFeature } from "./node-extract-product-feature.js";
 import { nodeCustomerDemandAnalysis } from "./node-customer-demand-analysis.js";
 import { nodeEffortEstimation } from "./node-effort-estimation.js";
 import { nodeMiniPrd } from "./node-mini-prd.js";
@@ -65,12 +66,15 @@ const generateGraph = () => {
   });
 
   graph
+    .addNode("extractProductFeature", nodeExtractProductFeature)
     .addNode("customerDemandAnalysis", nodeCustomerDemandAnalysis)
     .addNode("tools", toolNodeWithGraphState)
     .addNode("effortEstimation", nodeEffortEstimation)
     .addNode("miniPrd", nodeMiniPrd)
     .addNode("markdownToPdf", nodeMdToPdf)
-    .addEdge(START, "customerDemandAnalysis")
+
+    .addEdge(START, "extractProductFeature")
+    .addEdge("extractProductFeature", "customerDemandAnalysis")
     .addConditionalEdges("customerDemandAnalysis", shouldContinueTools, [
       "tools",
       "effortEstimation",

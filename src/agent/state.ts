@@ -1,7 +1,7 @@
 import { Annotation, MessagesAnnotation } from "@langchain/langgraph";
 
 const InputStateAnnotation = Annotation.Root({
-  inputProductFeature: Annotation<string>,
+  inputText: Annotation<string>,
 });
 
 //#region OverallStateAnnotation
@@ -23,10 +23,12 @@ const EffortEstimationAnnotation = Annotation.Root({
 const OverallStateAnnotation = Annotation.Root({
   ...MessagesAnnotation.spec,
   ...InputStateAnnotation.spec,
+  productFeature: Annotation<any>,
   ...CustomerDemandAnalysisAnnotation.spec,
   ...EffortEstimationAnnotation.spec,
   ...executionStateAnnotation.spec,
   outputProductPRD: Annotation<any>,
+  error: Annotation<any>,
 });
 //#endregion
 export { InputStateAnnotation, OverallStateAnnotation };

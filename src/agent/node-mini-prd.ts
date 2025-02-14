@@ -16,7 +16,7 @@ const nodeMiniPrd = async (state: OverallStateType) => {
   const SYSTEM_PROMPT = `You are an experienced Product Manager tasked with creating a concise mini-PRD. Use the following inputs to create a comprehensive but focused product recommendation:
 
 INPUT CONTEXT:
-1. Product Feature: "{inputProductFeature}"
+1. Product Feature: "${state.productFeature}"
 
 2. Market Analysis:
    The following data from Jira and Salesforce provides customer insights:

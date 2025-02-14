@@ -28,7 +28,7 @@ app.use(API_PREFIX, router);
 app.listen(parseInt(PORT), async () => {
   LoggerCls.info(`Server running on port ${PORT}`);
   const redisWrapperST = RedisWrapperST.setInstance(REDIS_URL);
-  await redisWrapperST.connect();
+  //await redisWrapperST.connect();
 });
 
 //#region error handling

@@ -7,14 +7,20 @@ import { JsonOutputParser } from "@langchain/core/output_parsers";
 
 import { llmOpenAi } from "./llm-open-ai.js";
 import { getYamlFromJson } from "../utils/misc.js";
+import { checkErrorToStopWorkflow } from "./error.js";
 
 const nodeEffortEstimation = async (state: OverallStateType) => {
+  if (!state.systemJiraData?.length || !state.systemSalesForceData?.length) {
+    state.error = "No data found in Jira or Salesforce";
+    checkErrorToStopWorkflow(state);
+  }
+
   let jiraDataYaml = getYamlFromJson(state.systemJiraData);
   let salesforceDataYaml = getYamlFromJson(state.systemSalesForceData);
 
   const SYSTEM_PROMPT = `
       You are an experienced product manager and software engineer.
-Given the product feature "{inputProductFeature}", estimate the development effort required.
+Given the product feature "${state.productFeature}", estimate the development effort required.
 
 Consider the following customer data and market context from the Jira and Salesforce data when making your estimation:
 - Data shows customer pain points and feature requests
@@ -58,7 +64,7 @@ ${jiraDataYaml}
 - Salesforce Data: 
 ${salesforceDataYaml}
 
-Feature: {inputProductFeature}
+Feature: ${state.productFeature}
 
 Ensure your output is valid JSON with no extra text or markdown formatting.
 `;
