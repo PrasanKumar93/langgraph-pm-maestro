@@ -79,9 +79,6 @@ IMPORTANT: Do not modify the core concept of the feature. Extract exactly what i
       await state.onNotifyProgress(detail);
     }
   } else {
-    state.messages.push(
-      new SystemMessage(`Product feature extraction failed: ${result.error}`)
-    );
     state.error = result.error;
   }
   //#endregion
