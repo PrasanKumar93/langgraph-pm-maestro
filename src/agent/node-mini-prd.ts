@@ -90,7 +90,11 @@ Focus on providing actionable insights that will help stakeholders make informed
 
   //#region update state
   state.outputProductPRD = result;
-  state.messages.push(new SystemMessage(`Mini PRD generation completed`));
+  const detail = `Mini PRD markdown generated`;
+  state.messages.push(new SystemMessage(detail));
+  if (state.onNotifyProgress) {
+    await state.onNotifyProgress(detail);
+  }
   //#endregion
 
   return state;

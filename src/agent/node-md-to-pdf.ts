@@ -89,8 +89,12 @@ const generateMiniPrdFile = async (content: string) => {
 const nodeMdToPdf = async (state: OverallStateType) => {
   if (state.outputProductPRD) {
     const filePath = await generateMiniPrdFile(state.outputProductPRD);
-    state.messages.push(new SystemMessage(`PDF generated at ${filePath}`));
-    state.productPRDFilePath = filePath;
+    const detail = `Markdown to PDF conversion completed`;
+    state.messages.push(new SystemMessage(detail));
+    if (state.onNotifyProgress) {
+      await state.onNotifyProgress(detail);
+    }
+    state.outputPRDFilePath = filePath;
   }
 
   return state;

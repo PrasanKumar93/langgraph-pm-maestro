@@ -17,6 +17,8 @@ const initializeState = (state: OverallStateType) => {
     state.systemJiraData = [];
   }
   state.outputProductPRD = "";
+  state.outputPRDFilePath = "";
+  state.error = "";
 };
 const nodeExtractProductFeature = async (state: OverallStateType) => {
   initializeState(state);
@@ -71,9 +73,11 @@ IMPORTANT: Do not modify the core concept of the feature. Extract exactly what i
   //#region update state
   if (result.productFeature) {
     state.productFeature = result.productFeature;
-    state.messages.push(
-      new SystemMessage(`Extracted product feature: ${result.productFeature}`)
-    );
+    const detail = `Extracted product feature: ${result.productFeature}`;
+    state.messages.push(new SystemMessage(detail));
+    if (state.onNotifyProgress) {
+      await state.onNotifyProgress(detail);
+    }
   } else {
     state.messages.push(
       new SystemMessage(`Product feature extraction failed: ${result.error}`)

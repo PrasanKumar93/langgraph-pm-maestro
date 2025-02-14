@@ -6,6 +6,7 @@ import {
   getContextVariable,
   setContextVariable,
 } from "@langchain/core/context";
+import { SystemMessage } from "@langchain/core/messages";
 import { z } from "zod";
 
 const getJiraData = async (input: any, config: LangGraphRunnableConfig) => {
@@ -53,6 +54,12 @@ const getJiraData = async (input: any, config: LangGraphRunnableConfig) => {
 
   state.systemJiraData = returnData;
   state.toolSystemJiraProcessed = true;
+
+  const detail = `Jira data fetched`;
+  state.messages.push(new SystemMessage(detail));
+  if (state.onNotifyProgress) {
+    await state.onNotifyProgress(detail);
+  }
 
   setContextVariable("currentState", state);
   //#endregion

@@ -1,7 +1,12 @@
 import { Annotation, MessagesAnnotation } from "@langchain/langgraph";
 
+const SlackBotAnnotation = Annotation.Root({
+  onNotifyProgress: Annotation<(detail: string) => Promise<void>>,
+});
+
 const InputStateAnnotation = Annotation.Root({
   inputText: Annotation<string>,
+  ...SlackBotAnnotation.spec,
 });
 
 //#region OverallStateAnnotation
@@ -28,7 +33,7 @@ const OverallStateAnnotation = Annotation.Root({
   ...EffortEstimationAnnotation.spec,
   ...executionStateAnnotation.spec,
   outputProductPRD: Annotation<any>,
-  productPRDFilePath: Annotation<string>,
+  outputPRDFilePath: Annotation<string>,
   error: Annotation<any>,
 });
 //#endregion

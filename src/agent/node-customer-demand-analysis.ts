@@ -45,7 +45,11 @@ Current progress:
   });
 
   //#region update state
-  state.messages.push(new SystemMessage(`Customer demand analysis !`));
+  const detail = `Customer demand analysis !`;
+  state.messages.push(new SystemMessage(detail));
+  if (state.onNotifyProgress) {
+    await state.onNotifyProgress(detail);
+  }
   state.messages.push(result);
   //#endregion
 
