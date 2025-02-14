@@ -28,11 +28,13 @@ const OverallStateAnnotation = Annotation.Root({
   ...EffortEstimationAnnotation.spec,
   ...executionStateAnnotation.spec,
   outputProductPRD: Annotation<any>,
+  productPRDFilePath: Annotation<string>,
   error: Annotation<any>,
 });
 //#endregion
 export { InputStateAnnotation, OverallStateAnnotation };
 
 type OverallStateType = typeof OverallStateAnnotation.State;
+type InputStateType = typeof InputStateAnnotation.State;
 
-export type { OverallStateType };
+export type { OverallStateType, InputStateType };

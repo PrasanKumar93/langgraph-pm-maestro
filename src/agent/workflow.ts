@@ -1,3 +1,5 @@
+import type { InputStateType, OverallStateType } from "./state.js";
+
 import { StateGraph, START, END, MemorySaver } from "@langchain/langgraph";
 import {
   getContextVariable,
@@ -5,11 +7,7 @@ import {
 } from "@langchain/core/context";
 import { ToolNode } from "@langchain/langgraph/prebuilt";
 
-import {
-  InputStateAnnotation,
-  OverallStateAnnotation,
-  OverallStateType,
-} from "./state.js";
+import { InputStateAnnotation, OverallStateAnnotation } from "./state.js";
 import { nodeExtractProductFeature } from "./node-extract-product-feature.js";
 import { nodeCustomerDemandAnalysis } from "./node-customer-demand-analysis.js";
 import { nodeEffortEstimation } from "./node-effort-estimation.js";
@@ -91,6 +89,16 @@ const generateGraph = () => {
   return finalGraph;
 };
 
-const compiledGraph = generateGraph();
+const compiledGraph = generateGraph(); //compiledGraph for langgraph studio
 
-export { compiledGraph };
+const runWorkflow = async (input: InputStateType) => {
+  const graph = generateGraph();
+  const result = await graph.invoke(input, {
+    configurable: {
+      thread_id: crypto.randomUUID(), //MemorySaver checkpointer requires a thread ID for storing state.
+    },
+  });
+  return result;
+};
+
+export { compiledGraph, runWorkflow };

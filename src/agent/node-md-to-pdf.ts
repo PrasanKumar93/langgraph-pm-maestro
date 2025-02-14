@@ -88,8 +88,9 @@ const generateMiniPrdFile = async (content: string) => {
 
 const nodeMdToPdf = async (state: OverallStateType) => {
   if (state.outputProductPRD) {
-    const fileName = await generateMiniPrdFile(state.outputProductPRD);
-    state.messages.push(new SystemMessage(`PDF generated at ${fileName}`));
+    const filePath = await generateMiniPrdFile(state.outputProductPRD);
+    state.messages.push(new SystemMessage(`PDF generated at ${filePath}`));
+    state.productPRDFilePath = filePath;
   }
 
   return state;
