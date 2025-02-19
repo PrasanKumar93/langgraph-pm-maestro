@@ -6,4 +6,19 @@ const HTTP_STATUS_CODES = {
   INTERNAL_SERVER_ERROR: 500,
 };
 
-export { HTTP_STATUS_CODES };
+const STEP_EMOJIS = {
+  error: "❌",
+
+  start: "🎬",
+  analysis: "🔍",
+  estimation: "🎯",
+  docWriting: "✍️",
+  pdf: "📄",
+  complete: "✅",
+
+  competitorTable: "📊",
+  review: "👀",
+  launch: "🚀",
+};
+
+export { HTTP_STATUS_CODES, STEP_EMOJIS };

@@ -73,10 +73,10 @@ IMPORTANT: Do not modify the core concept of the feature. Extract exactly what i
   //#region update state
   if (result.productFeature) {
     state.productFeature = result.productFeature;
-    const detail = `Extracted product feature: ${result.productFeature}`;
+    const detail = `Input: ${result.productFeature}`;
     state.messages.push(new SystemMessage(detail));
     if (state.onNotifyProgress) {
-      await state.onNotifyProgress(detail);
+      await state.onNotifyProgress("-----> " + detail); // sub step
     }
   } else {
     state.error = result.error;

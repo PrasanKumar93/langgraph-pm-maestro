@@ -2,7 +2,7 @@
 
 ```ts
 {
-  "inputProductFeature": "real-time analytics"
+  "inputText": "real-time analytics"
 }
 ```
 

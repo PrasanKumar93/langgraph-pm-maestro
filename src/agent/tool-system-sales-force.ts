@@ -61,10 +61,10 @@ const getSalesForceData = async (
   state.systemSalesForceData = returnData;
   state.toolSystemSalesForceProcessed = true;
 
-  const detail = `SalesForce data fetched`;
+  const detail = `Extracted SalesForce data`;
   state.messages.push(new SystemMessage(detail));
   if (state.onNotifyProgress) {
-    await state.onNotifyProgress(detail);
+    await state.onNotifyProgress("-----> " + detail); //sub step
   }
 
   setContextVariable("currentState", state);

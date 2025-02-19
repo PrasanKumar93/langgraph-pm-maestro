@@ -7,6 +7,7 @@ import { StringOutputParser } from "@langchain/core/output_parsers";
 
 import { llmOpenAi } from "./llm-open-ai.js";
 import { getYamlFromJson } from "../utils/misc.js";
+import { STEP_EMOJIS } from "../utils/constants.js";
 
 const nodeMiniPrd = async (state: OverallStateType) => {
   let jiraDataYaml = getYamlFromJson(state.systemJiraData);
@@ -93,7 +94,7 @@ Focus on providing actionable insights that will help stakeholders make informed
   const detail = `Mini PRD markdown generated`;
   state.messages.push(new SystemMessage(detail));
   if (state.onNotifyProgress) {
-    await state.onNotifyProgress(detail);
+    await state.onNotifyProgress(STEP_EMOJIS.docWriting + " " + detail);
   }
   //#endregion
 

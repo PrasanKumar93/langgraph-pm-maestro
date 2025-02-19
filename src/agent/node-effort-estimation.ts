@@ -8,6 +8,7 @@ import { JsonOutputParser } from "@langchain/core/output_parsers";
 import { llmOpenAi } from "./llm-open-ai.js";
 import { getYamlFromJson } from "../utils/misc.js";
 import { checkErrorToStopWorkflow } from "./error.js";
+import { STEP_EMOJIS } from "../utils/constants.js";
 
 const nodeEffortEstimation = async (state: OverallStateType) => {
   if (!state.systemJiraData?.length || !state.systemSalesForceData?.length) {
@@ -91,7 +92,7 @@ Ensure your output is valid JSON with no extra text or markdown formatting.
   const detail = `Effort estimation completed`;
   state.messages.push(new SystemMessage(detail));
   if (state.onNotifyProgress) {
-    await state.onNotifyProgress(detail);
+    await state.onNotifyProgress(STEP_EMOJIS.estimation + " " + detail);
   }
   //#endregion
 

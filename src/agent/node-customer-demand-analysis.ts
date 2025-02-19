@@ -7,6 +7,7 @@ import { SystemMessage } from "@langchain/core/messages";
 import { llmOpenAi } from "./llm-open-ai.js";
 import { toolSystemSalesForce } from "./tool-system-sales-force.js";
 import { toolSystemJira } from "./tool-system-jira.js";
+import { STEP_EMOJIS } from "../utils/constants.js";
 
 const nodeCustomerDemandAnalysis = async (state: OverallStateType) => {
   const SYSTEM_PROMPT = `
@@ -45,10 +46,10 @@ Current progress:
   });
 
   //#region update state
-  const detail = `Customer demand analysis !`;
+  const detail = `Customer demand analysis`;
   state.messages.push(new SystemMessage(detail));
   if (state.onNotifyProgress) {
-    await state.onNotifyProgress(detail);
+    await state.onNotifyProgress(STEP_EMOJIS.analysis + " " + detail);
   }
   state.messages.push(result);
   //#endregion

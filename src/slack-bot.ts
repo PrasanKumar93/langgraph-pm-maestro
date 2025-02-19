@@ -5,6 +5,7 @@ import "dotenv/config";
 
 import { LoggerCls } from "./utils/logger.js";
 import { runWorkflow } from "./agent/workflow.js";
+import { STEP_EMOJIS } from "./utils/constants.js";
 
 interface IProcessRequest {
   threadTs: string;
@@ -29,7 +30,7 @@ const processRequest = async ({
   say,
 }: IProcessRequest) => {
   await say({
-    text: "Processing your feature request... I'll get back to you with a Mini PRD shortly! 🚀",
+    text: `${STEP_EMOJIS.start} Starting Feature Request Analysis`,
     thread_ts: threadTs,
   });
 
@@ -45,21 +46,23 @@ const processRequest = async ({
 
   const result = await runWorkflow(input);
   if (result.error) {
-    await say(result.error);
+    await say(STEP_EMOJIS.error + " " + result.error);
   } else if (result.outputPRDFilePath) {
     const fileName = result.outputPRDFilePath.split("/").pop();
     try {
       await app.client.files.uploadV2({
         thread_ts: threadTs,
         channel_id: channelId,
-        initial_comment: "Here's your Mini Product Requirements Document:",
+        initial_comment:
+          STEP_EMOJIS.complete +
+          " Here's your Mini Product Requirements Document:",
         file: result.outputPRDFilePath,
         filename: fileName,
         title: "Mini PRD",
       });
     } catch (error) {
       await say({
-        text: "Error uploading the PDF. Please try again.",
+        text: STEP_EMOJIS.error + " Error uploading the PDF. Please try again.",
         thread_ts: threadTs,
       });
       LoggerCls.error("Error uploading file:", error);
@@ -67,11 +70,13 @@ const processRequest = async ({
   } else if (result.messages?.length) {
     //interrupt cases
     const lastMessage = result.messages[result.messages.length - 1];
+    const text =
+      typeof lastMessage.content === "string"
+        ? lastMessage.content
+        : JSON.stringify(lastMessage.content);
+
     await say({
-      text:
-        typeof lastMessage.content === "string"
-          ? lastMessage.content
-          : JSON.stringify(lastMessage.content),
+      text: text,
       thread_ts: threadTs,
     });
   }

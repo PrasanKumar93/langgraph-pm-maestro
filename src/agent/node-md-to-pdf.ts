@@ -3,6 +3,7 @@ import type { OverallStateType } from "./state.js";
 import { SystemMessage } from "@langchain/core/messages";
 
 import { convertMarkdownToPdf } from "../utils/misc.js";
+import { STEP_EMOJIS } from "../utils/constants.js";
 
 const style = `
        @page {
@@ -92,7 +93,7 @@ const nodeMdToPdf = async (state: OverallStateType) => {
     const detail = `Markdown to PDF conversion completed`;
     state.messages.push(new SystemMessage(detail));
     if (state.onNotifyProgress) {
-      await state.onNotifyProgress(detail);
+      await state.onNotifyProgress(STEP_EMOJIS.pdf + " " + detail);
     }
     state.outputPRDFilePath = filePath;
   }
