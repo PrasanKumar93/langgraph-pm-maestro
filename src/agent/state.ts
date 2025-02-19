@@ -11,32 +11,22 @@ const InputStateAnnotation = Annotation.Root({
 
 //#region OverallStateAnnotation
 
-const executionStateAnnotation = Annotation.Root({
-  toolSystemSalesForceProcessed: Annotation<boolean>,
-  toolSystemJiraProcessed: Annotation<boolean>,
-});
-
-const CustomerDemandAnalysisAnnotation = Annotation.Root({
-  systemSalesForceData: Annotation<any>,
-  systemJiraData: Annotation<any>,
-});
-
-const EffortEstimationAnnotation = Annotation.Root({
-  effortEstimationData: Annotation<any>,
-});
-
 const OverallStateAnnotation = Annotation.Root({
   ...MessagesAnnotation.spec,
   ...InputStateAnnotation.spec,
+
   productFeature: Annotation<any>,
-  ...CustomerDemandAnalysisAnnotation.spec,
-  ...EffortEstimationAnnotation.spec,
-  ...executionStateAnnotation.spec,
+  systemSalesForceData: Annotation<any>,
+  systemJiraData: Annotation<any>,
+  toolSystemSalesForceProcessed: Annotation<boolean>,
+  toolSystemJiraProcessed: Annotation<boolean>,
+  effortEstimationData: Annotation<any>,
   outputProductPRD: Annotation<any>,
   outputPRDFilePath: Annotation<string>,
   error: Annotation<any>,
 });
 //#endregion
+
 export { InputStateAnnotation, OverallStateAnnotation };
 
 type OverallStateType = typeof OverallStateAnnotation.State;
