@@ -5,7 +5,8 @@
         "."
     ],
     "graphs": {
-        "pm-maestro": "./src/agent/workflow.ts:compiledGraph"
+        "pm-maestro": "./src/agent/workflow.ts:compiledGraph",
+        "competitor-matrix": "./src/agent/competitor-matrix/workflow.ts:compiledGraph"
     },
     "env": ".env"
 }
