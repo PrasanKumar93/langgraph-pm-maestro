@@ -10,8 +10,8 @@ import { getYamlFromJson } from "../utils/misc.js";
 import { STEP_EMOJIS } from "../utils/constants.js";
 
 const nodeMiniPrd = async (state: OverallStateType) => {
-  let jiraDataYaml = getYamlFromJson(state.systemJiraData);
-  let salesforceDataYaml = getYamlFromJson(state.systemSalesForceData);
+  let jiraDataYaml = getYamlFromJson(state.systemJiraDataList);
+  let salesforceDataYaml = getYamlFromJson(state.systemSalesForceDataList);
   let effortEstimationYaml = getYamlFromJson([state.effortEstimationData]);
 
   const SYSTEM_PROMPT = `You are an experienced Product Manager tasked with creating a concise mini-PRD. Use the following inputs to create a comprehensive but focused product recommendation:

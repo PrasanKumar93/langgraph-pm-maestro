@@ -11,13 +11,16 @@ import { checkErrorToStopWorkflow } from "./error.js";
 import { STEP_EMOJIS } from "../utils/constants.js";
 
 const nodeEffortEstimation = async (state: OverallStateType) => {
-  if (!state.systemJiraData?.length || !state.systemSalesForceData?.length) {
+  if (
+    !state.systemJiraDataList?.length ||
+    !state.systemSalesForceDataList?.length
+  ) {
     state.error = "No data found in Jira or Salesforce";
     checkErrorToStopWorkflow(state);
   }
 
-  let jiraDataYaml = getYamlFromJson(state.systemJiraData);
-  let salesforceDataYaml = getYamlFromJson(state.systemSalesForceData);
+  let jiraDataYaml = getYamlFromJson(state.systemJiraDataList);
+  let salesforceDataYaml = getYamlFromJson(state.systemSalesForceDataList);
 
   const SYSTEM_PROMPT = `
       You are an experienced product manager and software engineer.

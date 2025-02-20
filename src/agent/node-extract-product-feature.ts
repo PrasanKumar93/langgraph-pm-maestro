@@ -10,15 +10,24 @@ import { checkErrorToStopWorkflow } from "./error.js";
 
 const initializeState = (state: OverallStateType) => {
   state.productFeature = "";
-  if (!state.systemSalesForceData) {
-    state.systemSalesForceData = [];
-  }
-  if (!state.systemJiraData) {
-    state.systemJiraData = [];
-  }
+  state.productName = "";
+
+  state.systemSalesForceDataList = [];
+  state.systemJiraDataList = [];
+  state.toolSystemSalesForceProcessed = false;
+  state.toolSystemJiraProcessed = false;
+
+  state.effortEstimationData = {};
+
   state.outputProductPRD = "";
   state.outputPRDFilePath = "";
   state.error = "";
+
+  state.competitorList = [];
+
+  state.toolTavilySearchProcessed = false;
+  state.toolTavilySearchData = "";
+  state.allTavilySearchDataList = [];
 };
 const nodeExtractProductFeature = async (state: OverallStateType) => {
   initializeState(state);

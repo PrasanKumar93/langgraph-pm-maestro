@@ -9,7 +9,7 @@ import { llmOpenAi } from "../llm-open-ai.js";
 import { checkErrorToStopWorkflow } from "../error.js";
 import { toolTavilySearch } from "../tool-tavily-search.js";
 
-const nodeCompetitorList = async (state: OverallStateType) => {
+const getSystemPrompt = (state: OverallStateType) => {
   const SYSTEM_PROMPT = `
     You are an experienced product manager and software engineer.
     Given the product name and feature, perform a web search using the Tavily Search API to identify a list of competitors offering the particular feature.
@@ -41,6 +41,35 @@ const nodeCompetitorList = async (state: OverallStateType) => {
     ---  
     Note: Do not call tavily search again if it has already been called.
 `;
+  return SYSTEM_PROMPT;
+};
+
+const updateState = async (state: OverallStateType, rawResult: any) => {
+  const detail = `Competitor List Node executed!`;
+  state.messages.push(new SystemMessage(detail));
+  if (state.onNotifyProgress) {
+    await state.onNotifyProgress(detail);
+  }
+
+  if (state.toolTavilySearchProcessed) {
+    // rawResult = JSON (after tool call)
+    const jsonResult = rawResult;
+    if (jsonResult?.data) {
+      state.competitorList = jsonResult.data.split(",");
+      state.messages.push(
+        new SystemMessage("Competitors found: " + jsonResult.data)
+      );
+    } else if (jsonResult?.error) {
+      state.error = jsonResult.error;
+    }
+  } else {
+    // rawResult = AI Chunk Message (before tool call)
+    state.messages.push(rawResult);
+  }
+};
+
+const nodeCompetitorList = async (state: OverallStateType) => {
+  const SYSTEM_PROMPT = getSystemPrompt(state);
 
   const competitorListPrompt = ChatPromptTemplate.fromMessages([
     ["system", SYSTEM_PROMPT],
@@ -50,44 +79,23 @@ const nodeCompetitorList = async (state: OverallStateType) => {
 
   const outputParser = new JsonOutputParser();
 
-  //@ts-ignore
-  const chain = RunnableSequence.from([
-    competitorListPrompt,
-    model,
-    ...(state.toolTavilySearchProcessed ? [outputParser] : []),
-  ]);
+  let chain: RunnableSequence<any, any> | null = null;
+
+  if (state.toolTavilySearchProcessed) {
+    //after tool call
+    chain = RunnableSequence.from([competitorListPrompt, model, outputParser]);
+  } else {
+    state.toolTavilySearchProcessed = false;
+    state.toolTavilySearchData = "";
+    //before tool call
+    chain = RunnableSequence.from([competitorListPrompt, model]);
+  }
 
   const rawResult = await chain.invoke({
     ...state,
   });
 
-  //#region update state
-  const detail = `Competitor List Node executed!`;
-  state.messages.push(new SystemMessage(detail));
-  //   if (state.onNotifyProgress) {
-  //     await state.onNotifyProgress(STEP_EMOJIS.analysis + " " + detail);
-  //   }
-  //state.messages.push(rawResult);
-  //#endregion
-
-  if (state.toolTavilySearchProcessed) {
-    // JSON Result
-    console.log("rawResult", rawResult);
-    if (rawResult?.data) {
-      state.competitorList = rawResult.data.split(",");
-      state.messages.push(
-        new SystemMessage("Competitors found: " + rawResult.data)
-      );
-    } else if (rawResult?.error) {
-      if (!state.error) {
-        state.error = "";
-      }
-      state.error += rawResult.error;
-    }
-  } else {
-    // AI Chunk Message
-    state.messages.push(rawResult);
-  }
+  await updateState(state, rawResult);
 
   checkErrorToStopWorkflow(state);
   return state;

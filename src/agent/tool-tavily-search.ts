@@ -17,51 +17,58 @@ const tavilySearch = new TavilySearchResults({
   maxResults: 10,
 });
 
-const getTavilySearchResults = async (
+const fetchTavilySearchResults = async (
   input: any,
   config: LangGraphRunnableConfig
 ) => {
-  let retData = "";
-  let retError = "";
+  let searchResults = "";
+  let errorMessage = "";
 
   if (tavilyApiKey) {
-    retData = await tavilySearch.invoke({
+    searchResults = await tavilySearch.invoke({
       input: input.query,
     });
   } else {
-    retError = "TAVILY_API_KEY is not set";
+    errorMessage = "TAVILY_API_KEY is not set";
   }
 
   //testing
-  //retData = "MongoDB and Cassandra";
+  searchResults = "MongoDB and Cassandra";
 
   //#region update shared state
   const state = getContextVariable("currentState") as OverallStateType;
 
-  let detail = "";
-  if (retData) {
-    detail = `Tavily search success
+  let messageDetail = "";
+  if (searchResults) {
+    messageDetail = `Tavily search success
       query: 
         ${input.query} 
       results: 
-        ${retData}`;
-  } else if (retError) {
-    detail = `Tavily search failed
+        ${searchResults}`;
+  } else if (errorMessage) {
+    messageDetail = `Tavily search failed
       query: 
         ${input.query} 
       error: 
-        ${retError}`;
+        ${errorMessage}`;
 
-    state.error = detail;
+    state.error = messageDetail;
   }
 
-  state.messages.push(new SystemMessage(detail));
+  state.messages.push(new SystemMessage(messageDetail));
   if (state.onNotifyProgress) {
-    await state.onNotifyProgress("-----> " + detail); //sub step
+    await state.onNotifyProgress(
+      "-----> " + "Tavily search done for query: " + input.query
+    ); //sub step
   }
 
   state.toolTavilySearchProcessed = true;
-  state.toolTavilySearchData = detail;
+  state.toolTavilySearchData = messageDetail;
+  state.allTavilySearchDataList.push({
+    query: input.query,
+    results: searchResults,
+  });
+
   setContextVariable("currentState", state);
   //#endregion
 
@@ -70,7 +77,7 @@ const getTavilySearchResults = async (
 
 const toolTavilySearch = tool(
   async (input, config: LangGraphRunnableConfig) =>
-    await getTavilySearchResults(input, config),
+    await fetchTavilySearchResults(input, config),
   {
     name: "toolTavilySearch",
     description: "Get Tavily search results",

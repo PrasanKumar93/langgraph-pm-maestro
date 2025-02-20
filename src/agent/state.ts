@@ -1,9 +1,13 @@
 import { Annotation, MessagesAnnotation } from "@langchain/langgraph";
 
-const CompetitorMatrixAnnotation = Annotation.Root({
-  competitorList: Annotation<any>,
+const tavilySearchAnnotation = Annotation.Root({
   toolTavilySearchProcessed: Annotation<boolean>,
   toolTavilySearchData: Annotation<any>,
+  allTavilySearchDataList: Annotation<any[]>,
+});
+
+const CompetitorMatrixAnnotation = Annotation.Root({
+  competitorList: Annotation<string[]>,
 });
 
 const SlackBotAnnotation = Annotation.Root({
@@ -21,14 +25,15 @@ const OverallStateAnnotation = Annotation.Root({
   ...MessagesAnnotation.spec,
   ...InputStateAnnotation.spec,
   ...CompetitorMatrixAnnotation.spec,
-  productFeature: Annotation<any>,
-  productName: Annotation<any>,
-  systemSalesForceData: Annotation<any>,
-  systemJiraData: Annotation<any>,
+  ...tavilySearchAnnotation.spec,
+  productFeature: Annotation<string>,
+  productName: Annotation<string>,
+  systemSalesForceDataList: Annotation<any[]>,
+  systemJiraDataList: Annotation<any[]>,
   toolSystemSalesForceProcessed: Annotation<boolean>,
   toolSystemJiraProcessed: Annotation<boolean>,
   effortEstimationData: Annotation<any>,
-  outputProductPRD: Annotation<any>,
+  outputProductPRD: Annotation<string>,
   outputPRDFilePath: Annotation<string>,
   error: Annotation<any>,
 });

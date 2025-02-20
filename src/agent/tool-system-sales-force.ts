@@ -58,7 +58,7 @@ const getSalesForceData = async (
   //#region update shared state
   const state = getContextVariable("currentState") as OverallStateType;
 
-  state.systemSalesForceData = returnData;
+  state.systemSalesForceDataList = returnData;
   state.toolSystemSalesForceProcessed = true;
 
   const detail = `Extracted SalesForce data`;

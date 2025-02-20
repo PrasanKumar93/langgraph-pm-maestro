@@ -25,9 +25,8 @@ const toolNodeWithGraphState = async (state: OverallStateType) => {
   return state;
 };
 
-const shouldContinueTools = (state: OverallStateType) => {
-  let nextNode = END;
-
+const isToolCall = (state: OverallStateType) => {
+  let isToolCall = false;
   if (state.messages?.length) {
     const lastMessage = state.messages[state.messages.length - 1];
 
@@ -38,9 +37,21 @@ const shouldContinueTools = (state: OverallStateType) => {
       lastMessage.tool_calls?.length
     ) {
       // If we have a tool call, process it
-      nextNode = "tools";
+      isToolCall = true;
     }
   }
+  return isToolCall;
+};
+
+const scFetchCompetitorList = (state: OverallStateType) => {
+  //should continue FetchCompetitorList
+
+  let nextNode = END; //add specific node to continue
+
+  if (isToolCall(state)) {
+    nextNode = "searchTools";
+  }
+
   return nextNode;
 };
 
@@ -55,15 +66,15 @@ const generateGraph = () => {
   graph
     .addNode("extractProductFeature", nodeExtractProductFeature)
     .addNode("fetchCompetitorList", nodeCompetitorList)
-    .addNode("tools", toolNodeWithGraphState)
+    .addNode("searchTools", toolNodeWithGraphState)
 
     .addEdge(START, "extractProductFeature")
     .addEdge("extractProductFeature", "fetchCompetitorList")
-    .addConditionalEdges("fetchCompetitorList", shouldContinueTools, [
-      "tools",
+    .addConditionalEdges("fetchCompetitorList", scFetchCompetitorList, [
+      "searchTools",
       END,
     ])
-    .addEdge("tools", "fetchCompetitorList");
+    .addEdge("searchTools", "fetchCompetitorList");
 
   const finalGraph = graph.compile({
     checkpointer,

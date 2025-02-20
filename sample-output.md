@@ -6,7 +6,7 @@
 }
 ```
 
-## systemJiraData (hard coded)
+## systemJiraDataList (hard coded)
 
 ```json
 [
@@ -43,7 +43,7 @@
 ]
 ```
 
-## systemSalesForceData (hard coded)
+## systemSalesForceDataList (hard coded)
 
 ```json
 [

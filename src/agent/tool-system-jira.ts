@@ -52,7 +52,7 @@ const getJiraData = async (input: any, config: LangGraphRunnableConfig) => {
   //#region update shared state
   const state = getContextVariable("currentState") as OverallStateType;
 
-  state.systemJiraData = returnData;
+  state.systemJiraDataList = returnData;
   state.toolSystemJiraProcessed = true;
 
   const detail = `Extracted Jira data`;
