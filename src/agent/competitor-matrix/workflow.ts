@@ -12,6 +12,7 @@ import { nodeCompetitorList } from "./node-competitor-list.js";
 import { nodeExtractProductFeature } from "../node-extract-product-feature.js";
 import { nodeCompetitorFeatureDetails } from "./node-competitor-feature-details.js";
 import { nodeCompetitorTableMatrix } from "./node-competitor-table-matrix.js";
+import { nodeCompetitorAnalysisPdf } from "./node-competitor-analysis-pdf.js";
 import { toolTavilySearch } from "../tool-tavily-search.js";
 
 const toolNodeWithGraphState = async (state: OverallStateType) => {
@@ -85,6 +86,7 @@ const generateGraph = () => {
     .addNode("tavilySearchCFD", toolNodeWithGraphState)
     .addNode("fetchCompetitorFeatureDetails", nodeCompetitorFeatureDetails)
     .addNode("createCompetitorTableMatrix", nodeCompetitorTableMatrix)
+    .addNode("createCompetitorAnalysisPdf", nodeCompetitorAnalysisPdf)
 
     .addEdge(START, "extractProductFeature")
     .addEdge("extractProductFeature", "fetchCompetitorList")
@@ -106,7 +108,8 @@ const generateGraph = () => {
     )
     .addEdge("tavilySearchCFD", "fetchCompetitorFeatureDetails")
 
-    .addEdge("createCompetitorTableMatrix", END);
+    .addEdge("createCompetitorTableMatrix", "createCompetitorAnalysisPdf")
+    .addEdge("createCompetitorAnalysisPdf", END);
 
   const finalGraph = graph.compile({
     checkpointer,

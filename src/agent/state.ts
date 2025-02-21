@@ -16,6 +16,7 @@ const CompetitorMatrixAnnotation = Annotation.Root({
   pendingProcessCompetitorList: Annotation<string[]>,
   competitorFeatureDetailsList: Annotation<ICompetitorFeatureDetails[]>,
   competitorTableMatrix: Annotation<string>,
+  competitorAnalysisPdfFilePath: Annotation<string>,
 });
 
 const SlackBotAnnotation = Annotation.Root({

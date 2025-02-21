@@ -26,6 +26,8 @@ const initializeState = (state: OverallStateType) => {
   state.competitorList = [];
   state.pendingProcessCompetitorList = [];
   state.competitorFeatureDetailsList = [];
+  state.competitorTableMatrix = "";
+  state.competitorAnalysisPdfFilePath = "";
 
   state.toolTavilySearchProcessed = false;
   state.toolTavilySearchData = "";
