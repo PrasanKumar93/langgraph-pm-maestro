@@ -6,10 +6,16 @@ const tavilySearchAnnotation = Annotation.Root({
   allTavilySearchDataList: Annotation<any[]>,
 });
 
+interface ICompetitorFeatureDetails {
+  competitorName: string;
+  featureDetails: string;
+}
+
 const CompetitorMatrixAnnotation = Annotation.Root({
   competitorList: Annotation<string[]>,
   pendingProcessCompetitorList: Annotation<string[]>,
-  competitorFeatureDetailsList: Annotation<any[]>,
+  competitorFeatureDetailsList: Annotation<ICompetitorFeatureDetails[]>,
+  competitorTableMatrix: Annotation<string>,
 });
 
 const SlackBotAnnotation = Annotation.Root({

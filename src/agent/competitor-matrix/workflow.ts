@@ -11,6 +11,7 @@ import { InputStateAnnotation, OverallStateAnnotation } from "../state.js";
 import { nodeCompetitorList } from "./node-competitor-list.js";
 import { nodeExtractProductFeature } from "../node-extract-product-feature.js";
 import { nodeCompetitorFeatureDetails } from "./node-competitor-feature-details.js";
+import { nodeCompetitorTableMatrix } from "./node-competitor-table-matrix.js";
 import { toolTavilySearch } from "../tool-tavily-search.js";
 
 const toolNodeWithGraphState = async (state: OverallStateType) => {
@@ -50,7 +51,7 @@ const scFetchCompetitorList = (state: OverallStateType) => {
   let nextNode = "fetchCompetitorFeatureDetails";
 
   if (isToolCall(state)) {
-    nextNode = "tavilySearch1";
+    nextNode = "tavilySearchCL";
   }
 
   return nextNode;
@@ -59,10 +60,10 @@ const scFetchCompetitorList = (state: OverallStateType) => {
 const scFetchCompetitorFeatureDetails = (state: OverallStateType) => {
   //should continue FetchCompetitorFeatureDetails
 
-  let nextNode = END;
+  let nextNode = "createCompetitorTableMatrix";
 
   if (isToolCall(state)) {
-    nextNode = "tavilySearch2";
+    nextNode = "tavilySearchCFD";
   } else if (state.pendingProcessCompetitorList?.length > 0) {
     nextNode = "fetchCompetitorFeatureDetails"; // Continue processing same node
   }
@@ -80,25 +81,32 @@ const generateGraph = () => {
   graph
     .addNode("extractProductFeature", nodeExtractProductFeature)
     .addNode("fetchCompetitorList", nodeCompetitorList)
-    .addNode("tavilySearch1", toolNodeWithGraphState)
-    .addNode("tavilySearch2", toolNodeWithGraphState)
+    .addNode("tavilySearchCL", toolNodeWithGraphState)
+    .addNode("tavilySearchCFD", toolNodeWithGraphState)
     .addNode("fetchCompetitorFeatureDetails", nodeCompetitorFeatureDetails)
+    .addNode("createCompetitorTableMatrix", nodeCompetitorTableMatrix)
 
     .addEdge(START, "extractProductFeature")
     .addEdge("extractProductFeature", "fetchCompetitorList")
 
     .addConditionalEdges("fetchCompetitorList", scFetchCompetitorList, [
-      "tavilySearch1",
+      "tavilySearchCL",
       "fetchCompetitorFeatureDetails",
     ])
-    .addEdge("tavilySearch1", "fetchCompetitorList")
+    .addEdge("tavilySearchCL", "fetchCompetitorList")
 
     .addConditionalEdges(
       "fetchCompetitorFeatureDetails",
       scFetchCompetitorFeatureDetails,
-      ["tavilySearch2", "fetchCompetitorFeatureDetails", END]
+      [
+        "tavilySearchCFD",
+        "fetchCompetitorFeatureDetails",
+        "createCompetitorTableMatrix",
+      ]
     )
-    .addEdge("tavilySearch2", "fetchCompetitorFeatureDetails");
+    .addEdge("tavilySearchCFD", "fetchCompetitorFeatureDetails")
+
+    .addEdge("createCompetitorTableMatrix", END);
 
   const finalGraph = graph.compile({
     checkpointer,
