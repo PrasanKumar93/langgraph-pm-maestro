@@ -10,6 +10,7 @@ import { ToolNode } from "@langchain/langgraph/prebuilt";
 import { InputStateAnnotation, OverallStateAnnotation } from "../state.js";
 import { nodeCompetitorList } from "./node-competitor-list.js";
 import { nodeExtractProductFeature } from "../node-extract-product-feature.js";
+import { nodeCompetitorFeatureDetails } from "./node-competitor-feature-details.js";
 import { toolTavilySearch } from "../tool-tavily-search.js";
 
 const toolNodeWithGraphState = async (state: OverallStateType) => {
@@ -46,12 +47,25 @@ const isToolCall = (state: OverallStateType) => {
 const scFetchCompetitorList = (state: OverallStateType) => {
   //should continue FetchCompetitorList
 
-  let nextNode = END; //add specific node to continue
+  let nextNode = "fetchCompetitorFeatureDetails";
 
   if (isToolCall(state)) {
-    nextNode = "searchTools";
+    nextNode = "tavilySearch1";
   }
 
+  return nextNode;
+};
+
+const scFetchCompetitorFeatureDetails = (state: OverallStateType) => {
+  //should continue FetchCompetitorFeatureDetails
+
+  let nextNode = END;
+
+  if (isToolCall(state)) {
+    nextNode = "tavilySearch2";
+  } else if (state.pendingProcessCompetitorList?.length > 0) {
+    nextNode = "fetchCompetitorFeatureDetails"; // Continue processing same node
+  }
   return nextNode;
 };
 
@@ -66,15 +80,25 @@ const generateGraph = () => {
   graph
     .addNode("extractProductFeature", nodeExtractProductFeature)
     .addNode("fetchCompetitorList", nodeCompetitorList)
-    .addNode("searchTools", toolNodeWithGraphState)
+    .addNode("tavilySearch1", toolNodeWithGraphState)
+    .addNode("tavilySearch2", toolNodeWithGraphState)
+    .addNode("fetchCompetitorFeatureDetails", nodeCompetitorFeatureDetails)
 
     .addEdge(START, "extractProductFeature")
     .addEdge("extractProductFeature", "fetchCompetitorList")
+
     .addConditionalEdges("fetchCompetitorList", scFetchCompetitorList, [
-      "searchTools",
-      END,
+      "tavilySearch1",
+      "fetchCompetitorFeatureDetails",
     ])
-    .addEdge("searchTools", "fetchCompetitorList");
+    .addEdge("tavilySearch1", "fetchCompetitorList")
+
+    .addConditionalEdges(
+      "fetchCompetitorFeatureDetails",
+      scFetchCompetitorFeatureDetails,
+      ["tavilySearch2", "fetchCompetitorFeatureDetails", END]
+    )
+    .addEdge("tavilySearch2", "fetchCompetitorFeatureDetails");
 
   const finalGraph = graph.compile({
     checkpointer,

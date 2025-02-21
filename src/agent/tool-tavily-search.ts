@@ -32,9 +32,6 @@ const fetchTavilySearchResults = async (
     errorMessage = "TAVILY_API_KEY is not set";
   }
 
-  //testing
-  searchResults = "MongoDB and Cassandra";
-
   //#region update shared state
   const state = getContextVariable("currentState") as OverallStateType;
 

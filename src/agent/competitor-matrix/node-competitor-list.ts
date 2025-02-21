@@ -56,6 +56,7 @@ const updateState = async (state: OverallStateType, rawResult: any) => {
     const jsonResult = rawResult;
     if (jsonResult?.data) {
       state.competitorList = jsonResult.data.split(",");
+      state.pendingProcessCompetitorList = state.competitorList;
       state.messages.push(
         new SystemMessage("Competitors found: " + jsonResult.data)
       );

@@ -24,6 +24,8 @@ const initializeState = (state: OverallStateType) => {
   state.error = "";
 
   state.competitorList = [];
+  state.pendingProcessCompetitorList = [];
+  state.competitorFeatureDetailsList = [];
 
   state.toolTavilySearchProcessed = false;
   state.toolTavilySearchData = "";

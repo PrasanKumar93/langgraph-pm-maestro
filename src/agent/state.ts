@@ -8,6 +8,8 @@ const tavilySearchAnnotation = Annotation.Root({
 
 const CompetitorMatrixAnnotation = Annotation.Root({
   competitorList: Annotation<string[]>,
+  pendingProcessCompetitorList: Annotation<string[]>,
+  competitorFeatureDetailsList: Annotation<any[]>,
 });
 
 const SlackBotAnnotation = Annotation.Root({
