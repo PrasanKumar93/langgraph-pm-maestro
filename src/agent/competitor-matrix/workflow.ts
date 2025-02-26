@@ -71,16 +71,12 @@ const scFetchCompetitorFeatureDetails = (state: OverallStateType) => {
   return nextNode;
 };
 
-const generateGraph = () => {
-  const checkpointer = new MemorySaver();
-
+const getCompetitorSubgraph = () => {
   const graph = new StateGraph({
-    input: InputStateAnnotation,
     stateSchema: OverallStateAnnotation,
   });
 
   graph
-    .addNode("extractProductFeature", nodeExtractProductFeature)
     .addNode("fetchCompetitorList", nodeCompetitorList)
     .addNode("tavilySearchCL", toolNodeWithGraphState)
     .addNode("tavilySearchCFD", toolNodeWithGraphState)
@@ -88,8 +84,7 @@ const generateGraph = () => {
     .addNode("createCompetitorTableMatrix", nodeCompetitorTableMatrix)
     .addNode("createCompetitorAnalysisPdf", nodeCompetitorAnalysisPdf)
 
-    .addEdge(START, "extractProductFeature")
-    .addEdge("extractProductFeature", "fetchCompetitorList")
+    .addEdge(START, "fetchCompetitorList")
 
     .addConditionalEdges("fetchCompetitorList", scFetchCompetitorList, [
       "tavilySearchCL",
@@ -111,6 +106,32 @@ const generateGraph = () => {
     .addEdge("createCompetitorTableMatrix", "createCompetitorAnalysisPdf")
     .addEdge("createCompetitorAnalysisPdf", END);
 
+  return graph;
+};
+
+const generateGraph = () => {
+  const checkpointer = new MemorySaver();
+
+  const graph = new StateGraph({
+    input: InputStateAnnotation,
+    stateSchema: OverallStateAnnotation,
+  });
+
+  const competitorSubgraphBuilder = getCompetitorSubgraph();
+
+  graph
+    .addNode("extractProductFeature", nodeExtractProductFeature)
+    .addNode(
+      "competitorSubgraph",
+      competitorSubgraphBuilder.compile({
+        checkpointer,
+      })
+    )
+
+    .addEdge(START, "extractProductFeature")
+    .addEdge("extractProductFeature", "competitorSubgraph")
+    .addEdge("competitorSubgraph", END);
+
   const finalGraph = graph.compile({
     checkpointer,
   });
@@ -130,4 +151,4 @@ const runWorkflow = async (input: InputStateType) => {
   return result;
 };
 
-export { compiledGraph, runWorkflow };
+export { compiledGraph, runWorkflow, getCompetitorSubgraph };

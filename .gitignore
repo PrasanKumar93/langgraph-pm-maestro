@@ -25,9 +25,12 @@ typings/
 node_modules/
 
 .env
-.env.test
+.env*
 
 dist/
 temp/
 # LangGraph API
 .langgraph_api
+
+
+**/videos/

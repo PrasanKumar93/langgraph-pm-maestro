@@ -15,6 +15,7 @@ import { nodeMiniPrd } from "./node-mini-prd.js";
 import { nodeMdToPdf } from "./node-md-to-pdf.js";
 import { toolSystemSalesForce } from "./tool-system-sales-force.js";
 import { toolSystemJira } from "./tool-system-jira.js";
+import { getCompetitorSubgraph } from "./competitor-matrix/workflow.js";
 
 const toolNodeWithGraphState = async (state: OverallStateType) => {
   setContextVariable("currentState", state);
@@ -63,16 +64,26 @@ const generateGraph = () => {
     stateSchema: OverallStateAnnotation,
   });
 
+  const competitorSubgraphBuilder = getCompetitorSubgraph();
+
   graph
     .addNode("extractProductFeature", nodeExtractProductFeature)
+    .addNode(
+      "competitorSubgraph",
+      competitorSubgraphBuilder.compile({
+        checkpointer,
+      })
+    )
     .addNode("customerDemandAnalysis", nodeCustomerDemandAnalysis)
     .addNode("tools", toolNodeWithGraphState)
+
     .addNode("effortEstimation", nodeEffortEstimation)
     .addNode("miniPrd", nodeMiniPrd)
     .addNode("markdownToPdf", nodeMdToPdf)
 
     .addEdge(START, "extractProductFeature")
-    .addEdge("extractProductFeature", "customerDemandAnalysis")
+    .addEdge("extractProductFeature", "competitorSubgraph")
+    .addEdge("competitorSubgraph", "customerDemandAnalysis")
     .addConditionalEdges("customerDemandAnalysis", shouldContinueTools, [
       "tools",
       "effortEstimation",
