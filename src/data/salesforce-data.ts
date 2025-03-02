@@ -1,0 +1,291 @@
+const data = [
+  // feature: "Real-time Analytics"
+  {
+    customer__c: "Acme Corporation",
+    painPoint__c:
+      "Unable to track user behavior and system performance in real-time",
+    featureRequestDetails__c:
+      "Need real-time analytics dashboard to monitor user engagement patterns and system metrics",
+    potentialDealSize__c: "150000",
+    industry__c: "E-commerce",
+    priority__c: "High",
+    currentWorkaround__c: "Running daily batch reports",
+    businessImpact__c:
+      "Missing opportunities to optimize user experience and prevent system bottlenecks",
+  },
+  {
+    customer__c: "TechStart Solutions",
+    painPoint__c:
+      "Delayed response to system issues and customer behavior changes",
+    featureRequestDetails__c:
+      "Real-time analytics for monitoring API performance and user interaction flows",
+    potentialDealSize__c: "200000",
+    industry__c: "SaaS",
+    priority__c: "Critical",
+    currentWorkaround__c: "Manual monitoring and hourly report generation",
+    businessImpact__c:
+      "Customer satisfaction affected by delayed issue detection",
+  },
+  {
+    customer__c: "Global Retail Inc",
+    painPoint__c:
+      "Cannot detect and respond to shopping cart abandonment in real-time",
+    featureRequestDetails__c:
+      "Real-time analytics for shopping behavior and immediate intervention capabilities",
+    potentialDealSize__c: "300000",
+    industry__c: "Retail",
+    priority__c: "Medium",
+    currentWorkaround__c: "End-of-day abandonment reports",
+    businessImpact__c:
+      "Lost sales opportunities due to delayed customer recovery actions",
+  },
+  {
+    customer__c: "DataDriven Corp",
+    painPoint__c: "Lack of real-time data visualization",
+    featureRequestDetails__c:
+      "Real-time dashboards for data visualization and decision-making",
+    potentialDealSize__c: "170000",
+    industry__c: "Finance",
+    priority__c: "High",
+    currentWorkaround__c: "Static reports",
+    businessImpact__c: "Delayed decision-making and missed opportunities",
+  },
+  {
+    customer__c: "QuickServe",
+    painPoint__c: "Slow response to service disruptions",
+    featureRequestDetails__c:
+      "Real-time alerts for service disruptions and performance issues",
+    potentialDealSize__c: "190000",
+    industry__c: "Hospitality",
+    priority__c: "Critical",
+    currentWorkaround__c: "Post-incident analysis",
+    businessImpact__c: "Customer dissatisfaction and revenue loss",
+  },
+  {
+    customer__c: "RetailX",
+    painPoint__c: "Inability to track customer journey in real-time",
+    featureRequestDetails__c:
+      "Real-time tracking of customer journey and behavior",
+    potentialDealSize__c: "210000",
+    industry__c: "Retail",
+    priority__c: "Medium",
+    currentWorkaround__c: "Periodic customer surveys",
+    businessImpact__c: "Inaccurate customer insights and engagement strategies",
+  },
+  // Feature: AI-driven Insights
+  {
+    customer__c: "Innovatech",
+    painPoint__c: "Lack of predictive insights for market trends",
+    featureRequestDetails__c:
+      "AI-driven insights to predict market trends and customer preferences",
+    potentialDealSize__c: "250000",
+    industry__c: "Technology",
+    priority__c: "High",
+    currentWorkaround__c: "Manual trend analysis",
+    businessImpact__c: "Missed opportunities for strategic market positioning",
+  },
+  {
+    customer__c: "Retail Giants",
+    painPoint__c: "Inability to forecast inventory needs accurately",
+    featureRequestDetails__c:
+      "AI-driven insights for accurate inventory forecasting",
+    potentialDealSize__c: "300000",
+    industry__c: "Retail",
+    priority__c: "Medium",
+    currentWorkaround__c: "Historical sales data analysis",
+    businessImpact__c:
+      "Overstock or stockouts affecting sales and customer satisfaction",
+  },
+  {
+    customer__c: "FutureTech",
+    painPoint__c: "Inability to predict product demand",
+    featureRequestDetails__c: "AI-driven demand forecasting tools",
+    potentialDealSize__c: "230000",
+    industry__c: "Technology",
+    priority__c: "High",
+    currentWorkaround__c: "Historical sales analysis",
+    businessImpact__c: "Overproduction or stockouts",
+  },
+  {
+    customer__c: "MarketLeaders",
+    painPoint__c: "Lack of competitive market insights",
+    featureRequestDetails__c: "AI tools for competitive market analysis",
+    potentialDealSize__c: "260000",
+    industry__c: "Retail",
+    priority__c: "Medium",
+    currentWorkaround__c: "Manual competitor analysis",
+    businessImpact__c: "Missed market opportunities",
+  },
+  {
+    customer__c: "TrendSetters",
+    painPoint__c: "Difficulty in identifying emerging trends",
+    featureRequestDetails__c: "AI-driven trend analysis and prediction",
+    potentialDealSize__c: "240000",
+    industry__c: "Fashion",
+    priority__c: "High",
+    currentWorkaround__c: "Trend reports",
+    businessImpact__c: "Late market entry",
+  },
+
+  // Feature: Enhanced Security
+  {
+    customer__c: "SecureNet",
+    painPoint__c: "Vulnerabilities in data protection",
+    featureRequestDetails__c:
+      "Enhanced security features for data encryption and access control",
+    potentialDealSize__c: "180000",
+    industry__c: "Finance",
+    priority__c: "Critical",
+    currentWorkaround__c: "Basic encryption methods",
+    businessImpact__c: "Risk of data breaches and loss of customer trust",
+  },
+  {
+    customer__c: "HealthSecure",
+    painPoint__c: "Compliance issues with data privacy regulations",
+    featureRequestDetails__c:
+      "Advanced security measures to ensure compliance with data privacy regulations",
+    potentialDealSize__c: "220000",
+    industry__c: "Healthcare",
+    priority__c: "High",
+    currentWorkaround__c: "Manual compliance checks",
+    businessImpact__c: "Potential legal issues and fines",
+  },
+  {
+    customer__c: "DataGuard",
+    painPoint__c: "Inadequate data encryption",
+    featureRequestDetails__c: "Advanced encryption solutions",
+    potentialDealSize__c: "200000",
+    industry__c: "Finance",
+    priority__c: "Critical",
+    currentWorkaround__c: "Basic encryption",
+    businessImpact__c: "Data breaches",
+  },
+  {
+    customer__c: "SecureHealth",
+    painPoint__c: "Weak access control systems",
+    featureRequestDetails__c: "Robust access control mechanisms",
+    potentialDealSize__c: "210000",
+    industry__c: "Healthcare",
+    priority__c: "High",
+    currentWorkaround__c: "Manual access checks",
+    businessImpact__c: "Unauthorized data access",
+  },
+  {
+    customer__c: "SafeNet",
+    painPoint__c: "Lack of data integrity checks",
+    featureRequestDetails__c: "Automated data integrity verification",
+    potentialDealSize__c: "190000",
+    industry__c: "IT",
+    priority__c: "Medium",
+    currentWorkaround__c: "Periodic manual checks",
+    businessImpact__c: "Data corruption",
+  },
+  // Feature: Customer Engagement Tools
+  {
+    customer__c: "EngagePlus",
+    painPoint__c: "Low customer engagement on digital platforms",
+    featureRequestDetails__c:
+      "Tools to enhance customer interaction and engagement on digital platforms",
+    potentialDealSize__c: "120000",
+    industry__c: "Marketing",
+    priority__c: "High",
+    currentWorkaround__c: "Basic email campaigns",
+    businessImpact__c: "Reduced customer retention and conversion rates",
+  },
+  {
+    customer__c: "ConnectNow",
+    painPoint__c: "Difficulty in personalizing customer communication",
+    featureRequestDetails__c:
+      "Advanced tools for personalized customer communication",
+    potentialDealSize__c: "160000",
+    industry__c: "Telecommunications",
+    priority__c: "Medium",
+    currentWorkaround__c: "Generic communication strategies",
+    businessImpact__c: "Lower customer satisfaction and loyalty",
+  },
+  {
+    customer__c: "EngageMax",
+    painPoint__c: "Limited customer feedback channels",
+    featureRequestDetails__c: "Multi-channel feedback tools",
+    potentialDealSize__c: "130000",
+    industry__c: "Retail",
+    priority__c: "High",
+    currentWorkaround__c: "Email surveys",
+    businessImpact__c: "Incomplete customer insights",
+  },
+  {
+    customer__c: "ConnectPro",
+    painPoint__c: "Inconsistent customer interaction",
+    featureRequestDetails__c: "Unified customer interaction platform",
+    potentialDealSize__c: "150000",
+    industry__c: "Telecommunications",
+    priority__c: "Medium",
+    currentWorkaround__c: "Separate communication tools",
+    businessImpact__c: "Fragmented customer experience",
+  },
+  {
+    customer__c: "InteractNow",
+    painPoint__c: "Low engagement on mobile platforms",
+    featureRequestDetails__c: "Mobile engagement enhancement tools",
+    potentialDealSize__c: "140000",
+    industry__c: "Marketing",
+    priority__c: "High",
+    currentWorkaround__c: "Basic mobile apps",
+    businessImpact__c: "Missed mobile user engagement",
+  },
+
+  // Feature: Automated Workflow
+  {
+    customer__c: "EfficientOps",
+    painPoint__c: "Time-consuming manual processes",
+    featureRequestDetails__c:
+      "Automated workflow solutions to streamline operations",
+    potentialDealSize__c: "140000",
+    industry__c: "Manufacturing",
+    priority__c: "Critical",
+    currentWorkaround__c: "Manual task management",
+    businessImpact__c: "Increased operational costs and delays",
+  },
+  {
+    customer__c: "Streamline Solutions",
+    painPoint__c: "Inefficient task allocation and tracking",
+    featureRequestDetails__c: "Automated task allocation and tracking system",
+    potentialDealSize__c: "180000",
+    industry__c: "Logistics",
+    priority__c: "High",
+    currentWorkaround__c: "Spreadsheet-based tracking",
+    businessImpact__c: "Missed deadlines and resource misallocation",
+  },
+  {
+    customer__c: "ProcessFlow",
+    painPoint__c: "Manual approval processes",
+    featureRequestDetails__c: "Automated approval workflows",
+    potentialDealSize__c: "160000",
+    industry__c: "Finance",
+    priority__c: "Critical",
+    currentWorkaround__c: "Email-based approvals",
+    businessImpact__c: "Approval delays",
+  },
+  {
+    customer__c: "TaskMaster",
+    painPoint__c: "Inefficient resource allocation",
+    featureRequestDetails__c: "Automated resource allocation tools",
+    potentialDealSize__c: "170000",
+    industry__c: "Logistics",
+    priority__c: "High",
+    currentWorkaround__c: "Manual resource planning",
+    businessImpact__c: "Resource wastage",
+  },
+  {
+    customer__c: "FlowTech",
+    painPoint__c: "Lack of process visibility",
+    featureRequestDetails__c: "Real-time process tracking solutions",
+    potentialDealSize__c: "150000",
+    industry__c: "Manufacturing",
+    priority__c: "Medium",
+    currentWorkaround__c: "Periodic process audits",
+    businessImpact__c: "Process inefficiencies",
+  },
+];
+
+export default data;

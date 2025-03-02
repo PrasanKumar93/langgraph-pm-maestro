@@ -5,6 +5,7 @@ import "dotenv/config";
 import { router } from "./routes.js";
 import { LoggerCls } from "./utils/logger.js";
 import { RedisWrapperST } from "./utils/redis.js";
+import { SalesforceST } from "./utils/salesforce.js";
 
 //#region Constants
 // process.env.PORT is dynamic port
@@ -29,6 +30,9 @@ app.listen(parseInt(PORT), async () => {
   LoggerCls.info(`Server running on port ${PORT}`);
   const redisWrapperST = RedisWrapperST.setInstance(REDIS_URL);
   //await redisWrapperST.connect();
+
+  const salesforceST = SalesforceST.getInstance();
+  await salesforceST.login();
 });
 
 //#region error handling

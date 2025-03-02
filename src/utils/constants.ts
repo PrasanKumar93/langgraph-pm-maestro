@@ -21,4 +21,8 @@ const STEP_EMOJIS = {
   launch: "🚀",
 };
 
-export { HTTP_STATUS_CODES, STEP_EMOJIS };
+const SALESFORCE_OBJECTS = {
+  TechnicalRequest: "TechnicalRequest__c", //used for local seeding
+};
+
+export { HTTP_STATUS_CODES, STEP_EMOJIS, SALESFORCE_OBJECTS };
