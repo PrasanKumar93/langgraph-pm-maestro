@@ -41,14 +41,26 @@ class SalesforceST {
     let retRecords: any[] = [];
     try {
       if (params) {
-        for (const [key, value] of Object.entries(params)) {
-          const regex = new RegExp(`:${key}`, "g");
+        for (let [key, value] of Object.entries(params)) {
+          value = value.toLowerCase();
+          //replace special chars with space
+          value = value.replace(/[^a-zA-Z0-9\s]/g, " ");
+
+          const regex = new RegExp(`${key}`, "g");
           query = query.replace(regex, value);
         }
       }
+      query = query.trim();
 
-      const result = await this.conn.query(query);
-      retRecords = result.records;
+      LoggerCls.log(query);
+
+      if (query.startsWith("FIND")) {
+        const searchResult = await this.conn.search(query);
+        retRecords = searchResult.searchRecords;
+      } else {
+        const queryResult = await this.conn.query(query);
+        retRecords = queryResult.records;
+      }
 
       LoggerCls.log(`Found ${retRecords.length} records in salesforce`);
     } catch (error) {
