@@ -8,6 +8,7 @@ import { StringOutputParser } from "@langchain/core/output_parsers";
 import { llmOpenAi } from "../llm-open-ai.js";
 import { checkErrorToStopWorkflow } from "../error.js";
 import { toolTavilySearch } from "../tool-tavily-search.js";
+import { LoggerCls } from "../../utils/logger.js";
 
 const getSystemPrompt = (state: OverallStateType) => {
   let competitorName = state.pendingProcessCompetitorList[0];
@@ -47,12 +48,6 @@ const getSystemPrompt = (state: OverallStateType) => {
 const updateState = async (state: OverallStateType, rawResult: any) => {
   let competitorName = state.pendingProcessCompetitorList[0];
 
-  const detail = `Competitor Feature Details Node executed: ${competitorName}!`;
-  state.messages.push(new SystemMessage(detail));
-  if (state.onNotifyProgress) {
-    await state.onNotifyProgress(detail);
-  }
-
   if (state.toolTavilySearchProcessed) {
     // rawResult = string (after tool call)
     if (rawResult) {
@@ -60,11 +55,13 @@ const updateState = async (state: OverallStateType, rawResult: any) => {
         competitorName: competitorName,
         featureDetails: rawResult,
       });
-      state.messages.push(
-        new SystemMessage(
-          `Competitor ${competitorName} feature details fetched`
-        )
-      );
+
+      const msg = `Competitor ${competitorName} feature details fetched`;
+      state.messages.push(new SystemMessage(msg));
+      if (state.onNotifyProgress) {
+        await state.onNotifyProgress(msg);
+      }
+      LoggerCls.info(msg); //DEBUG
     } else {
       state.error = `No data found for competitor ${competitorName}`;
     }
@@ -73,13 +70,24 @@ const updateState = async (state: OverallStateType, rawResult: any) => {
     state.pendingProcessCompetitorList.shift();
 
     if (state.pendingProcessCompetitorList.length === 0) {
-      state.messages.push(new SystemMessage("All competitors processed"));
+      const msg2 = "All competitors processed";
+      state.messages.push(new SystemMessage(msg2));
+      if (state.onNotifyProgress) {
+        await state.onNotifyProgress(msg2);
+      }
     }
 
     //reset tool status for next competitor
     state.toolTavilySearchProcessed = false;
     state.toolTavilySearchData = "";
   } else {
+    const detail = `Competitor Feature Details Node (before tool call): ${competitorName}!`;
+    state.messages.push(new SystemMessage(detail));
+    if (state.onNotifyProgress) {
+      await state.onNotifyProgress(detail);
+    }
+    LoggerCls.info(detail); //DEBUG
+
     // rawResult = AI Chunk Message (before tool call)
     state.messages.push(rawResult);
   }

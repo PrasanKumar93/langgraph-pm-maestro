@@ -19,6 +19,8 @@ interface IUploadFileToSlack {
   threadTs: string;
   channelId: string;
   filePath: string;
+  fileComment: string;
+  fileTitle: string;
   say: slackBoltPkg.SayFn;
 }
 interface IReplyWithLastMessage {
@@ -44,6 +46,8 @@ const getSlackApp = () => {
 
 const uploadFileToSlack = async ({
   filePath,
+  fileComment,
+  fileTitle,
   threadTs,
   channelId,
   say,
@@ -56,12 +60,10 @@ const uploadFileToSlack = async ({
       await app.client.files.uploadV2({
         thread_ts: threadTs,
         channel_id: channelId,
-        initial_comment:
-          STEP_EMOJIS.complete +
-          " Here's your Mini Product Requirements Document:",
+        initial_comment: fileComment,
         file: filePath,
         filename: fileName,
-        title: "Mini PRD",
+        title: fileTitle,
       });
     } catch (error) {
       await say({
@@ -122,6 +124,20 @@ const processSlackMessage = async ({
     //success case
     await uploadFileToSlack({
       filePath: result.outputPRDFilePath,
+      fileComment:
+        STEP_EMOJIS.complete +
+        " Here's your Mini Product Requirements Document:",
+      fileTitle: "Mini PRD",
+      threadTs,
+      channelId,
+      say,
+    });
+
+    await uploadFileToSlack({
+      filePath: result.competitorAnalysisPdfFilePath,
+      fileComment:
+        STEP_EMOJIS.complete + " Here's your Competitor Analysis Document:",
+      fileTitle: "Competitor Analysis",
       threadTs,
       channelId,
       say,

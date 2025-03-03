@@ -19,12 +19,16 @@ const nodeMiniPrd = async (state: OverallStateType) => {
 INPUT CONTEXT:
 1. Product Feature: "${state.productFeature}"
 
-2. Market Analysis:
+2. Competitor Analysis:
+
+ ${state.competitorTableMatrix}
+
+3. Market Analysis:
    The following data from Jira and Salesforce provides customer insights:
-   - Customer pain points and specific feature requests
-   - Deal sizes and target industries
-   - Current workarounds and their business impact
-   - Priority levels across industries
+   - Data may show customer pain points, feature requests, potential deal sizes and industries
+   - Data may show current customer workarounds and their business impact, and priority levels across different industries
+
+   Note: Jira or Salesforce data is not always complete, accurate or may be empty, so make sure to use the competitor data to make the best feature analysis.
 
 Jira Data: 
 ${jiraDataYaml}
@@ -32,7 +36,7 @@ ${jiraDataYaml}
 Salesforce Data: 
 ${salesforceDataYaml}
 
-3. Engineering Effort Analysis:
+4. Engineering Effort Analysis:
    Following is the estimation data that includes T-shirt sizing and component breakdown:
    - T-shirt size (XS to XL) with person-months and rationale
    - Detailed component breakdown with effort, impact, and complexity
@@ -40,27 +44,28 @@ ${salesforceDataYaml}
 Effort Estimation Data:
 ${effortEstimationYaml}
 
+---
 REQUIRED OUTPUT:
-Create a structured mini-PRD (3-4 pages) with the following sections:
+Create a structured mini-PRD (4-10 pages) with the following sections:
 
-1. Executive Summary
+A. Executive Summary
    - Product overview
    - Market opportunity
    - Key recommendations
 
-2. Customer Analysis
+B. Customer Analysis (use Jira and Salesforce data if available from Market Analysis in input context )
    - Target audience profile
    - Pain points and needs analysis
    - Current workarounds and their impact
    - Feature requests prioritization
 
-3. Product Strategy
+C. Product Strategy
    - Goals and success metrics
-   - Competitor analysis
+   - Competitor analysis (use full "Competitor Analysis" provided in input context)
    - Proposed solution and key differentiators
    - MVP scope recommendation
 
-4. Implementation Strategy
+D. Implementation Strategy
    - Effort estimation summary
    - Risk assessment
    - Prioritized capability roadmap using RICE framework

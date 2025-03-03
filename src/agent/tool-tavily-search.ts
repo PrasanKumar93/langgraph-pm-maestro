@@ -9,6 +9,7 @@ import {
 import { SystemMessage } from "@langchain/core/messages";
 import { z } from "zod";
 import { TavilySearchResults } from "@langchain/community/tools/tavily_search";
+import { LoggerCls } from "../utils/logger.js";
 
 const tavilyApiKey = process.env.TAVILY_API_KEY;
 
@@ -25,9 +26,13 @@ const fetchTavilySearchResults = async (
   let errorMessage = "";
 
   if (tavilyApiKey) {
-    searchResults = await tavilySearch.invoke({
-      input: input.query,
-    });
+    try {
+      searchResults = await tavilySearch.invoke({
+        input: input.query,
+      });
+    } catch (error) {
+      errorMessage = LoggerCls.getPureError(error);
+    }
   } else {
     errorMessage = "TAVILY_API_KEY is not set";
   }

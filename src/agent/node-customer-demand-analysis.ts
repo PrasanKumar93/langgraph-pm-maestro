@@ -51,6 +51,7 @@ Current progress:
   if (state.onNotifyProgress) {
     await state.onNotifyProgress(STEP_EMOJIS.analysis + " " + detail);
   }
+  // rawResult = AI Chunk Message
   state.messages.push(result);
   //#endregion
 

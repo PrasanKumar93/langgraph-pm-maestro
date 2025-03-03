@@ -55,7 +55,7 @@ const getJiraData = async (input: any, config: LangGraphRunnableConfig) => {
   state.systemJiraDataList = []; //sampleData;
   state.toolSystemJiraProcessed = true;
 
-  const detail = `Extracted Jira data`;
+  const detail = `Extracted Jira data : ${state.systemJiraDataList.length}`;
   state.messages.push(new SystemMessage(detail));
   if (state.onNotifyProgress) {
     await state.onNotifyProgress("-----> " + detail); //sub step

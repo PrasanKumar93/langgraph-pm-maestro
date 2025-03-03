@@ -8,6 +8,18 @@ import { JsonOutputParser } from "@langchain/core/output_parsers";
 import { llmOpenAi } from "../llm-open-ai.js";
 import { checkErrorToStopWorkflow } from "../error.js";
 import { toolTavilySearch } from "../tool-tavily-search.js";
+import { LoggerCls } from "../../utils/logger.js";
+
+const reduceCompetitorList = (competitorList: string[]) => {
+  let retList = competitorList;
+  let count = parseInt(process.env.MAX_COMPETITOR_LIST_COUNT || "0");
+
+  if (count > 0) {
+    retList = competitorList.slice(0, count);
+  }
+
+  return retList;
+};
 
 const getSystemPrompt = (state: OverallStateType) => {
   const SYSTEM_PROMPT = `
@@ -44,26 +56,33 @@ const getSystemPrompt = (state: OverallStateType) => {
 };
 
 const updateState = async (state: OverallStateType, rawResult: any) => {
-  const detail = `Competitor List Node executed!`;
-  state.messages.push(new SystemMessage(detail));
-  if (state.onNotifyProgress) {
-    await state.onNotifyProgress(detail);
-  }
-
   if (state.toolTavilySearchProcessed) {
     // rawResult = JSON (after tool call)
     const jsonResult = rawResult;
     if (jsonResult?.data) {
-      const competitorList = jsonResult.data.split(",");
+      let competitorList = jsonResult.data.split(",");
+      competitorList = reduceCompetitorList(competitorList);
+
       state.competitorList = competitorList;
       state.pendingProcessCompetitorList = competitorList;
-      state.messages.push(
-        new SystemMessage("Competitors found: " + competitorList.length)
-      );
+
+      const msg =
+        "Competitors found (after tool call): " + competitorList.join(", ");
+      state.messages.push(new SystemMessage(msg));
+      if (state.onNotifyProgress) {
+        await state.onNotifyProgress(msg);
+      }
+      LoggerCls.info("Competitor List: " + competitorList); //DEBUG
     } else if (jsonResult?.error) {
       state.error = jsonResult.error;
     }
   } else {
+    const detail = `Competitor List Node (before tool call)!`;
+    state.messages.push(new SystemMessage(detail));
+    if (state.onNotifyProgress) {
+      await state.onNotifyProgress(detail);
+    }
+
     // rawResult = AI Chunk Message (before tool call)
     state.messages.push(rawResult);
   }
