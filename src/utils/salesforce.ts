@@ -22,12 +22,16 @@ class SalesforceST {
 
   public async login(): Promise<void> {
     try {
-      const username = process.env.SF_USERNAME || "";
-      const password = process.env.SF_PASSWORD || "";
-      const securityToken = process.env.SF_SECURITY_TOKEN || "";
+      if (!this.conn.accessToken) {
+        LoggerCls.log("No active Salesforce session, attempting to login...");
 
-      await this.conn.login(username, password + securityToken);
-      LoggerCls.log("Logged into Salesforce successfully.");
+        const username = process.env.SF_USERNAME || "";
+        const password = process.env.SF_PASSWORD || "";
+        const securityToken = process.env.SF_SECURITY_TOKEN || "";
+
+        await this.conn.login(username, password + securityToken);
+        LoggerCls.log("Logged into Salesforce successfully.");
+      }
     } catch (error) {
       LoggerCls.error("Salesforce Login Error:", error);
       throw error;
@@ -38,6 +42,7 @@ class SalesforceST {
     query: string,
     params?: Record<string, any>
   ): Promise<any[]> {
+    await this.login();
     let retRecords: any[] = [];
     try {
       if (params) {
@@ -56,15 +61,16 @@ class SalesforceST {
 
       if (query.startsWith("FIND")) {
         const searchResult = await this.conn.search(query);
-        retRecords = searchResult.searchRecords;
+        retRecords = searchResult?.searchRecords || [];
       } else {
         const queryResult = await this.conn.query(query);
-        retRecords = queryResult.records;
+        retRecords = queryResult?.records || [];
       }
 
       LoggerCls.log(`Found ${retRecords.length} records in salesforce`);
     } catch (error) {
-      LoggerCls.error("Salesforce Query Error:", error);
+      const err = LoggerCls.getPureError(error);
+      LoggerCls.error("Salesforce Query Error:", err);
       throw error;
     }
     return retRecords;

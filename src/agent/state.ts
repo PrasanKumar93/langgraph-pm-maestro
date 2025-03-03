@@ -36,7 +36,6 @@ const OverallStateAnnotation = Annotation.Root({
   ...CompetitorMatrixAnnotation.spec,
   ...tavilySearchAnnotation.spec,
   productFeature: Annotation<string>,
-  productName: Annotation<string>,
   systemSalesForceDataList: Annotation<any[]>,
   systemJiraDataList: Annotation<any[]>,
   toolSystemSalesForceProcessed: Annotation<boolean>,

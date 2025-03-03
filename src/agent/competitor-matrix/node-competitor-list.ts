@@ -12,10 +12,9 @@ import { toolTavilySearch } from "../tool-tavily-search.js";
 const getSystemPrompt = (state: OverallStateType) => {
   const SYSTEM_PROMPT = `
     You are an experienced product manager and software engineer.
-    Given the product name and feature, perform a web search using the Tavily Search API to identify a list of competitors offering the particular feature.
+    Given the product feature, perform a web search using the Tavily Search API to identify a list of software competitors offering the particular feature.
 
     Input:
-    - Product Name: ${state.productName}
     - Product Feature: ${state.productFeature}
 
     Output:
@@ -24,7 +23,7 @@ const getSystemPrompt = (state: OverallStateType) => {
 
     ---
 
-    Example: Say Product Name is "Redis" and Product Feature is "Real time analytics"
+    Example: Say Product Feature is "Vector Search"
 
     Response format in YAML style (but return as JSON):
       "data": "Pinecone, MongoDB, Cassandra, ...so on"
@@ -55,10 +54,11 @@ const updateState = async (state: OverallStateType, rawResult: any) => {
     // rawResult = JSON (after tool call)
     const jsonResult = rawResult;
     if (jsonResult?.data) {
-      state.competitorList = jsonResult.data.split(",");
-      state.pendingProcessCompetitorList = state.competitorList;
+      const competitorList = jsonResult.data.split(",");
+      state.competitorList = competitorList;
+      state.pendingProcessCompetitorList = competitorList;
       state.messages.push(
-        new SystemMessage("Competitors found: " + jsonResult.data)
+        new SystemMessage("Competitors found: " + competitorList.length)
       );
     } else if (jsonResult?.error) {
       state.error = jsonResult.error;

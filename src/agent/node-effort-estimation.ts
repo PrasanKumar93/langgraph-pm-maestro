@@ -11,11 +11,8 @@ import { checkErrorToStopWorkflow } from "./error.js";
 import { STEP_EMOJIS } from "../utils/constants.js";
 
 const nodeEffortEstimation = async (state: OverallStateType) => {
-  if (
-    !state.systemJiraDataList?.length ||
-    !state.systemSalesForceDataList?.length
-  ) {
-    state.error = "No data found in Jira or Salesforce";
+  if (!state.competitorTableMatrix?.length) {
+    state.error = "No competitor data found";
     checkErrorToStopWorkflow(state);
   }
 
@@ -26,11 +23,14 @@ const nodeEffortEstimation = async (state: OverallStateType) => {
       You are an experienced product manager and software engineer.
 Given the product feature "${state.productFeature}", estimate the development effort required.
 
+Consider the following competitor data:
+${state.competitorTableMatrix}
+
 Consider the following customer data and market context from the Jira and Salesforce data when making your estimation:
-- Data shows customer pain points and feature requests
-- Data shows potential deal sizes and industries
-- Data shows current customer workarounds and their business impact
-- Data shows priority levels across different industries
+- Data may show customer pain points, feature requests, potential deal sizes and industries
+- Data may show current customer workarounds and their business impact, and priority levels across different industries
+
+Note: Jira or Salesforce data is not always complete, accurate or may be empty, so make sure to use the competitor data to make the best estimation.
 
 Return your output as a JSON object with exactly 2 keys:
 1. tshirtSize with properties:

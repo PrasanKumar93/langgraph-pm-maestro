@@ -10,7 +10,7 @@ import { SystemMessage } from "@langchain/core/messages";
 import { z } from "zod";
 
 const getJiraData = async (input: any, config: LangGraphRunnableConfig) => {
-  let returnData = [
+  let sampleData = [
     {
       customer: "DataFlow Systems",
       painPoint: "Lack of real-time monitoring for data pipeline failures",
@@ -52,7 +52,7 @@ const getJiraData = async (input: any, config: LangGraphRunnableConfig) => {
   //#region update shared state
   const state = getContextVariable("currentState") as OverallStateType;
 
-  state.systemJiraDataList = returnData;
+  state.systemJiraDataList = []; //sampleData;
   state.toolSystemJiraProcessed = true;
 
   const detail = `Extracted Jira data`;
