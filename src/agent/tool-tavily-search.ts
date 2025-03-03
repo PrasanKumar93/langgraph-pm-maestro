@@ -9,8 +9,11 @@ import {
 import { SystemMessage } from "@langchain/core/messages";
 import { z } from "zod";
 import { TavilySearchResults } from "@langchain/community/tools/tavily_search";
+import { JsonOutputParser } from "@langchain/core/output_parsers";
+
 import { LoggerCls } from "../utils/logger.js";
 import { STEP_EMOJIS } from "../utils/constants.js";
+import { getYamlFromJson } from "../utils/misc.js";
 
 const tavilyApiKey = process.env.TAVILY_API_KEY;
 
@@ -23,20 +26,29 @@ const fetchTavilySearchResults = async (
   input: any,
   config: LangGraphRunnableConfig
 ) => {
-  let searchResults = "";
+  let searchResults: Record<string, any> = {};
+  let searchResultsYaml = "";
   let errorMessage = "";
 
   if (tavilyApiKey) {
     try {
-      searchResults = await tavilySearch.invoke({
+      const outputParser = new JsonOutputParser();
+      const chain = tavilySearch.pipe(outputParser);
+      searchResults = await chain.invoke({
         input: input.query,
       });
+
+      if (Array.isArray(searchResults)) {
+        searchResultsYaml = getYamlFromJson(searchResults);
+      }
     } catch (error) {
       errorMessage = LoggerCls.getPureError(error);
     }
   } else {
     errorMessage = "TAVILY_API_KEY is not set";
   }
+
+  LoggerCls.info("Tavily search query: " + input.query);
 
   //#region update shared state
   const state = getContextVariable("currentState") as OverallStateType;
@@ -47,7 +59,7 @@ const fetchTavilySearchResults = async (
       query: 
         ${input.query} 
       results: 
-        ${searchResults}`;
+        ${searchResultsYaml}`;
   } else if (errorMessage) {
     messageDetail = `Tavily search failed
       query: 

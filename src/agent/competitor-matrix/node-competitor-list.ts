@@ -65,7 +65,7 @@ const updateState = async (state: OverallStateType, rawResult: any) => {
       competitorList = reduceCompetitorList(competitorList);
 
       state.competitorList = competitorList;
-      state.pendingProcessCompetitorList = competitorList;
+      state.pendingProcessCompetitorList = [...competitorList];
 
       const msg =
         STEP_EMOJIS.subStep +

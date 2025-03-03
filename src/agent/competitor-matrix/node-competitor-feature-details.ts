@@ -41,7 +41,12 @@ const getSystemPrompt = (state: OverallStateType) => {
       ${state.toolTavilySearchData}
 
     ---  
-    Note: Do not call tavily search again if it has already been called.
+
+    IMPORTANT: You MUST use the Tavily search tool to get the latest information for EVERY competitor, even if you think you already know about them. Always call the toolTavilySearch tool first before providing any information.
+    
+    Do not rely just on your internal knowledge about competitors. Always search for the most up-to-date information using the Tavily search tool, later use your internal knowledge to refine the information.
+    
+    Note: Do not call tavily search again if it has already been called for the current competitor, check the Tool Status.
 `;
   return SYSTEM_PROMPT;
 };
@@ -86,7 +91,7 @@ const updateState = async (state: OverallStateType, rawResult: any) => {
   } else {
     const detail =
       STEP_EMOJIS.subStep +
-      `${competitorName} : Competitor Feature Details Node (before tool call) !`;
+      `${competitorName} : Competitor Feature Details Node !`;
     state.messages.push(new SystemMessage(detail));
     // if (state.onNotifyProgress) {
     //   await state.onNotifyProgress(detail);
