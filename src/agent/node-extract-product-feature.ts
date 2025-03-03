@@ -7,6 +7,7 @@ import { JsonOutputParser } from "@langchain/core/output_parsers";
 
 import { llmOpenAi } from "./llm-open-ai.js";
 import { checkErrorToStopWorkflow } from "./error.js";
+import { STEP_EMOJIS } from "../utils/constants.js";
 
 const initializeState = (state: OverallStateType) => {
   state.productFeature = "";
@@ -85,10 +86,10 @@ IMPORTANT: Do not modify the core concept of the product feature. Extract exactl
   if (result.productFeature) {
     state.productFeature = result.productFeature;
 
-    const detail = `productFeature: ${result.productFeature}`;
+    const detail = `productFeature: \`${result.productFeature}\``;
     state.messages.push(new SystemMessage(detail));
     if (state.onNotifyProgress) {
-      await state.onNotifyProgress("-----> " + detail); // sub step
+      await state.onNotifyProgress(STEP_EMOJIS.subStep + detail);
     }
   } else if (result.error) {
     state.error = result.error;

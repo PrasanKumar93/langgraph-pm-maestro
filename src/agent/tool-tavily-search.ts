@@ -10,6 +10,7 @@ import { SystemMessage } from "@langchain/core/messages";
 import { z } from "zod";
 import { TavilySearchResults } from "@langchain/community/tools/tavily_search";
 import { LoggerCls } from "../utils/logger.js";
+import { STEP_EMOJIS } from "../utils/constants.js";
 
 const tavilyApiKey = process.env.TAVILY_API_KEY;
 
@@ -60,8 +61,8 @@ const fetchTavilySearchResults = async (
   state.messages.push(new SystemMessage(messageDetail));
   if (state.onNotifyProgress) {
     await state.onNotifyProgress(
-      "-----> " + "Tavily search done for query: " + input.query
-    ); //sub step
+      STEP_EMOJIS.tool + "Tavily search for query: " + input.query
+    );
   }
 
   state.toolTavilySearchProcessed = true;

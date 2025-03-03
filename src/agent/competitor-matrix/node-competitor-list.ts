@@ -9,6 +9,7 @@ import { llmOpenAi } from "../llm-open-ai.js";
 import { checkErrorToStopWorkflow } from "../error.js";
 import { toolTavilySearch } from "../tool-tavily-search.js";
 import { LoggerCls } from "../../utils/logger.js";
+import { STEP_EMOJIS } from "../../utils/constants.js";
 
 const reduceCompetitorList = (competitorList: string[]) => {
   let retList = competitorList;
@@ -67,7 +68,10 @@ const updateState = async (state: OverallStateType, rawResult: any) => {
       state.pendingProcessCompetitorList = competitorList;
 
       const msg =
-        "Competitors found (after tool call): " + competitorList.join(", ");
+        STEP_EMOJIS.subStep +
+        "Competitors found : `" +
+        competitorList.join(", ") +
+        "`";
       state.messages.push(new SystemMessage(msg));
       if (state.onNotifyProgress) {
         await state.onNotifyProgress(msg);
@@ -77,7 +81,7 @@ const updateState = async (state: OverallStateType, rawResult: any) => {
       state.error = jsonResult.error;
     }
   } else {
-    const detail = `Competitor List Node (before tool call)!`;
+    const detail = STEP_EMOJIS.subGraph + "Competitor Analysis";
     state.messages.push(new SystemMessage(detail));
     if (state.onNotifyProgress) {
       await state.onNotifyProgress(detail);

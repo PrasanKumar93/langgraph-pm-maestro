@@ -99,7 +99,7 @@ Focus on providing actionable insights that will help stakeholders make informed
   const detail = `Mini PRD markdown generated`;
   state.messages.push(new SystemMessage(detail));
   if (state.onNotifyProgress) {
-    await state.onNotifyProgress(STEP_EMOJIS.docWriting + " " + detail);
+    await state.onNotifyProgress(STEP_EMOJIS.docWriting + detail);
   }
   //#endregion
 

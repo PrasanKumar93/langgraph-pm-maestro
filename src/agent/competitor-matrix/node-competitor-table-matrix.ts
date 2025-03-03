@@ -7,6 +7,7 @@ import { StringOutputParser } from "@langchain/core/output_parsers";
 
 import { llmOpenAi } from "../llm-open-ai.js";
 import { checkErrorToStopWorkflow } from "../error.js";
+import { STEP_EMOJIS } from "../../utils/constants.js";
 
 const getSystemPrompt = (state: OverallStateType) => {
   const inputStr = state.competitorFeatureDetailsList
@@ -47,7 +48,8 @@ const getSystemPrompt = (state: OverallStateType) => {
 
 const updateState = async (state: OverallStateType, rawResult: any) => {
   if (rawResult) {
-    const detail = `Competitor Table Matrix created!`;
+    const detail =
+      STEP_EMOJIS.competitorTable + "Competitor Table Matrix created";
     state.messages.push(new SystemMessage(detail));
     if (state.onNotifyProgress) {
       await state.onNotifyProgress(detail);

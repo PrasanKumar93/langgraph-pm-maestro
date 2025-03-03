@@ -67,8 +67,9 @@ const uploadFileToSlack = async ({
       });
     } catch (error) {
       await say({
-        text: STEP_EMOJIS.error + " Error uploading the PDF. Please try again.",
+        text: STEP_EMOJIS.error + "Error uploading the PDF. Please try again.",
         thread_ts: threadTs,
+        mrkdwn: true,
       });
       LoggerCls.error("Error uploading file:", error);
     }
@@ -90,6 +91,7 @@ const replyWithLastMessage = async ({
     await say({
       text: text,
       thread_ts: threadTs,
+      mrkdwn: true,
     });
   }
 };
@@ -102,8 +104,9 @@ const processSlackMessage = async ({
 }: IProcessRequest) => {
   //Acknowledge user
   await say({
-    text: `${STEP_EMOJIS.start} Starting Feature Request Analysis`,
+    text: `${STEP_EMOJIS.start}Starting Feature Request Analysis`,
     thread_ts: threadTs,
+    mrkdwn: true,
   });
 
   const input: InputStateType = {
@@ -113,6 +116,7 @@ const processSlackMessage = async ({
       await say({
         text: detail,
         thread_ts: threadTs,
+        mrkdwn: true,
       });
     },
   };
@@ -126,7 +130,7 @@ const processSlackMessage = async ({
       filePath: result.outputPRDFilePath,
       fileComment:
         STEP_EMOJIS.complete +
-        " Here's your Mini Product Requirements Document:",
+        "Here's your Mini Product Requirements Document:",
       fileTitle: "Mini PRD",
       threadTs,
       channelId,
@@ -136,7 +140,7 @@ const processSlackMessage = async ({
     await uploadFileToSlack({
       filePath: result.competitorAnalysisPdfFilePath,
       fileComment:
-        STEP_EMOJIS.complete + " Here's your Competitor Analysis Document:",
+        STEP_EMOJIS.complete + "Here's your Competitor Analysis Document:",
       fileTitle: "Competitor Analysis",
       threadTs,
       channelId,
@@ -144,7 +148,11 @@ const processSlackMessage = async ({
     });
   } else if (result.error) {
     //error case
-    await say(STEP_EMOJIS.error + " " + result.error);
+    await say({
+      text: STEP_EMOJIS.error + result.error,
+      thread_ts: threadTs,
+      mrkdwn: true,
+    });
   } else if (result.messages?.length) {
     //interrupt (intermediate error) case
     await replyWithLastMessage({

@@ -9,6 +9,8 @@ import {
 import { SystemMessage } from "@langchain/core/messages";
 import { z } from "zod";
 
+import { STEP_EMOJIS } from "../utils/constants.js";
+
 const getJiraData = async (input: any, config: LangGraphRunnableConfig) => {
   let sampleData = [
     {
@@ -58,7 +60,7 @@ const getJiraData = async (input: any, config: LangGraphRunnableConfig) => {
   const detail = `Extracted Jira data : ${state.systemJiraDataList.length}`;
   state.messages.push(new SystemMessage(detail));
   if (state.onNotifyProgress) {
-    await state.onNotifyProgress("-----> " + detail); //sub step
+    await state.onNotifyProgress(STEP_EMOJIS.tool + detail);
   }
 
   setContextVariable("currentState", state);

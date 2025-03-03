@@ -8,7 +8,7 @@ import { STEP_EMOJIS } from "../utils/constants.js";
 const checkErrorToStopWorkflow = (state: OverallStateType) => {
   if (state.error) {
     const errorMsg =
-      STEP_EMOJIS.error + " " + "Error: " + LoggerCls.getPureError(state.error);
+      STEP_EMOJIS.error + "Error: " + LoggerCls.getPureError(state.error);
 
     state.messages.push(new SystemMessage(errorMsg));
     throw new NodeInterrupt(errorMsg);

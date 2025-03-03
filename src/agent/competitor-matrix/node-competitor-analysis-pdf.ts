@@ -130,10 +130,10 @@ const nodeCompetitorAnalysisPdf = async (state: OverallStateType) => {
 
   if (markdownContent) {
     const filePath = await generatePdf(markdownContent);
-    const detail = `Competitor Analysis PDF created : ${filePath}`;
-    state.messages.push(new SystemMessage(detail));
+    const detail = STEP_EMOJIS.pdf + `Competitor Analysis PDF created`;
+    state.messages.push(new SystemMessage(detail + " : " + filePath));
     if (state.onNotifyProgress) {
-      await state.onNotifyProgress(STEP_EMOJIS.pdf + " " + detail);
+      await state.onNotifyProgress(detail);
     }
     state.competitorAnalysisPdfFilePath = filePath;
   }

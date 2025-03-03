@@ -49,7 +49,7 @@ Current progress:
   const detail = `Customer demand analysis`;
   state.messages.push(new SystemMessage(detail));
   if (state.onNotifyProgress) {
-    await state.onNotifyProgress(STEP_EMOJIS.analysis + " " + detail);
+    await state.onNotifyProgress(STEP_EMOJIS.analysis + detail);
   }
   // rawResult = AI Chunk Message
   state.messages.push(result);

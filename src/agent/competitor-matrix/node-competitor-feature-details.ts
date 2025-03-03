@@ -9,6 +9,7 @@ import { llmOpenAi } from "../llm-open-ai.js";
 import { checkErrorToStopWorkflow } from "../error.js";
 import { toolTavilySearch } from "../tool-tavily-search.js";
 import { LoggerCls } from "../../utils/logger.js";
+import { STEP_EMOJIS } from "../../utils/constants.js";
 
 const getSystemPrompt = (state: OverallStateType) => {
   let competitorName = state.pendingProcessCompetitorList[0];
@@ -56,7 +57,9 @@ const updateState = async (state: OverallStateType, rawResult: any) => {
         featureDetails: rawResult,
       });
 
-      const msg = `Competitor ${competitorName} feature details fetched`;
+      const msg =
+        STEP_EMOJIS.company +
+        `*${competitorName}* : Competitor Feature Details fetched`;
       state.messages.push(new SystemMessage(msg));
       if (state.onNotifyProgress) {
         await state.onNotifyProgress(msg);
@@ -70,7 +73,7 @@ const updateState = async (state: OverallStateType, rawResult: any) => {
     state.pendingProcessCompetitorList.shift();
 
     if (state.pendingProcessCompetitorList.length === 0) {
-      const msg2 = "All competitors processed";
+      const msg2 = STEP_EMOJIS.allCompany + "All competitors processed";
       state.messages.push(new SystemMessage(msg2));
       if (state.onNotifyProgress) {
         await state.onNotifyProgress(msg2);
@@ -81,11 +84,13 @@ const updateState = async (state: OverallStateType, rawResult: any) => {
     state.toolTavilySearchProcessed = false;
     state.toolTavilySearchData = "";
   } else {
-    const detail = `Competitor Feature Details Node (before tool call): ${competitorName}!`;
+    const detail =
+      STEP_EMOJIS.subStep +
+      `${competitorName} : Competitor Feature Details Node (before tool call) !`;
     state.messages.push(new SystemMessage(detail));
-    if (state.onNotifyProgress) {
-      await state.onNotifyProgress(detail);
-    }
+    // if (state.onNotifyProgress) {
+    //   await state.onNotifyProgress(detail);
+    // }
     LoggerCls.info(detail); //DEBUG
 
     // rawResult = AI Chunk Message (before tool call)

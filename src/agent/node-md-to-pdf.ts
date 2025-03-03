@@ -93,7 +93,7 @@ const nodeMdToPdf = async (state: OverallStateType) => {
     const detail = `Markdown to PDF conversion completed`;
     state.messages.push(new SystemMessage(detail));
     if (state.onNotifyProgress) {
-      await state.onNotifyProgress(STEP_EMOJIS.pdf + " " + detail);
+      await state.onNotifyProgress(STEP_EMOJIS.pdf + detail);
     }
     state.outputPRDFilePath = filePath;
   }

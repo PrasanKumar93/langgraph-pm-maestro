@@ -7,18 +7,24 @@ const HTTP_STATUS_CODES = {
 };
 
 const STEP_EMOJIS = {
-  error: "❌",
+  error: "❌ ",
 
-  start: "🎬",
-  analysis: "🔍",
-  estimation: "🎯",
-  docWriting: "✍️",
-  pdf: "📄",
-  complete: "✅",
+  start: "🎬 ",
+  analysis: "🔍 ",
+  estimation: "🎯 ",
+  docWriting: "✍️ ",
+  pdf: "📄 ",
+  complete: "✅ ",
+  subGraph: "🧩 ",
+  company: "🏢 ",
+  subStep: "-----> ",
+  competitorTable: "📊 ",
+  tool: "🔧 ",
+  allCompany: "🌐 ",
 
-  competitorTable: "📊",
-  review: "👀",
-  launch: "🚀",
+  review: "👀 ",
+  launch: "🚀 ",
+  star: "⭐️ ",
 };
 
 const SALESFORCE_OBJECTS = {

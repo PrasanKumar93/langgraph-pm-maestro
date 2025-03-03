@@ -95,7 +95,7 @@ Ensure your output is valid JSON with no extra text or markdown formatting.
   const detail = `Effort estimation completed`;
   state.messages.push(new SystemMessage(detail));
   if (state.onNotifyProgress) {
-    await state.onNotifyProgress(STEP_EMOJIS.estimation + " " + detail);
+    await state.onNotifyProgress(STEP_EMOJIS.estimation + detail);
   }
   //#endregion
 
