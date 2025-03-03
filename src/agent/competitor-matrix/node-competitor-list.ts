@@ -77,6 +77,10 @@ const updateState = async (state: OverallStateType, rawResult: any) => {
         await state.onNotifyProgress(msg);
       }
       LoggerCls.info("Competitor List: " + competitorList); //DEBUG
+
+      //reset tool status for next node
+      state.toolTavilySearchProcessed = false;
+      state.toolTavilySearchData = "";
     } else if (jsonResult?.error) {
       state.error = jsonResult.error;
     }
