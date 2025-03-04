@@ -7,6 +7,7 @@ import { generateMiniPrdFile } from "./agent/node-md-to-pdf.js";
 import { runWorkflow } from "./agent/workflow.js";
 import { seedSalesforce } from "./api/seed-salesforce.js";
 import { testSearchSalesforce } from "./api/search-salesforce.js";
+import { testSearchJira } from "./api/search-jira.js";
 
 const router = express.Router();
 
@@ -91,6 +92,22 @@ router.post("/testSearchSalesforce", async (req: Request, res: Response) => {
   } catch (err) {
     err = LoggerCls.getPureError(err);
     LoggerCls.error("/testSearchSalesforce API failed !", err);
+    result.error = err;
+    res.status(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR);
+  }
+  res.send(result);
+});
+
+router.post("/testSearchJira", async (req: Request, res: Response) => {
+  const result: any = {
+    data: null,
+    error: null,
+  };
+  try {
+    result.data = await testSearchJira(req.body);
+  } catch (err) {
+    err = LoggerCls.getPureError(err);
+    LoggerCls.error("/testSearchJira API failed !", err);
     result.error = err;
     res.status(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR);
   }

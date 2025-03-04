@@ -35,6 +35,7 @@
     "@langchain/langgraph": "^0.2.44",
     "@langchain/openai": "^0.4.2",
     "@slack/bolt": "^4.2.0",
+    "axios": "^1.8.1",
     "chalk": "^5.4.1",
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",

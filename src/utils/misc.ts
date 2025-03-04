@@ -19,7 +19,20 @@ const getYamlFromJson = (data: any[]) => {
       .split("\n")
       .map((line) => "    " + line) // Add 4 spaces to start of each line for nesting in prompt template
       .join("\n");
+
+    //-------- Safe Yaml for prompt template
+    // Replace backticks with Unicode escape sequences
+    retValue = retValue.replace(/`/g, "\\u0060");
+
+    // Replace curly braces with Unicode escape sequences
+    retValue = retValue.replace(/{/g, "\\u007B").replace(/}/g, "\\u007D");
+
+    // Replace colons with Unicode escape sequences
+    retValue = retValue.replace(/:/g, "\\u003A");
+
+    //-------
   }
+
   return retValue;
 };
 
