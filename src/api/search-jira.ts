@@ -5,12 +5,15 @@ const testSearchJira = async (params: any) => {
     params = null;
   }
 
-  const sampleQuery =
-    "project = 'CPG' AND textfields ~ 'SEARCH_FIELD' ORDER BY created DESC";
+  /*
+  .env variable
+
+  JIRA_JQL_QUERY="project = 'CPG' AND textfields ~ 'SEARCH_FIELD' ORDER BY created DESC"
+  */
 
   const productFeature = params?.SEARCH_FIELD || "beagle"; //"grafana", "gears", "beagle";
 
-  const records = await searchJira(productFeature, sampleQuery);
+  const records = await searchJira(productFeature);
 
   return records;
 };
