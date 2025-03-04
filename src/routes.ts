@@ -6,6 +6,7 @@ import { LoggerCls } from "./utils/logger.js";
 import { generateMiniPrdFile } from "./agent/node-md-to-pdf.js";
 import { runWorkflow } from "./agent/workflow.js";
 import { seedSalesforce } from "./api/seed-salesforce.js";
+import { seedJira } from "./api/seed-jira.js";
 import { testSearchSalesforce } from "./api/search-salesforce.js";
 import { testSearchJira } from "./api/search-jira.js";
 
@@ -76,6 +77,22 @@ router.post("/seedSalesforce", async (req: Request, res: Response) => {
   } catch (err) {
     err = LoggerCls.getPureError(err);
     LoggerCls.error("/seedSalesforce API failed !", err);
+    result.error = err;
+    res.status(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR);
+  }
+  res.send(result);
+});
+
+router.post("/seedJira", async (req: Request, res: Response) => {
+  const result: any = {
+    data: null,
+    error: null,
+  };
+  try {
+    result.data = await seedJira();
+  } catch (err) {
+    err = LoggerCls.getPureError(err);
+    LoggerCls.error("/seedJira API failed !", err);
     result.error = err;
     res.status(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR);
   }

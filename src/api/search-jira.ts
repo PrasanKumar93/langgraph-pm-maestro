@@ -6,7 +6,7 @@ const testSearchJira = async (params: any) => {
   }
 
   const sampleQuery =
-    "project = 'RED' AND type = Initiative AND textfields ~ 'SEARCH_FIELD' ORDER BY created DESC";
+    "project = 'CPG' AND textfields ~ 'SEARCH_FIELD' ORDER BY created DESC";
 
   const productFeature = params?.SEARCH_FIELD || "beagle"; //"grafana", "gears", "beagle";
 

@@ -87,6 +87,30 @@ class JiraST {
 
     return issues;
   }
+
+  public async createIssue(issueData: any, projectKey?: string): Promise<any> {
+    let retData: any = null;
+    try {
+      const entry = {
+        fields: {
+          project: {
+            key: projectKey || process.env.JIRA_SEED_PROJECT_KEY,
+          },
+          issuetype: {
+            name: "Task",
+          },
+          ...issueData,
+        },
+      };
+      const response = await this.client.post("/issue", entry);
+      retData = response.data;
+    } catch (error) {
+      const err = LoggerCls.getPureError(error);
+      LoggerCls.error("Error creating JIRA issue:", err);
+      throw error;
+    }
+    return retData;
+  }
 }
 
 export { JiraST };
