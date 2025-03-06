@@ -31,4 +31,8 @@ const SALESFORCE_OBJECTS = {
   TechnicalRequest: "TechnicalRequest__c", //used for local seeding
 };
 
-export { HTTP_STATUS_CODES, STEP_EMOJIS, SALESFORCE_OBJECTS };
+enum LLM_PROVIDER {
+  OPENAI = "openai",
+}
+
+export { HTTP_STATUS_CODES, STEP_EMOJIS, SALESFORCE_OBJECTS, LLM_PROVIDER };

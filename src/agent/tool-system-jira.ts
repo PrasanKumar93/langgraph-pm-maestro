@@ -12,10 +12,13 @@ import { STEP_EMOJIS } from "../utils/constants.js";
 import { JiraST } from "../utils/jira.js";
 import { LoggerCls } from "../utils/logger.js";
 import { addSystemMsg } from "./common.js";
+import { getConfig } from "../config.js";
 
 const searchJira = async (productFeature: string, query?: string) => {
+  const config = getConfig();
+
   let result: any[] = [];
-  query = query || process.env.JIRA_JQL_QUERY || "";
+  query = query || config.JIRA_JQL_QUERY || "";
   let returnFields = ["id", "key", "summary", "description"]; //, "status"
 
   if (productFeature && query) {
@@ -60,11 +63,11 @@ const getJiraData = async (input: any, config: LangGraphRunnableConfig) => {
       STEP_EMOJIS.tool
     );
   } catch (err) {
-    err = LoggerCls.getPureError(err);
+    const errStr = LoggerCls.getPureError(err, true);
 
     await addSystemMsg(
       state,
-      `Jira tool execution error: ${err}`,
+      `Jira tool execution error: ${errStr}`,
       STEP_EMOJIS.error
     );
   }

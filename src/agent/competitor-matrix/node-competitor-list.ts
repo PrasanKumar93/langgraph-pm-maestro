@@ -4,17 +4,20 @@ import { ChatPromptTemplate } from "@langchain/core/prompts";
 import { RunnableSequence } from "@langchain/core/runnables";
 import { JsonOutputParser } from "@langchain/core/output_parsers";
 
-import { llmOpenAi } from "../llm-open-ai.js";
 import { checkErrorToStopWorkflow } from "../error.js";
 import { toolTavilySearch } from "../tool-tavily-search.js";
 import { LoggerCls } from "../../utils/logger.js";
 import { STEP_EMOJIS } from "../../utils/constants.js";
 import { getPromptCompetitorList } from "../prompts/prompt-competitor-list.js";
 import { addSystemMsg } from "../common.js";
+import { getLLM } from "../llms/llm.js";
+import { getConfig } from "../../config.js";
 
 const reduceCompetitorList = (competitorList: string[]) => {
+  const config = getConfig();
+
   let retList = competitorList;
-  let count = parseInt(process.env.MAX_COMPETITOR_LIST_COUNT || "0");
+  let count = parseInt(config.MAX_COMPETITOR_LIST_COUNT);
 
   if (count > 0) {
     retList = competitorList.slice(0, count);
@@ -60,7 +63,9 @@ const nodeCompetitorList = async (state: OverallStateType) => {
       ["system", SYSTEM_PROMPT],
     ]);
 
-    const model = llmOpenAi.bindTools([toolTavilySearch]);
+    const llm = getLLM();
+
+    const model = llm.bindTools([toolTavilySearch]);
 
     const outputParser = new JsonOutputParser();
 

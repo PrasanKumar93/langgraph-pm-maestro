@@ -2,8 +2,16 @@ import chalk from "chalk";
 
 //  basic console logger
 class LoggerCls {
-  static getPureError(err: unknown) {
-    return JSON.parse(JSON.stringify(err, Object.getOwnPropertyNames(err)));
+  static getPureError(err: unknown, isStringifyOnly = false) {
+    let retElm: any = null;
+    if (typeof err === "string") {
+      retElm = err;
+    } else if (isStringifyOnly) {
+      retElm = JSON.stringify(err, Object.getOwnPropertyNames(err));
+    } else {
+      retElm = JSON.parse(JSON.stringify(err, Object.getOwnPropertyNames(err)));
+    }
+    return retElm;
   }
 
   static basicLog(_chalkInst: any, _message: string, _details?: unknown): void {

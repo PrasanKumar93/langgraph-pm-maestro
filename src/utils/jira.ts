@@ -1,14 +1,20 @@
 import axios, { AxiosInstance } from "axios";
+
 import { LoggerCls } from "./logger.js";
+import { getConfig } from "../config.js";
 
 class JiraST {
   private static instance: JiraST;
   private client: AxiosInstance;
+  private seedProjectKey: string;
 
   private constructor() {
-    const baseUrl = process.env.JIRA_BASE_URL || "";
-    const email = process.env.JIRA_EMAIL || "";
-    const token = process.env.JIRA_API_TOKEN || "";
+    const config = getConfig();
+
+    const baseUrl = config.JIRA_BASE_URL || "";
+    const email = config.JIRA_EMAIL || "";
+    const token = config.JIRA_API_TOKEN || "";
+    this.seedProjectKey = config.JIRA_SEED_PROJECT_KEY || "";
 
     if (baseUrl && email && token) {
       this.client = axios.create({
@@ -94,7 +100,7 @@ class JiraST {
       const entry = {
         fields: {
           project: {
-            key: projectKey || process.env.JIRA_SEED_PROJECT_KEY,
+            key: projectKey || this.seedProjectKey,
           },
           issuetype: {
             name: "Task",

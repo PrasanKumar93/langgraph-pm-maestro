@@ -11,10 +11,13 @@ import { SalesforceST } from "../utils/salesforce.js";
 import { STEP_EMOJIS } from "../utils/constants.js";
 import { LoggerCls } from "../utils/logger.js";
 import { addSystemMsg } from "./common.js";
+import { getConfig } from "../config.js";
 
 const searchSalesforce = async (productFeature: string, query?: string) => {
+  const config = getConfig();
+
   let result: any[] = [];
-  query = query || process.env.SF_SEARCH_FEATURE_QUERY || "";
+  query = query || config.SF_SEARCH_FEATURE_QUERY || "";
 
   if (productFeature && query) {
     const salesforceST = SalesforceST.getInstance();
@@ -46,11 +49,11 @@ const getSalesForceData = async (
       STEP_EMOJIS.tool
     );
   } catch (err) {
-    err = LoggerCls.getPureError(err);
+    const errStr = LoggerCls.getPureError(err, true);
 
     await addSystemMsg(
       state,
-      `Salesforce tool execution error: ${err}`,
+      `Salesforce tool execution error: ${errStr}`,
       STEP_EMOJIS.error
     );
   }

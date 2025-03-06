@@ -6,7 +6,6 @@ import {
   getContextVariable,
   setContextVariable,
 } from "@langchain/core/context";
-import { SystemMessage } from "@langchain/core/messages";
 import { z } from "zod";
 import { TavilySearchResults } from "@langchain/community/tools/tavily_search";
 import { JsonOutputParser } from "@langchain/core/output_parsers";
@@ -15,13 +14,26 @@ import { LoggerCls } from "../utils/logger.js";
 import { STEP_EMOJIS } from "../utils/constants.js";
 import { getYamlFromJson } from "../utils/misc.js";
 import { addSystemMsg } from "./common.js";
+import { getConfig } from "../config.js";
 
-const tavilyApiKey = process.env.TAVILY_API_KEY;
+let _tavilySearchInst: TavilySearchResults;
 
-const tavilySearch = new TavilySearchResults({
-  apiKey: tavilyApiKey,
-  maxResults: 10,
-});
+const getTavilySearchInstance = () => {
+  const config = getConfig();
+
+  if (!config.TAVILY_API_KEY) {
+    throw new Error("TAVILY_API_KEY is not set");
+  }
+
+  if (!_tavilySearchInst) {
+    _tavilySearchInst = new TavilySearchResults({
+      apiKey: config.TAVILY_API_KEY,
+      maxResults: 10,
+    });
+  }
+
+  return _tavilySearchInst;
+};
 
 const searchByTavily = async (query: string) => {
   LoggerCls.debug("Tavily search query: " + query);
@@ -34,9 +46,10 @@ const searchByTavily = async (query: string) => {
   let exceptionMsg = "";
 
   try {
-    if (tavilyApiKey && query) {
+    if (query) {
+      const tavilySearchInst = getTavilySearchInstance();
       const outputParser = new JsonOutputParser();
-      const chain = tavilySearch.pipe(outputParser);
+      const chain = tavilySearchInst.pipe(outputParser);
       searchResults = await chain.invoke({
         input: query,
       });
@@ -45,10 +58,10 @@ const searchByTavily = async (query: string) => {
         searchResultsYaml = getYamlFromJson(searchResults);
       }
     } else {
-      exceptionMsg = "TAVILY_API_KEY or query is not set";
+      exceptionMsg = "Tavily search query is missing";
     }
   } catch (err) {
-    exceptionMsg = LoggerCls.getPureError(err);
+    exceptionMsg = LoggerCls.getPureError(err, true);
   }
 
   if (searchResults?.length) {

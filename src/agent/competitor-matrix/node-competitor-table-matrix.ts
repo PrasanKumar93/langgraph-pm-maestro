@@ -4,11 +4,11 @@ import { ChatPromptTemplate } from "@langchain/core/prompts";
 import { RunnableSequence } from "@langchain/core/runnables";
 import { StringOutputParser } from "@langchain/core/output_parsers";
 
-import { llmOpenAi } from "../llm-open-ai.js";
 import { checkErrorToStopWorkflow } from "../error.js";
 import { STEP_EMOJIS } from "../../utils/constants.js";
 import { getPromptCompetitorTableMatrix } from "../prompts/prompt-competitor-table-matrix.js";
 import { addSystemMsg } from "../common.js";
+import { getLLM } from "../llms/llm.js";
 
 const updateState = async (state: OverallStateType, resultStr: any) => {
   if (resultStr) {
@@ -32,13 +32,13 @@ const nodeCompetitorTableMatrix = async (state: OverallStateType) => {
       ["system", SYSTEM_PROMPT],
     ]);
 
-    const model = llmOpenAi;
+    const llm = getLLM();
 
     const outputParser = new StringOutputParser();
 
     let chain = RunnableSequence.from([
       competitorListPrompt,
-      model,
+      llm,
       outputParser,
     ]);
 

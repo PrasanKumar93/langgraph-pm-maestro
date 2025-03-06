@@ -5,19 +5,19 @@ import "dotenv/config";
 import { router } from "./routes.js";
 import { LoggerCls } from "./utils/logger.js";
 import { RedisWrapperST } from "./utils/redis.js";
-import { SalesforceST } from "./utils/salesforce.js";
+import { getConfig } from "./config.js";
 
+const config = getConfig();
 //#region Constants
-// process.env.PORT is dynamic port
-let PORT = process.env.PORT || process.env.PORT_BACKEND || "3001";
-const REDIS_URL = process.env.REDIS_URL || "redis://localhost:6379";
+let PORT = config.PORT;
+const REDIS_URL = config.REDIS_URL;
 const API_PREFIX = "/api";
 //#endregion
 
 const app = express();
 app.use(
   cors({
-    origin: process.env.ALLOWED_ORIGINS?.split(",") || "*",
+    origin: config.ALLOWED_ORIGINS?.split(",") || "*",
     methods: ["GET", "POST"],
   })
 );
@@ -30,9 +30,6 @@ app.listen(parseInt(PORT), async () => {
   LoggerCls.info(`Server running on port ${PORT}`);
   const redisWrapperST = RedisWrapperST.setInstance(REDIS_URL);
   //await redisWrapperST.connect();
-
-  const salesforceST = SalesforceST.getInstance();
-  await salesforceST.login();
 });
 
 //#region error handling

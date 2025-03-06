@@ -5,7 +5,7 @@ import { RunnableSequence } from "@langchain/core/runnables";
 import { SystemMessage } from "@langchain/core/messages";
 import { StringOutputParser } from "@langchain/core/output_parsers";
 
-import { llmOpenAi } from "../llm-open-ai.js";
+import { getLLM } from "../llms/llm.js";
 import { checkErrorToStopWorkflow } from "../error.js";
 import { toolTavilySearch } from "../tool-tavily-search.js";
 import { LoggerCls } from "../../utils/logger.js";
@@ -65,7 +65,8 @@ const nodeCompetitorFeatureDetails = async (state: OverallStateType) => {
         ["system", SYSTEM_PROMPT],
       ]);
 
-      const model = llmOpenAi.bindTools([toolTavilySearch]);
+      const llm = getLLM();
+      const model = llm.bindTools([toolTavilySearch]);
 
       const outputParser = new StringOutputParser();
 

@@ -7,6 +7,7 @@ import { BaseMessage } from "@langchain/core/messages";
 import { LoggerCls } from "./utils/logger.js";
 import { runWorkflow } from "./agent/workflow.js";
 import { STEP_EMOJIS } from "./utils/constants.js";
+import { getConfig } from "./config.js";
 
 interface IProcessRequest {
   threadTs: string;
@@ -33,12 +34,13 @@ const { App } = slackBoltPkg;
 let slackApp: slackBoltPkg.App<slackBoltPkg.StringIndexed> | null = null;
 
 const getSlackApp = () => {
+  const config = getConfig();
   if (!slackApp) {
     slackApp = new App({
-      token: process.env.SLACK_BOT_TOKEN,
-      signingSecret: process.env.SLACK_SIGNING_SECRET,
+      token: config.SLACK_BOT_TOKEN,
+      signingSecret: config.SLACK_SIGNING_SECRET,
       socketMode: true,
-      appToken: process.env.SLACK_APP_TOKEN, //for socket mode
+      appToken: config.SLACK_APP_TOKEN, //for socket mode
     });
   }
   return slackApp;
@@ -164,6 +166,7 @@ const processSlackMessage = async ({
 };
 
 const initAndListenSlackBot = async () => {
+  const config = getConfig();
   const app = getSlackApp();
 
   // Handle direct messages and channel messages
@@ -188,7 +191,7 @@ const initAndListenSlackBot = async () => {
   });
 
   await app
-    .start(process.env.SLACK_BOT_PORT || 8080)
+    .start(parseInt(config.SLACK_BOT_PORT))
     .then(() => {
       LoggerCls.log("⚡️ Slack bot is running and connected!");
     })

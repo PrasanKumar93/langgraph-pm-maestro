@@ -5,11 +5,11 @@ import { RunnableSequence } from "@langchain/core/runnables";
 import { SystemMessage } from "@langchain/core/messages";
 import { StringOutputParser } from "@langchain/core/output_parsers";
 
-import { llmOpenAi } from "./llm-open-ai.js";
 import { STEP_EMOJIS } from "../utils/constants.js";
 import { getPromptMiniPrd } from "./prompts/prompt-mini-prd.js";
 import { checkErrorToStopWorkflow } from "./error.js";
 import { addSystemMsg } from "./common.js";
+import { getLLM } from "./llms/llm.js";
 
 const updateState = async (state: OverallStateType, resultStr: any) => {
   state.outputProductPRD = resultStr;
@@ -29,10 +29,11 @@ const nodeMiniPrd = async (state: OverallStateType) => {
       ["system", SYSTEM_PROMPT],
     ]);
 
-    const model = llmOpenAi;
+    const llm = getLLM();
+
     const outputParser = new StringOutputParser();
 
-    const chain = RunnableSequence.from([miniPrdPrompt, model, outputParser]);
+    const chain = RunnableSequence.from([miniPrdPrompt, llm, outputParser]);
 
     const resultStr = await chain.invoke({
       ...state,

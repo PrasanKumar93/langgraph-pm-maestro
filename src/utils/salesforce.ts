@@ -2,14 +2,17 @@ import { Connection } from "jsforce";
 import "dotenv/config";
 
 import { LoggerCls } from "./logger.js";
+import { getConfig } from "../config.js";
 
 class SalesforceST {
   private static instance: SalesforceST;
   private conn: Connection;
 
   private constructor() {
+    const config = getConfig();
+
     this.conn = new Connection({
-      loginUrl: process.env.SF_LOGIN_URL || "https://login.salesforce.com",
+      loginUrl: config.SF_LOGIN_URL || "https://login.salesforce.com",
     });
   }
 
@@ -22,12 +25,14 @@ class SalesforceST {
 
   public async login(): Promise<void> {
     try {
+      const config = getConfig();
+
       if (!this.conn.accessToken) {
         LoggerCls.log("No active Salesforce session, attempting to login...");
 
-        const username = process.env.SF_USERNAME || "";
-        const password = process.env.SF_PASSWORD || "";
-        const securityToken = process.env.SF_SECURITY_TOKEN || "";
+        const username = config.SF_USERNAME || "";
+        const password = config.SF_PASSWORD || "";
+        const securityToken = config.SF_SECURITY_TOKEN || "";
 
         await this.conn.login(username, password + securityToken);
         LoggerCls.log("Logged into Salesforce successfully.");
