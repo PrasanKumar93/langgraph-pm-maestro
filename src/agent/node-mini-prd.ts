@@ -22,22 +22,26 @@ const updateState = async (state: OverallStateType, resultStr: any) => {
 };
 
 const nodeMiniPrd = async (state: OverallStateType) => {
-  const SYSTEM_PROMPT = getPromptMiniPrd(state);
+  try {
+    const SYSTEM_PROMPT = getPromptMiniPrd(state);
 
-  const miniPrdPrompt = ChatPromptTemplate.fromMessages([
-    ["system", SYSTEM_PROMPT],
-  ]);
+    const miniPrdPrompt = ChatPromptTemplate.fromMessages([
+      ["system", SYSTEM_PROMPT],
+    ]);
 
-  const model = llmOpenAi;
-  const outputParser = new StringOutputParser();
+    const model = llmOpenAi;
+    const outputParser = new StringOutputParser();
 
-  const chain = RunnableSequence.from([miniPrdPrompt, model, outputParser]);
+    const chain = RunnableSequence.from([miniPrdPrompt, model, outputParser]);
 
-  const resultStr = await chain.invoke({
-    ...state,
-  });
+    const resultStr = await chain.invoke({
+      ...state,
+    });
 
-  await updateState(state, resultStr);
+    await updateState(state, resultStr);
+  } catch (err) {
+    state.error = err;
+  }
 
   checkErrorToStopWorkflow(state);
 

@@ -14,6 +14,7 @@ import { JsonOutputParser } from "@langchain/core/output_parsers";
 import { LoggerCls } from "../utils/logger.js";
 import { STEP_EMOJIS } from "../utils/constants.js";
 import { getYamlFromJson } from "../utils/misc.js";
+import { addSystemMsg } from "./common.js";
 
 const tavilyApiKey = process.env.TAVILY_API_KEY;
 
@@ -23,13 +24,14 @@ const tavilySearch = new TavilySearchResults({
 });
 
 const searchByTavily = async (query: string) => {
-  LoggerCls.info("Tavily search query: " + query);
+  LoggerCls.debug("Tavily search query: " + query);
 
   let searchResults: Record<string, any> = {};
-  let promptMsg = "";
+  let successMsg = "";
+  let errorMsg = "";
 
   let searchResultsYaml = "";
-  let errorMessage = "";
+  let exceptionMsg = "";
 
   try {
     if (tavilyApiKey && query) {
@@ -43,30 +45,30 @@ const searchByTavily = async (query: string) => {
         searchResultsYaml = getYamlFromJson(searchResults);
       }
     } else {
-      errorMessage = "TAVILY_API_KEY or query is not set";
+      exceptionMsg = "TAVILY_API_KEY or query is not set";
     }
   } catch (err) {
-    errorMessage = LoggerCls.getPureError(err);
+    exceptionMsg = LoggerCls.getPureError(err);
   }
 
   if (searchResults?.length) {
-    promptMsg = `Tavily search success
+    successMsg = `Tavily search success
       query: 
         ${query} 
       results: 
         ${searchResultsYaml}`;
-  } else if (errorMessage) {
-    promptMsg = `Tavily search failed
+  } else if (exceptionMsg) {
+    errorMsg = `Tavily search failed
       query: 
         ${query} 
       error: 
-        ${errorMessage}`;
+        ${exceptionMsg}`;
   }
 
   return {
     searchResults,
-    promptMsg,
-    errorMessage,
+    successMsg,
+    errorMsg,
   };
 };
 
@@ -76,29 +78,33 @@ const fetchTavilySearchResults = async (
 ) => {
   const state = getContextVariable("currentState") as OverallStateType;
 
-  const { searchResults, promptMsg, errorMessage } = await searchByTavily(
+  const { searchResults, successMsg, errorMsg } = await searchByTavily(
     input.query
   );
 
-  state.toolTavilySearchData = promptMsg;
+  state.toolTavilySearchData = successMsg || errorMsg;
   state.allTavilySearchDataList.push({
     query: input.query,
     results: searchResults,
   });
-  state.messages.push(new SystemMessage(promptMsg));
 
-  if (state.onNotifyProgress) {
-    if (errorMessage) {
-      await state.onNotifyProgress(
-        `${STEP_EMOJIS.error}Tavily search for query: ${input.query} failed`
-      );
-    } else {
-      await state.onNotifyProgress(
-        STEP_EMOJIS.tool + "Tavily search for query: " + input.query
-      );
-    }
+  if (successMsg) {
+    await addSystemMsg(
+      state,
+      successMsg,
+      STEP_EMOJIS.tool,
+      `Tavily search for query: ${input.query}`
+    );
+  } else if (errorMsg) {
+    await addSystemMsg(
+      state,
+      errorMsg,
+      STEP_EMOJIS.error,
+      `Tavily search for query: ${input.query} failed`
+    );
   }
-  //state.error = errorMessage;
+
+  //state.error = errorMsg;
 
   state.toolTavilySearchProcessed = true;
   setContextVariable("currentState", state);

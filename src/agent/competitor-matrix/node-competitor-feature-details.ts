@@ -57,38 +57,42 @@ const updateState = async (state: OverallStateType, rawResult: any) => {
 };
 
 const nodeCompetitorFeatureDetails = async (state: OverallStateType) => {
-  if (state.pendingProcessCompetitorList.length) {
-    const SYSTEM_PROMPT = getPromptCompetitorFeatureDetails(state);
+  try {
+    if (state.pendingProcessCompetitorList.length) {
+      const SYSTEM_PROMPT = getPromptCompetitorFeatureDetails(state);
 
-    const competitorListPrompt = ChatPromptTemplate.fromMessages([
-      ["system", SYSTEM_PROMPT],
-    ]);
-
-    const model = llmOpenAi.bindTools([toolTavilySearch]);
-
-    const outputParser = new StringOutputParser();
-
-    let chain: RunnableSequence<any, any> | null = null;
-
-    if (state.toolTavilySearchProcessed) {
-      //after tool call
-      chain = RunnableSequence.from([
-        competitorListPrompt,
-        model,
-        outputParser,
+      const competitorListPrompt = ChatPromptTemplate.fromMessages([
+        ["system", SYSTEM_PROMPT],
       ]);
-    } else {
-      state.toolTavilySearchProcessed = false;
-      state.toolTavilySearchData = "";
-      //before tool call
-      chain = RunnableSequence.from([competitorListPrompt, model]);
+
+      const model = llmOpenAi.bindTools([toolTavilySearch]);
+
+      const outputParser = new StringOutputParser();
+
+      let chain: RunnableSequence<any, any> | null = null;
+
+      if (state.toolTavilySearchProcessed) {
+        //after tool call
+        chain = RunnableSequence.from([
+          competitorListPrompt,
+          model,
+          outputParser,
+        ]);
+      } else {
+        state.toolTavilySearchProcessed = false;
+        state.toolTavilySearchData = "";
+        //before tool call
+        chain = RunnableSequence.from([competitorListPrompt, model]);
+      }
+
+      const rawResult = await chain.invoke({
+        ...state,
+      });
+
+      await updateState(state, rawResult);
     }
-
-    const rawResult = await chain.invoke({
-      ...state,
-    });
-
-    await updateState(state, rawResult);
+  } catch (err) {
+    state.error = err;
   }
 
   checkErrorToStopWorkflow(state);

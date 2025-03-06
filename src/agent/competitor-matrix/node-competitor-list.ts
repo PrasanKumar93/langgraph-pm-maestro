@@ -53,33 +53,41 @@ const updateState = async (state: OverallStateType, rawResult: any) => {
 };
 
 const nodeCompetitorList = async (state: OverallStateType) => {
-  const SYSTEM_PROMPT = getPromptCompetitorList(state);
+  try {
+    const SYSTEM_PROMPT = getPromptCompetitorList(state);
 
-  const competitorListPrompt = ChatPromptTemplate.fromMessages([
-    ["system", SYSTEM_PROMPT],
-  ]);
+    const competitorListPrompt = ChatPromptTemplate.fromMessages([
+      ["system", SYSTEM_PROMPT],
+    ]);
 
-  const model = llmOpenAi.bindTools([toolTavilySearch]);
+    const model = llmOpenAi.bindTools([toolTavilySearch]);
 
-  const outputParser = new JsonOutputParser();
+    const outputParser = new JsonOutputParser();
 
-  let chain: RunnableSequence<any, any> | null = null;
+    let chain: RunnableSequence<any, any> | null = null;
 
-  if (state.toolTavilySearchProcessed) {
-    //after tool call
-    chain = RunnableSequence.from([competitorListPrompt, model, outputParser]);
-  } else {
-    state.toolTavilySearchProcessed = false;
-    state.toolTavilySearchData = "";
-    //before tool call
-    chain = RunnableSequence.from([competitorListPrompt, model]);
+    if (state.toolTavilySearchProcessed) {
+      //after tool call
+      chain = RunnableSequence.from([
+        competitorListPrompt,
+        model,
+        outputParser,
+      ]);
+    } else {
+      state.toolTavilySearchProcessed = false;
+      state.toolTavilySearchData = "";
+      //before tool call
+      chain = RunnableSequence.from([competitorListPrompt, model]);
+    }
+
+    const rawResult = await chain.invoke({
+      ...state,
+    });
+
+    await updateState(state, rawResult);
+  } catch (err) {
+    state.error = err;
   }
-
-  const rawResult = await chain.invoke({
-    ...state,
-  });
-
-  await updateState(state, rawResult);
 
   checkErrorToStopWorkflow(state);
   return state;

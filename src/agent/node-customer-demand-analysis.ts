@@ -18,21 +18,25 @@ const updateState = async (state: OverallStateType, rawResult: any) => {
 };
 
 const nodeCustomerDemandAnalysis = async (state: OverallStateType) => {
-  const SYSTEM_PROMPT = getPromptCustomerDemandAnalysis(state);
+  try {
+    const SYSTEM_PROMPT = getPromptCustomerDemandAnalysis(state);
 
-  const customerDemandAnalysisPrompt = ChatPromptTemplate.fromMessages([
-    ["system", SYSTEM_PROMPT],
-  ]);
+    const customerDemandAnalysisPrompt = ChatPromptTemplate.fromMessages([
+      ["system", SYSTEM_PROMPT],
+    ]);
 
-  const model = llmOpenAi.bindTools([toolSystemSalesForce, toolSystemJira]);
+    const model = llmOpenAi.bindTools([toolSystemSalesForce, toolSystemJira]);
 
-  const chain = RunnableSequence.from([customerDemandAnalysisPrompt, model]);
+    const chain = RunnableSequence.from([customerDemandAnalysisPrompt, model]);
 
-  const rawResult = await chain.invoke({
-    ...state,
-  });
+    const rawResult = await chain.invoke({
+      ...state,
+    });
 
-  await updateState(state, rawResult);
+    await updateState(state, rawResult);
+  } catch (err) {
+    state.error = err;
+  }
 
   checkErrorToStopWorkflow(state);
 

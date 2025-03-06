@@ -28,28 +28,32 @@ const updateState = async (state: OverallStateType, resultJson: any) => {
 };
 
 const nodeExtractProductFeature = async (state: OverallStateType) => {
-  initializeState(state);
+  try {
+    initializeState(state);
 
-  const SYSTEM_PROMPT = getPromptExtractProductFeature(state);
+    const SYSTEM_PROMPT = getPromptExtractProductFeature(state);
 
-  const extractProductFeaturePrompt = ChatPromptTemplate.fromMessages([
-    ["system", SYSTEM_PROMPT],
-  ]);
+    const extractProductFeaturePrompt = ChatPromptTemplate.fromMessages([
+      ["system", SYSTEM_PROMPT],
+    ]);
 
-  const model = llmOpenAi;
-  const outputParser = new JsonOutputParser();
+    const model = llmOpenAi;
+    const outputParser = new JsonOutputParser();
 
-  const chain = RunnableSequence.from([
-    extractProductFeaturePrompt,
-    model,
-    outputParser,
-  ]);
+    const chain = RunnableSequence.from([
+      extractProductFeaturePrompt,
+      model,
+      outputParser,
+    ]);
 
-  const resultJson = await chain.invoke({
-    ...state,
-  });
+    const resultJson = await chain.invoke({
+      ...state,
+    });
 
-  await updateState(state, resultJson);
+    await updateState(state, resultJson);
+  } catch (err) {
+    state.error = err;
+  }
 
   checkErrorToStopWorkflow(state);
   return state;

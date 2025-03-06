@@ -20,31 +20,35 @@ const updateState = async (state: OverallStateType, resultJson: any) => {
 };
 
 const nodeEffortEstimation = async (state: OverallStateType) => {
-  if (!state.competitorTableMatrix?.length) {
-    state.error = "No competitor data found";
-    checkErrorToStopWorkflow(state);
+  try {
+    if (!state.competitorTableMatrix?.length) {
+      state.error = "No competitor data found";
+      checkErrorToStopWorkflow(state);
+    }
+
+    const SYSTEM_PROMPT = getPromptEffortEstimation(state);
+
+    const effortEstimationPrompt = ChatPromptTemplate.fromMessages([
+      ["system", SYSTEM_PROMPT],
+    ]);
+
+    const model = llmOpenAi;
+    const outputParser = new JsonOutputParser();
+
+    const chain = RunnableSequence.from([
+      effortEstimationPrompt,
+      model,
+      outputParser,
+    ]);
+
+    const resultJson = await chain.invoke({
+      ...state,
+    });
+
+    await updateState(state, resultJson);
+  } catch (err) {
+    state.error = err;
   }
-
-  const SYSTEM_PROMPT = getPromptEffortEstimation(state);
-
-  const effortEstimationPrompt = ChatPromptTemplate.fromMessages([
-    ["system", SYSTEM_PROMPT],
-  ]);
-
-  const model = llmOpenAi;
-  const outputParser = new JsonOutputParser();
-
-  const chain = RunnableSequence.from([
-    effortEstimationPrompt,
-    model,
-    outputParser,
-  ]);
-
-  const resultJson = await chain.invoke({
-    ...state,
-  });
-
-  await updateState(state, resultJson);
 
   checkErrorToStopWorkflow(state);
 

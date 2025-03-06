@@ -25,27 +25,31 @@ const updateState = async (state: OverallStateType, resultStr: any) => {
 };
 
 const nodeCompetitorTableMatrix = async (state: OverallStateType) => {
-  const SYSTEM_PROMPT = getPromptCompetitorTableMatrix(state);
+  try {
+    const SYSTEM_PROMPT = getPromptCompetitorTableMatrix(state);
 
-  const competitorListPrompt = ChatPromptTemplate.fromMessages([
-    ["system", SYSTEM_PROMPT],
-  ]);
+    const competitorListPrompt = ChatPromptTemplate.fromMessages([
+      ["system", SYSTEM_PROMPT],
+    ]);
 
-  const model = llmOpenAi;
+    const model = llmOpenAi;
 
-  const outputParser = new StringOutputParser();
+    const outputParser = new StringOutputParser();
 
-  let chain = RunnableSequence.from([
-    competitorListPrompt,
-    model,
-    outputParser,
-  ]);
+    let chain = RunnableSequence.from([
+      competitorListPrompt,
+      model,
+      outputParser,
+    ]);
 
-  const resultStr = await chain.invoke({
-    ...state,
-  });
+    const resultStr = await chain.invoke({
+      ...state,
+    });
 
-  await updateState(state, resultStr);
+    await updateState(state, resultStr);
+  } catch (err) {
+    state.error = err;
+  }
 
   checkErrorToStopWorkflow(state);
   return state;
