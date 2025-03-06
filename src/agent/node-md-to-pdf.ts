@@ -1,10 +1,9 @@
 import type { OverallStateType } from "./state.js";
 
-import { SystemMessage } from "@langchain/core/messages";
-
 import { convertMarkdownToPdf } from "../utils/misc.js";
 import { STEP_EMOJIS } from "../utils/constants.js";
 import { checkErrorToStopWorkflow } from "./error.js";
+import { addSystemMsg } from "./common.js";
 
 const style = `
        @page {
@@ -92,11 +91,11 @@ const nodeMdToPdf = async (state: OverallStateType) => {
   try {
     if (state.outputProductPRD) {
       const filePath = await generateMiniPrdFile(state.outputProductPRD);
-      const detail = `Markdown to PDF conversion completed`;
-      state.messages.push(new SystemMessage(detail));
-      if (state.onNotifyProgress) {
-        await state.onNotifyProgress(STEP_EMOJIS.pdf + detail);
-      }
+      await addSystemMsg(
+        state,
+        "Markdown to PDF conversion completed",
+        STEP_EMOJIS.pdf
+      );
       state.outputPRDFilePath = filePath;
     }
   } catch (err) {

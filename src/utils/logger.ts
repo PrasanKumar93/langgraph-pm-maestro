@@ -17,6 +17,10 @@ class LoggerCls {
     }
   }
 
+  static debug(_message: string, _details?: unknown): void {
+    LoggerCls.basicLog(chalk.gray, _message, _details);
+  }
+
   static log(_message: string, _details?: unknown): void {
     LoggerCls.basicLog(chalk.green, _message, _details);
   }

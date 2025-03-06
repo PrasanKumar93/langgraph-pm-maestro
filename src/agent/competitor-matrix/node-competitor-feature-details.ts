@@ -11,6 +11,7 @@ import { toolTavilySearch } from "../tool-tavily-search.js";
 import { LoggerCls } from "../../utils/logger.js";
 import { STEP_EMOJIS } from "../../utils/constants.js";
 import { getPromptCompetitorFeatureDetails } from "../prompts/prompt-competitor-feature-details.js";
+import { addSystemMsg } from "../common.js";
 
 const updateState = async (state: OverallStateType, rawResult: any) => {
   let competitorName = state.pendingProcessCompetitorList[0];
@@ -24,14 +25,9 @@ const updateState = async (state: OverallStateType, rawResult: any) => {
         featureDetails: resultStr,
       });
 
-      const msg =
-        STEP_EMOJIS.company +
-        `*${competitorName}* : Competitor Feature Details fetched`;
-      state.messages.push(new SystemMessage(msg));
-      if (state.onNotifyProgress) {
-        await state.onNotifyProgress(msg);
-      }
-      LoggerCls.info(msg); //DEBUG
+      const msg = `*${competitorName}* : Competitor Feature Details fetched`;
+      await addSystemMsg(state, msg, STEP_EMOJIS.company);
+      LoggerCls.debug(msg);
     } else {
       state.error = `No data found for competitor ${competitorName}`;
     }
@@ -40,25 +36,20 @@ const updateState = async (state: OverallStateType, rawResult: any) => {
     state.pendingProcessCompetitorList.shift();
 
     if (state.pendingProcessCompetitorList.length === 0) {
-      const msg2 = STEP_EMOJIS.allCompany + "All competitors processed";
-      state.messages.push(new SystemMessage(msg2));
-      if (state.onNotifyProgress) {
-        await state.onNotifyProgress(msg2);
-      }
+      await addSystemMsg(
+        state,
+        "All competitors processed",
+        STEP_EMOJIS.allCompany
+      );
     }
 
     //reset tool status for next competitor
     state.toolTavilySearchProcessed = false;
     state.toolTavilySearchData = "";
   } else {
-    const detail =
-      STEP_EMOJIS.subStep +
-      `${competitorName} : Competitor Feature Details Node !`;
+    const detail = `${competitorName} : Competitor Feature Details Node !`;
     state.messages.push(new SystemMessage(detail));
-    // if (state.onNotifyProgress) {
-    //   await state.onNotifyProgress(detail);
-    // }
-    LoggerCls.info(detail); //DEBUG
+    LoggerCls.debug(detail);
 
     // rawResult = AI Chunk Message (before tool call)
     state.messages.push(rawResult);

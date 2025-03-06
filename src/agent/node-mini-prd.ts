@@ -9,14 +9,16 @@ import { llmOpenAi } from "./llm-open-ai.js";
 import { STEP_EMOJIS } from "../utils/constants.js";
 import { getPromptMiniPrd } from "./prompts/prompt-mini-prd.js";
 import { checkErrorToStopWorkflow } from "./error.js";
+import { addSystemMsg } from "./common.js";
 
 const updateState = async (state: OverallStateType, resultStr: any) => {
   state.outputProductPRD = resultStr;
-  const detail = `Mini PRD markdown generated`;
-  state.messages.push(new SystemMessage(detail));
-  if (state.onNotifyProgress) {
-    await state.onNotifyProgress(STEP_EMOJIS.docWriting + detail);
-  }
+
+  await addSystemMsg(
+    state,
+    "Mini PRD markdown generated",
+    STEP_EMOJIS.docWriting
+  );
 };
 
 const nodeMiniPrd = async (state: OverallStateType) => {

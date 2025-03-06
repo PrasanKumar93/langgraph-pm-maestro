@@ -2,7 +2,6 @@ import type { OverallStateType } from "../state.js";
 
 import { ChatPromptTemplate } from "@langchain/core/prompts";
 import { RunnableSequence } from "@langchain/core/runnables";
-import { SystemMessage } from "@langchain/core/messages";
 import { JsonOutputParser } from "@langchain/core/output_parsers";
 
 import { llmOpenAi } from "../llm-open-ai.js";
@@ -11,6 +10,7 @@ import { toolTavilySearch } from "../tool-tavily-search.js";
 import { LoggerCls } from "../../utils/logger.js";
 import { STEP_EMOJIS } from "../../utils/constants.js";
 import { getPromptCompetitorList } from "../prompts/prompt-competitor-list.js";
+import { addSystemMsg } from "../common.js";
 
 const reduceCompetitorList = (competitorList: string[]) => {
   let retList = competitorList;
@@ -34,16 +34,9 @@ const updateState = async (state: OverallStateType, rawResult: any) => {
       state.competitorList = competitorList;
       state.pendingProcessCompetitorList = [...competitorList];
 
-      const msg =
-        STEP_EMOJIS.subStep +
-        "Competitors found : `" +
-        competitorList.join(", ") +
-        "`";
-      state.messages.push(new SystemMessage(msg));
-      if (state.onNotifyProgress) {
-        await state.onNotifyProgress(msg);
-      }
-      LoggerCls.info("Competitor List: " + competitorList); //DEBUG
+      const msg = `Competitors found : \`${competitorList.join(", ")}\``;
+      await addSystemMsg(state, msg, STEP_EMOJIS.subStep);
+      LoggerCls.debug(msg);
 
       //reset tool status for next node
       state.toolTavilySearchProcessed = false;
@@ -52,11 +45,7 @@ const updateState = async (state: OverallStateType, rawResult: any) => {
       state.error = resultJson.error;
     }
   } else {
-    const detail = STEP_EMOJIS.subGraph + "Competitor Analysis";
-    state.messages.push(new SystemMessage(detail));
-    if (state.onNotifyProgress) {
-      await state.onNotifyProgress(detail);
-    }
+    await addSystemMsg(state, "Competitor Analysis", STEP_EMOJIS.subGraph);
 
     // rawResult = AI Chunk Message (before tool call)
     state.messages.push(rawResult);

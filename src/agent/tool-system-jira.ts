@@ -6,12 +6,12 @@ import {
   getContextVariable,
   setContextVariable,
 } from "@langchain/core/context";
-import { SystemMessage } from "@langchain/core/messages";
 import { z } from "zod";
 
 import { STEP_EMOJIS } from "../utils/constants.js";
 import { JiraST } from "../utils/jira.js";
 import { LoggerCls } from "../utils/logger.js";
+import { addSystemMsg } from "./common.js";
 
 const searchJira = async (productFeature: string, query?: string) => {
   let result: any[] = [];
@@ -54,20 +54,19 @@ const getJiraData = async (input: any, config: LangGraphRunnableConfig) => {
       state.systemJiraDataList = jiraData;
     }
 
-    const detail = `Extracted Jira data : ${state.systemJiraDataList.length}`;
-    state.messages.push(new SystemMessage(detail));
-    if (state.onNotifyProgress) {
-      await state.onNotifyProgress(STEP_EMOJIS.tool + detail);
-    }
+    await addSystemMsg(
+      state,
+      `Extracted Jira data : ${state.systemJiraDataList.length}`,
+      STEP_EMOJIS.tool
+    );
   } catch (err) {
     err = LoggerCls.getPureError(err);
 
-    state.messages.push(new SystemMessage(`Jira tool execution error: ${err}`));
-    if (state.onNotifyProgress) {
-      await state.onNotifyProgress(
-        `${STEP_EMOJIS.error}Jira tool execution error: ${err}`
-      );
-    }
+    await addSystemMsg(
+      state,
+      `Jira tool execution error: ${err}`,
+      STEP_EMOJIS.error
+    );
   }
   state.toolSystemJiraProcessed = true;
   setContextVariable("currentState", state);

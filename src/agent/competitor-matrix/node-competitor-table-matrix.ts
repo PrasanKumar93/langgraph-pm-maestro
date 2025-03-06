@@ -2,22 +2,21 @@ import type { OverallStateType } from "../state.js";
 
 import { ChatPromptTemplate } from "@langchain/core/prompts";
 import { RunnableSequence } from "@langchain/core/runnables";
-import { SystemMessage } from "@langchain/core/messages";
 import { StringOutputParser } from "@langchain/core/output_parsers";
 
 import { llmOpenAi } from "../llm-open-ai.js";
 import { checkErrorToStopWorkflow } from "../error.js";
 import { STEP_EMOJIS } from "../../utils/constants.js";
 import { getPromptCompetitorTableMatrix } from "../prompts/prompt-competitor-table-matrix.js";
+import { addSystemMsg } from "../common.js";
 
 const updateState = async (state: OverallStateType, resultStr: any) => {
   if (resultStr) {
-    const detail =
-      STEP_EMOJIS.competitorTable + "Competitor Table Matrix created";
-    state.messages.push(new SystemMessage(detail));
-    if (state.onNotifyProgress) {
-      await state.onNotifyProgress(detail);
-    }
+    await addSystemMsg(
+      state,
+      "Competitor Table Matrix created",
+      STEP_EMOJIS.competitorTable
+    );
 
     state.competitorTableMatrix = resultStr;
   } else {

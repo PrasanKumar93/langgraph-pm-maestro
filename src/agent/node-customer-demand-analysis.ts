@@ -2,7 +2,6 @@ import type { OverallStateType } from "./state.js";
 
 import { ChatPromptTemplate } from "@langchain/core/prompts";
 import { RunnableSequence } from "@langchain/core/runnables";
-import { SystemMessage } from "@langchain/core/messages";
 
 import { llmOpenAi } from "./llm-open-ai.js";
 import { toolSystemSalesForce } from "./tool-system-sales-force.js";
@@ -10,13 +9,10 @@ import { toolSystemJira } from "./tool-system-jira.js";
 import { STEP_EMOJIS } from "../utils/constants.js";
 import { getPromptCustomerDemandAnalysis } from "./prompts/prompt-customer-demand-analysis.js";
 import { checkErrorToStopWorkflow } from "./error.js";
+import { addSystemMsg } from "./common.js";
 
 const updateState = async (state: OverallStateType, rawResult: any) => {
-  const detail = `Customer demand analysis`;
-  state.messages.push(new SystemMessage(detail));
-  if (state.onNotifyProgress) {
-    await state.onNotifyProgress(STEP_EMOJIS.analysis + detail);
-  }
+  await addSystemMsg(state, "Customer demand analysis", STEP_EMOJIS.analysis);
   // rawResult = AI Chunk Message
   state.messages.push(rawResult);
 };

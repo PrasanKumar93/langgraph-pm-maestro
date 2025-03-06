@@ -6,11 +6,11 @@ import {
   getContextVariable,
   setContextVariable,
 } from "@langchain/core/context";
-import { SystemMessage } from "@langchain/core/messages";
 import { z } from "zod";
 import { SalesforceST } from "../utils/salesforce.js";
 import { STEP_EMOJIS } from "../utils/constants.js";
 import { LoggerCls } from "../utils/logger.js";
+import { addSystemMsg } from "./common.js";
 
 const searchSalesforce = async (productFeature: string, query?: string) => {
   let result: any[] = [];
@@ -40,22 +40,19 @@ const getSalesForceData = async (
       state.systemSalesForceDataList = salesforceData;
     }
 
-    const detail = `Extracted SalesForce data : ${salesforceData.length}`;
-    state.messages.push(new SystemMessage(detail));
-    if (state.onNotifyProgress) {
-      await state.onNotifyProgress(STEP_EMOJIS.tool + detail);
-    }
+    await addSystemMsg(
+      state,
+      `Extracted SalesForce data : ${salesforceData.length}`,
+      STEP_EMOJIS.tool
+    );
   } catch (err) {
     err = LoggerCls.getPureError(err);
 
-    state.messages.push(
-      new SystemMessage(`Salesforce tool execution error: ${err}`)
+    await addSystemMsg(
+      state,
+      `Salesforce tool execution error: ${err}`,
+      STEP_EMOJIS.error
     );
-    if (state.onNotifyProgress) {
-      await state.onNotifyProgress(
-        `${STEP_EMOJIS.error}Salesforce tool execution error: ${err}`
-      );
-    }
   }
 
   state.toolSystemSalesForceProcessed = true;
