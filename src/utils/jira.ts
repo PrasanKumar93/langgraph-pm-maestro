@@ -110,6 +110,7 @@ class JiraST {
       };
       const response = await this.client.post("/issue", entry);
       retData = response.data;
+      LoggerCls.debug("Jira issue created successfully:", retData);
     } catch (error) {
       const err = LoggerCls.getPureError(error);
       LoggerCls.error("Error creating JIRA issue:", err);

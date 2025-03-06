@@ -84,11 +84,12 @@ class SalesforceST {
   public async insertRecord(objectName: string, data: any): Promise<any> {
     try {
       const result = await this.conn.sobject(objectName).create(data);
-      LoggerCls.log(`Salesforce data inserted successfully:`, result);
+      LoggerCls.debug(`Salesforce data inserted successfully:`, result);
       return result;
     } catch (error) {
-      LoggerCls.error("Salesforce Insert Error:", error);
-      throw error;
+      const err = LoggerCls.getPureError(error);
+      LoggerCls.error("Salesforce Insert Error:", err);
+      throw err;
     }
   }
 

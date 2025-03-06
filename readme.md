@@ -1,41 +1,20 @@
-# LangGraph PM Maestro
+# PM Maestro
 
-## Goals
+- [About PM Maestro](docs/about-pm-maestro.md)
 
-- Showcase the LangGraph agent’s capability to automate a simple `Product Management` workflow.
+- [Tech Stack](docs/tech-stack.md)
 
-- Workflow includes:
-  - `Customer Demand Analysis`: Gather and synthesize data from systems like Salesforce, JIRA, Zendesk, etc.
-  - `Market Research`: Scrape competitor data, summarize features, and create matrices.
-  - `Effort Estimation`: Estimate work required and produce breakdowns.
-  - `Mini-PRD Generation`: Generate a multi-page product requirements document.
+- [Project Setup](docs/project-setup.md)
 
-Note : PRD - Product Requirements Document
+## How to generate required env variables
 
-## Environment variables
+- [OpenAI API Key](./how-tos/openai.md)
+- [Tavily API Key](./how-tos/tavily-key.md)
+- [Salesforce](./how-tos/salesforce.md) (optional)
+- [Jira](./how-tos/jira.md) (optional)
+- [Slack](./how-tos/slack.md) (optional)
 
-Please set the environment variables in the **.env** file.
+## Sample Seeding Data for Testing
 
-```sh title="./.env"
-PORT=3001
-
-OPENAI_API_KEY=sk-proj-1234567890
-OPENAI_MODEL_NAME=gpt-4o-mini
-REDIS_URL=redis://localhost:6379
-
-SLACK_SIGNING_SECRET=
-SLACK_BOT_TOKEN=
-SLACK_APP_TOKEN=
-```
-
-## Install dependencies
-
-```sh
-npm install
-```
-
-## Start application
-
-```sh
-npm run studio
-```
+- [Salesforce](./docs/sample-seeding-salesforce-data.md) (optional)
+- [Jira](./docs/sample-seeding-jira-data.md) (optional)
