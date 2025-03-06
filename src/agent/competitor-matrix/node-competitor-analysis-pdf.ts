@@ -4,6 +4,7 @@ import { SystemMessage } from "@langchain/core/messages";
 
 import { convertMarkdownToPdf } from "../../utils/misc.js";
 import { STEP_EMOJIS } from "../../utils/constants.js";
+import { checkErrorToStopWorkflow } from "../error.js";
 
 const style = `
        @page {
@@ -126,17 +127,23 @@ const getMarkdownContent = (state: OverallStateType) => {
 };
 
 const nodeCompetitorAnalysisPdf = async (state: OverallStateType) => {
-  const markdownContent = getMarkdownContent(state);
+  try {
+    const markdownContent = getMarkdownContent(state);
 
-  if (markdownContent) {
-    const filePath = await generatePdf(markdownContent);
-    const detail = STEP_EMOJIS.pdf + `Competitor Analysis PDF created`;
-    state.messages.push(new SystemMessage(detail + " : " + filePath));
-    if (state.onNotifyProgress) {
-      await state.onNotifyProgress(detail);
+    if (markdownContent) {
+      const filePath = await generatePdf(markdownContent);
+      const detail = STEP_EMOJIS.pdf + `Competitor Analysis PDF created`;
+      state.messages.push(new SystemMessage(detail + " : " + filePath));
+      if (state.onNotifyProgress) {
+        await state.onNotifyProgress(detail);
+      }
+      state.competitorAnalysisPdfFilePath = filePath;
     }
-    state.competitorAnalysisPdfFilePath = filePath;
+  } catch (err) {
+    state.error = err;
   }
+
+  checkErrorToStopWorkflow(state);
 
   return state;
 };

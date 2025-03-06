@@ -26,9 +26,9 @@ const reduceCompetitorList = (competitorList: string[]) => {
 const updateState = async (state: OverallStateType, rawResult: any) => {
   if (state.toolTavilySearchProcessed) {
     // rawResult = JSON (after tool call)
-    const jsonResult = rawResult;
-    if (jsonResult?.data) {
-      let competitorList = jsonResult.data.split(",");
+    const resultJson = rawResult;
+    if (resultJson?.data) {
+      let competitorList = resultJson.data.split(",");
       competitorList = reduceCompetitorList(competitorList);
 
       state.competitorList = competitorList;
@@ -48,8 +48,8 @@ const updateState = async (state: OverallStateType, rawResult: any) => {
       //reset tool status for next node
       state.toolTavilySearchProcessed = false;
       state.toolTavilySearchData = "";
-    } else if (jsonResult?.error) {
-      state.error = jsonResult.error;
+    } else if (resultJson?.error) {
+      state.error = resultJson.error;
     }
   } else {
     const detail = STEP_EMOJIS.subGraph + "Competitor Analysis";

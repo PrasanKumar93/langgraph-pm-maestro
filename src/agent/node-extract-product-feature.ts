@@ -9,31 +9,24 @@ import { llmOpenAi } from "./llm-open-ai.js";
 import { checkErrorToStopWorkflow } from "./error.js";
 import { STEP_EMOJIS } from "../utils/constants.js";
 import { getPromptExtractProductFeature } from "./prompts/prompt-extract-product-feature.js";
+import { initializeState } from "./state.js";
 
-const initializeState = (state: OverallStateType) => {
-  state.productFeature = "";
+const updateState = async (state: OverallStateType, resultJson: any) => {
+  if (resultJson?.productFeature) {
+    state.productFeature = resultJson.productFeature;
 
-  state.systemSalesForceDataList = [];
-  state.systemJiraDataList = [];
-  state.toolSystemSalesForceProcessed = false;
-  state.toolSystemJiraProcessed = false;
-
-  state.effortEstimationData = {};
-
-  state.outputProductPRD = "";
-  state.outputPRDFilePath = "";
-  state.error = "";
-
-  state.competitorList = [];
-  state.pendingProcessCompetitorList = [];
-  state.competitorFeatureDetailsList = [];
-  state.competitorTableMatrix = "";
-  state.competitorAnalysisPdfFilePath = "";
-
-  state.toolTavilySearchProcessed = false;
-  state.toolTavilySearchData = "";
-  state.allTavilySearchDataList = [];
+    const detail = `productFeature: \`${resultJson.productFeature}\``;
+    state.messages.push(new SystemMessage(detail));
+    if (state.onNotifyProgress) {
+      await state.onNotifyProgress(STEP_EMOJIS.subStep + detail);
+    }
+  } else if (resultJson?.error) {
+    state.error = resultJson.error;
+  } else {
+    state.error = "Could not extract product feature";
+  }
 };
+
 const nodeExtractProductFeature = async (state: OverallStateType) => {
   initializeState(state);
 
@@ -52,25 +45,11 @@ const nodeExtractProductFeature = async (state: OverallStateType) => {
     outputParser,
   ]);
 
-  const result = await chain.invoke({
+  const resultJson = await chain.invoke({
     ...state,
   });
 
-  //#region update state
-  if (result.productFeature) {
-    state.productFeature = result.productFeature;
-
-    const detail = `productFeature: \`${result.productFeature}\``;
-    state.messages.push(new SystemMessage(detail));
-    if (state.onNotifyProgress) {
-      await state.onNotifyProgress(STEP_EMOJIS.subStep + detail);
-    }
-  } else if (result.error) {
-    state.error = result.error;
-  } else {
-    state.error = "Could not extract product feature";
-  }
-  //#endregion
+  await updateState(state, resultJson);
 
   checkErrorToStopWorkflow(state);
   return state;

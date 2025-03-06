@@ -17,10 +17,11 @@ const updateState = async (state: OverallStateType, rawResult: any) => {
 
   if (state.toolTavilySearchProcessed) {
     // rawResult = string (after tool call)
-    if (rawResult) {
+    let resultStr = rawResult;
+    if (resultStr) {
       state.competitorFeatureDetailsList.push({
         competitorName: competitorName,
-        featureDetails: rawResult,
+        featureDetails: resultStr,
       });
 
       const msg =
@@ -97,9 +98,10 @@ const nodeCompetitorFeatureDetails = async (state: OverallStateType) => {
     });
 
     await updateState(state, rawResult);
-
-    checkErrorToStopWorkflow(state);
   }
+
+  checkErrorToStopWorkflow(state);
+
   return state;
 };
 

@@ -10,6 +10,7 @@ import { SystemMessage } from "@langchain/core/messages";
 import { z } from "zod";
 import { SalesforceST } from "../utils/salesforce.js";
 import { STEP_EMOJIS } from "../utils/constants.js";
+import { LoggerCls } from "../utils/logger.js";
 
 const searchSalesforce = async (productFeature: string, query?: string) => {
   let result: any[] = [];
@@ -30,24 +31,35 @@ const getSalesForceData = async (
   input: any,
   config: LangGraphRunnableConfig
 ) => {
-  //#region update shared state
   const state = getContextVariable("currentState") as OverallStateType;
 
-  const salesforceData = await searchSalesforce(input.productFeature);
+  try {
+    const salesforceData = await searchSalesforce(input.productFeature);
 
-  if (salesforceData.length > 0) {
-    state.systemSalesForceDataList = salesforceData;
+    if (salesforceData?.length > 0) {
+      state.systemSalesForceDataList = salesforceData;
+    }
+
+    const detail = `Extracted SalesForce data : ${salesforceData.length}`;
+    state.messages.push(new SystemMessage(detail));
+    if (state.onNotifyProgress) {
+      await state.onNotifyProgress(STEP_EMOJIS.tool + detail);
+    }
+  } catch (err) {
+    err = LoggerCls.getPureError(err);
+
+    state.messages.push(
+      new SystemMessage(`Salesforce tool execution error: ${err}`)
+    );
+    if (state.onNotifyProgress) {
+      await state.onNotifyProgress(
+        `${STEP_EMOJIS.error}Salesforce tool execution error: ${err}`
+      );
+    }
   }
+
   state.toolSystemSalesForceProcessed = true;
-
-  const detail = `Extracted SalesForce data : ${salesforceData.length}`;
-  state.messages.push(new SystemMessage(detail));
-  if (state.onNotifyProgress) {
-    await state.onNotifyProgress(STEP_EMOJIS.tool + detail);
-  }
-
   setContextVariable("currentState", state);
-  //#endregion
 
   return state;
 };

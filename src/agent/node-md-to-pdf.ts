@@ -4,6 +4,7 @@ import { SystemMessage } from "@langchain/core/messages";
 
 import { convertMarkdownToPdf } from "../utils/misc.js";
 import { STEP_EMOJIS } from "../utils/constants.js";
+import { checkErrorToStopWorkflow } from "./error.js";
 
 const style = `
        @page {
@@ -88,15 +89,21 @@ const generateMiniPrdFile = async (content: string) => {
 };
 
 const nodeMdToPdf = async (state: OverallStateType) => {
-  if (state.outputProductPRD) {
-    const filePath = await generateMiniPrdFile(state.outputProductPRD);
-    const detail = `Markdown to PDF conversion completed`;
-    state.messages.push(new SystemMessage(detail));
-    if (state.onNotifyProgress) {
-      await state.onNotifyProgress(STEP_EMOJIS.pdf + detail);
+  try {
+    if (state.outputProductPRD) {
+      const filePath = await generateMiniPrdFile(state.outputProductPRD);
+      const detail = `Markdown to PDF conversion completed`;
+      state.messages.push(new SystemMessage(detail));
+      if (state.onNotifyProgress) {
+        await state.onNotifyProgress(STEP_EMOJIS.pdf + detail);
+      }
+      state.outputPRDFilePath = filePath;
     }
-    state.outputPRDFilePath = filePath;
+  } catch (err) {
+    state.error = err;
   }
+
+  checkErrorToStopWorkflow(state);
 
   return state;
 };

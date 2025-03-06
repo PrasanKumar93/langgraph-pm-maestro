@@ -10,6 +10,15 @@ import { checkErrorToStopWorkflow } from "./error.js";
 import { STEP_EMOJIS } from "../utils/constants.js";
 import { getPromptEffortEstimation } from "./prompts/prompt-effort-estimation.js";
 
+const updateState = async (state: OverallStateType, resultJson: any) => {
+  state.effortEstimationData = resultJson;
+  const detail = `Effort estimation completed`;
+  state.messages.push(new SystemMessage(detail));
+  if (state.onNotifyProgress) {
+    await state.onNotifyProgress(STEP_EMOJIS.estimation + detail);
+  }
+};
+
 const nodeEffortEstimation = async (state: OverallStateType) => {
   if (!state.competitorTableMatrix?.length) {
     state.error = "No competitor data found";
@@ -31,18 +40,13 @@ const nodeEffortEstimation = async (state: OverallStateType) => {
     outputParser,
   ]);
 
-  const result = await chain.invoke({
+  const resultJson = await chain.invoke({
     ...state,
   });
 
-  //#region update state
-  state.effortEstimationData = result;
-  const detail = `Effort estimation completed`;
-  state.messages.push(new SystemMessage(detail));
-  if (state.onNotifyProgress) {
-    await state.onNotifyProgress(STEP_EMOJIS.estimation + detail);
-  }
-  //#endregion
+  await updateState(state, resultJson);
+
+  checkErrorToStopWorkflow(state);
 
   return state;
 };

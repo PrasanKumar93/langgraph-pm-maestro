@@ -9,6 +9,17 @@ import { toolSystemSalesForce } from "./tool-system-sales-force.js";
 import { toolSystemJira } from "./tool-system-jira.js";
 import { STEP_EMOJIS } from "../utils/constants.js";
 import { getPromptCustomerDemandAnalysis } from "./prompts/prompt-customer-demand-analysis.js";
+import { checkErrorToStopWorkflow } from "./error.js";
+
+const updateState = async (state: OverallStateType, rawResult: any) => {
+  const detail = `Customer demand analysis`;
+  state.messages.push(new SystemMessage(detail));
+  if (state.onNotifyProgress) {
+    await state.onNotifyProgress(STEP_EMOJIS.analysis + detail);
+  }
+  // rawResult = AI Chunk Message
+  state.messages.push(rawResult);
+};
 
 const nodeCustomerDemandAnalysis = async (state: OverallStateType) => {
   const SYSTEM_PROMPT = getPromptCustomerDemandAnalysis(state);
@@ -21,19 +32,13 @@ const nodeCustomerDemandAnalysis = async (state: OverallStateType) => {
 
   const chain = RunnableSequence.from([customerDemandAnalysisPrompt, model]);
 
-  const result = await chain.invoke({
+  const rawResult = await chain.invoke({
     ...state,
   });
 
-  //#region update state
-  const detail = `Customer demand analysis`;
-  state.messages.push(new SystemMessage(detail));
-  if (state.onNotifyProgress) {
-    await state.onNotifyProgress(STEP_EMOJIS.analysis + detail);
-  }
-  // rawResult = AI Chunk Message
-  state.messages.push(result);
-  //#endregion
+  await updateState(state, rawResult);
+
+  checkErrorToStopWorkflow(state);
 
   return state;
 };

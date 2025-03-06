@@ -47,7 +47,32 @@ const OverallStateAnnotation = Annotation.Root({
 });
 //#endregion
 
-export { InputStateAnnotation, OverallStateAnnotation };
+const initializeState = (state: OverallStateType) => {
+  state.productFeature = "";
+
+  state.competitorList = [];
+  state.pendingProcessCompetitorList = [];
+  state.competitorFeatureDetailsList = [];
+  state.competitorTableMatrix = "";
+  state.competitorAnalysisPdfFilePath = "";
+
+  state.systemSalesForceDataList = [];
+  state.systemJiraDataList = [];
+  state.toolSystemSalesForceProcessed = false;
+  state.toolSystemJiraProcessed = false;
+
+  state.effortEstimationData = {};
+
+  state.outputProductPRD = "";
+  state.outputPRDFilePath = "";
+  state.error = "";
+
+  state.toolTavilySearchProcessed = false;
+  state.toolTavilySearchData = "";
+  state.allTavilySearchDataList = [];
+};
+
+export { InputStateAnnotation, OverallStateAnnotation, initializeState };
 
 type OverallStateType = typeof OverallStateAnnotation.State;
 type InputStateType = typeof InputStateAnnotation.State;

@@ -10,8 +10,8 @@ import { checkErrorToStopWorkflow } from "../error.js";
 import { STEP_EMOJIS } from "../../utils/constants.js";
 import { getPromptCompetitorTableMatrix } from "../prompts/prompt-competitor-table-matrix.js";
 
-const updateState = async (state: OverallStateType, rawResult: any) => {
-  if (rawResult) {
+const updateState = async (state: OverallStateType, resultStr: any) => {
+  if (resultStr) {
     const detail =
       STEP_EMOJIS.competitorTable + "Competitor Table Matrix created";
     state.messages.push(new SystemMessage(detail));
@@ -19,7 +19,7 @@ const updateState = async (state: OverallStateType, rawResult: any) => {
       await state.onNotifyProgress(detail);
     }
 
-    state.competitorTableMatrix = rawResult;
+    state.competitorTableMatrix = resultStr;
   } else {
     state.error = `Failed to create competitor table matrix`;
   }
@@ -42,11 +42,11 @@ const nodeCompetitorTableMatrix = async (state: OverallStateType) => {
     outputParser,
   ]);
 
-  const rawResult = await chain.invoke({
+  const resultStr = await chain.invoke({
     ...state,
   });
 
-  await updateState(state, rawResult);
+  await updateState(state, resultStr);
 
   checkErrorToStopWorkflow(state);
   return state;
