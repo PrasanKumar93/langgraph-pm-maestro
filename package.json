@@ -9,7 +9,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "tsc",
-    "start-slack-bot": "npm run build && node dist/slack-bot.js",
+    "start-slack-bot": "npm run build && node dist/slack-bot/index.js",
     "start-api": "npm run build && node dist/index.js",
     "start": "concurrently \"npm run start-slack-bot\" \"npm run start-api\"",
     "dev-api": "concurrently \"tsc --watch\" \"nodemon dist/index.js\"",

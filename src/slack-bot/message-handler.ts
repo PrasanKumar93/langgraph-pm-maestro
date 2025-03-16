@@ -1,16 +1,23 @@
-import type { InputStateType } from "./agent/state.js";
+import type { InputStateType, OverallStateType } from "../agent/state.js";
 
 import slackBoltPkg from "@slack/bolt";
 import "dotenv/config";
 import { BaseMessage } from "@langchain/core/messages";
 
-import { LoggerCls } from "./utils/logger.js";
-import { runWorkflow } from "./agent/workflow.js";
-import { STEP_EMOJIS } from "./utils/constants.js";
-import { getConfig } from "./config.js";
+import { LoggerCls } from "../utils/logger.js";
+import { runWorkflow as runWorkflowPRD } from "../agent/workflow.js";
+import { runWorkflow as runWorkflowCompetitiveAnalysis } from "../agent/competitor-matrix/workflow.js";
+import { STEP_EMOJIS } from "../utils/constants.js";
+import { getConfig } from "../config.js";
 
 interface IProcessRequest {
   threadTs: string;
+  channelId: string;
+  text: string;
+  say: slackBoltPkg.SayFn;
+  workflowType?: WorkFlowTypeEnum;
+}
+interface ICreateThreadMsgForSlashCommand {
   channelId: string;
   text: string;
   say: slackBoltPkg.SayFn;
@@ -28,6 +35,11 @@ interface IReplyWithLastMessage {
   messages: BaseMessage[];
   threadTs: string;
   say: slackBoltPkg.SayFn;
+}
+
+enum WorkFlowTypeEnum {
+  PRD = "prd",
+  COMPETITIVE_ANALYSIS = "competitive-analysis",
 }
 
 const { App } = slackBoltPkg;
@@ -103,10 +115,15 @@ const processSlackMessage = async ({
   channelId,
   text,
   say,
+  workflowType,
 }: IProcessRequest) => {
+  if (!workflowType) {
+    workflowType = WorkFlowTypeEnum.PRD;
+  }
+
   //Acknowledge user
   await say({
-    text: `${STEP_EMOJIS.start}Starting Feature Request Analysis`,
+    text: `${STEP_EMOJIS.start}Starting Feature Request Analysis for ${workflowType}`,
     thread_ts: threadTs,
     mrkdwn: true,
   });
@@ -124,38 +141,48 @@ const processSlackMessage = async ({
   };
 
   //Run workflow
-  const result = await runWorkflow(input);
+  let result: OverallStateType | null = null;
 
-  if (result.outputPRDFilePath) {
+  if (workflowType === WorkFlowTypeEnum.PRD) {
+    result = await runWorkflowPRD(input);
+  } else if (workflowType === WorkFlowTypeEnum.COMPETITIVE_ANALYSIS) {
+    result = await runWorkflowCompetitiveAnalysis(input);
+  }
+
+  if (result?.outputPRDFilePath || result?.competitorAnalysisPdfFilePath) {
     //success case
-    await uploadFileToSlack({
-      filePath: result.outputPRDFilePath,
-      fileComment:
-        STEP_EMOJIS.complete +
-        "Here's your Mini Product Requirements Document:",
-      fileTitle: "Mini PRD",
-      threadTs,
-      channelId,
-      say,
-    });
+    if (result.outputPRDFilePath) {
+      await uploadFileToSlack({
+        filePath: result.outputPRDFilePath,
+        fileComment:
+          STEP_EMOJIS.complete +
+          "Here's your Mini Product Requirements Document:",
+        fileTitle: "Mini PRD",
+        threadTs,
+        channelId,
+        say,
+      });
+    }
 
-    await uploadFileToSlack({
-      filePath: result.competitorAnalysisPdfFilePath,
-      fileComment:
-        STEP_EMOJIS.complete + "Here's your Competitor Analysis Document:",
-      fileTitle: "Competitor Analysis",
-      threadTs,
-      channelId,
-      say,
-    });
-  } else if (result.error) {
+    if (result.competitorAnalysisPdfFilePath) {
+      await uploadFileToSlack({
+        filePath: result.competitorAnalysisPdfFilePath,
+        fileComment:
+          STEP_EMOJIS.complete + "Here's your Competitor Analysis Document:",
+        fileTitle: "Competitor Analysis",
+        threadTs,
+        channelId,
+        say,
+      });
+    }
+  } else if (result?.error) {
     //error case
     await say({
       text: STEP_EMOJIS.error + result.error,
       thread_ts: threadTs,
       mrkdwn: true,
     });
-  } else if (result.messages?.length) {
+  } else if (result?.messages?.length) {
     //interrupt (intermediate error) case
     await replyWithLastMessage({
       messages: result.messages,
@@ -165,39 +192,23 @@ const processSlackMessage = async ({
   }
 };
 
-const initAndListenSlackBot = async () => {
-  const config = getConfig();
-  const app = getSlackApp();
-
-  // Handle direct messages and channel messages
-  app.message(async ({ message, say }) => {
-    // Check if this is a direct message
-    if (message.channel_type === "im" && "text" in message) {
-      const threadTs = message.ts;
-      const channelId = message.channel;
-      const text = message.text || "";
-
-      await processSlackMessage({ threadTs, channelId, text, say });
-    }
+const createThreadMsgForSlashCommand = async ({
+  channelId,
+  text,
+  say,
+}: ICreateThreadMsgForSlashCommand) => {
+  //create initial threaded message as slash command disappears
+  const initialMessage = await say({
+    text: `Processing slash command request for: ${text}`,
+    channel: channelId,
   });
 
-  // Handle app mentions
-  app.event("app_mention", async ({ event, context, client, say }) => {
-    const threadTs = event.thread_ts || event.ts;
-    const channelId = event.channel;
-    const text = event.text;
-
-    await processSlackMessage({ threadTs, channelId, text, say });
-  });
-
-  await app
-    .start(parseInt(config.SLACK_BOT_PORT))
-    .then(() => {
-      LoggerCls.log("⚡️ Slack bot is running and connected!");
-    })
-    .catch((error) => {
-      LoggerCls.error("Failed to start Slack bot:", error);
-    });
+  return initialMessage.ts || "";
 };
 
-initAndListenSlackBot();
+export {
+  WorkFlowTypeEnum,
+  getSlackApp,
+  processSlackMessage,
+  createThreadMsgForSlashCommand,
+};
