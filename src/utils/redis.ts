@@ -1,6 +1,7 @@
-import { createClient } from "redis";
+import { createClient, SchemaFieldTypes } from "redis";
 
 import { LoggerCls } from "./logger.js";
+import { getConfig } from "../config.js";
 
 type RedisClientType = ReturnType<typeof createClient>;
 
@@ -69,9 +70,18 @@ class RedisWrapperST extends RedisWrapper {
   public static getInstance(): RedisWrapperST {
     return RedisWrapperST.instance;
   }
+
+  public static async getAutoInstance(): Promise<RedisWrapperST> {
+    if (!RedisWrapperST.instance) {
+      const config = getConfig();
+      RedisWrapperST.instance = new RedisWrapperST(config.REDIS_URL);
+      await RedisWrapperST.instance.connect();
+    }
+    return RedisWrapperST.instance;
+  }
 }
 
-export { RedisWrapper, RedisWrapperST };
+export { RedisWrapper, RedisWrapperST, SchemaFieldTypes };
 
 /** Example Usage (RedisWrapper)
  

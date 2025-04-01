@@ -28,6 +28,12 @@ const getConfig = () => {
     SLACK_BOT_TOKEN: process.env.SLACK_BOT_TOKEN,
     SLACK_APP_TOKEN: process.env.SLACK_APP_TOKEN,
     SLACK_BOT_PORT: process.env.SLACK_BOT_PORT || "8080",
+
+    REDIS_KEYS: {
+      ROOT_PREFIX: "pmMaestro:",
+      CACHE_PREFIX: "agentCache:",
+      CACHE_TTL: 60 * 60 * 24, // 24 hours in seconds
+    },
   };
 };
 

@@ -12,6 +12,7 @@ import { getPromptCompetitorList } from "../prompts/prompt-competitor-list.js";
 import { addSystemMsg } from "../common.js";
 import { getLLM } from "../llms/llm.js";
 import { getConfig } from "../../config.js";
+import { AgentCache } from "../agent-cache.js";
 
 const reduceCompetitorList = (competitorList: string[]) => {
   const config = getConfig();
@@ -26,11 +27,51 @@ const reduceCompetitorList = (competitorList: string[]) => {
   return retList;
 };
 
+const updateStateFromCache = async (state: OverallStateType) => {
+  let isCacheHit = false;
+
+  const agentCache = await AgentCache.getInstance();
+  const cached = await agentCache.getAgentCache({
+    prompt: "CompetitorList",
+    scope: {
+      feature: state.productFeature,
+      nodeName: "nodeCompetitorList",
+    },
+  });
+
+  if (cached) {
+    const response = cached.response;
+    if (response) {
+      isCacheHit = true;
+      const competitorList = response.split(",");
+      state.competitorList = competitorList;
+      state.pendingProcessCompetitorList = [...competitorList];
+
+      const competitorListStr = competitorList.join(", ");
+      const msg = `(Cache) Current Competitors : \`${competitorListStr}\``;
+      await addSystemMsg(state, msg, STEP_EMOJIS.subStep);
+      LoggerCls.debug(msg);
+    }
+  }
+
+  return isCacheHit;
+};
+
 const updateState = async (state: OverallStateType, rawResult: any) => {
   if (state.toolTavilySearchProcessed) {
     // rawResult = JSON (after tool call)
     const resultJson = rawResult;
     if (resultJson?.data) {
+      const agentCache = await AgentCache.getInstance();
+      await agentCache.setAgentCache({
+        prompt: "CompetitorList",
+        response: resultJson.data,
+        scope: {
+          feature: state.productFeature,
+          nodeName: "nodeCompetitorList",
+        },
+      });
+
       let competitorList = resultJson.data.split(",");
       competitorList = reduceCompetitorList(competitorList);
 
@@ -61,45 +102,50 @@ const updateState = async (state: OverallStateType, rawResult: any) => {
 };
 
 const nodeCompetitorList = async (state: OverallStateType) => {
-  try {
-    const SYSTEM_PROMPT = getPromptCompetitorList(state);
+  const isCacheHit = await updateStateFromCache(state);
 
-    const competitorListPrompt = ChatPromptTemplate.fromMessages([
-      ["system", SYSTEM_PROMPT],
-    ]);
+  if (!isCacheHit) {
+    try {
+      const SYSTEM_PROMPT = getPromptCompetitorList(state);
 
-    const llm = getLLM();
-
-    const model = llm.bindTools([toolTavilySearch]);
-
-    const outputParser = new JsonOutputParser();
-
-    let chain: RunnableSequence<any, any> | null = null;
-
-    if (state.toolTavilySearchProcessed) {
-      //after tool call
-      chain = RunnableSequence.from([
-        competitorListPrompt,
-        model,
-        outputParser,
+      const competitorListPrompt = ChatPromptTemplate.fromMessages([
+        ["system", SYSTEM_PROMPT],
       ]);
-    } else {
-      state.toolTavilySearchProcessed = false;
-      state.toolTavilySearchData = "";
-      //before tool call
-      chain = RunnableSequence.from([competitorListPrompt, model]);
+
+      const llm = getLLM();
+
+      const model = llm.bindTools([toolTavilySearch]);
+
+      const outputParser = new JsonOutputParser();
+
+      let chain: RunnableSequence<any, any> | null = null;
+
+      if (state.toolTavilySearchProcessed) {
+        //after tool call
+        chain = RunnableSequence.from([
+          competitorListPrompt,
+          model,
+          outputParser,
+        ]);
+      } else {
+        state.toolTavilySearchProcessed = false;
+        state.toolTavilySearchData = "";
+        //before tool call
+        chain = RunnableSequence.from([competitorListPrompt, model]);
+      }
+
+      const rawResult = await chain.invoke({
+        ...state,
+      });
+
+      await updateState(state, rawResult);
+    } catch (err) {
+      state.error = err;
     }
 
-    const rawResult = await chain.invoke({
-      ...state,
-    });
-
-    await updateState(state, rawResult);
-  } catch (err) {
-    state.error = err;
+    checkErrorToStopWorkflow(state);
   }
 
-  checkErrorToStopWorkflow(state);
   return state;
 };
 
