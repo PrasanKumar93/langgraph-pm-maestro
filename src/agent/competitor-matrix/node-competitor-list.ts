@@ -37,7 +37,7 @@ const updateState = async (state: OverallStateType, rawResult: any) => {
       state.competitorList = competitorList;
       state.pendingProcessCompetitorList = [...competitorList];
 
-      const msg = `Competitors found : \`${competitorList.join(", ")}\``;
+      const msg = `Current Competitors : \`${competitorList.join(", ")}\``;
       await addSystemMsg(state, msg, STEP_EMOJIS.subStep);
       LoggerCls.debug(msg);
 
@@ -48,7 +48,12 @@ const updateState = async (state: OverallStateType, rawResult: any) => {
       state.error = resultJson.error;
     }
   } else {
-    await addSystemMsg(state, "Competitor Analysis", STEP_EMOJIS.subGraph);
+    await addSystemMsg(
+      state,
+      "Competitor Analysis (Market Research)",
+      STEP_EMOJIS.subGraph,
+      "Market Research"
+    );
 
     // rawResult = AI Chunk Message (before tool call)
     state.messages.push(rawResult);

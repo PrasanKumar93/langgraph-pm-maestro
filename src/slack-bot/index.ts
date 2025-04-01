@@ -61,7 +61,7 @@ const initAndListenSlackBot = async () => {
   });
 
   // Handle slash command
-  app.command("/pm-competitive-analysis", async ({ command, ack, say }) => {
+  app.command("/pm-market-research", async ({ command, ack, say }) => {
     await ack();
     const channelId = command.channel_id;
     const text = command.text;

@@ -25,7 +25,7 @@ const updateState = async (state: OverallStateType, rawResult: any) => {
         featureDetails: resultStr,
       });
 
-      const msg = `*${competitorName}* : Competitor Feature Details fetched`;
+      const msg = `*${competitorName}* : feature research completed`;
       await addSystemMsg(state, msg, STEP_EMOJIS.company);
       LoggerCls.debug(msg);
     } else {
@@ -38,7 +38,7 @@ const updateState = async (state: OverallStateType, rawResult: any) => {
     if (state.pendingProcessCompetitorList.length === 0) {
       await addSystemMsg(
         state,
-        "All competitors processed",
+        "All competitors research completed",
         STEP_EMOJIS.allCompany
       );
     }

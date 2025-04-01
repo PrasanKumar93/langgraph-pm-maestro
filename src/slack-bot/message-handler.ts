@@ -121,9 +121,17 @@ const processSlackMessage = async ({
     workflowType = WorkFlowTypeEnum.PRD;
   }
 
+  let startMessage = "";
+
+  if (workflowType === WorkFlowTypeEnum.PRD) {
+    startMessage = `Starting feature request analysis for Mini PRD (Product Requirements Document)`;
+  } else if (workflowType === WorkFlowTypeEnum.COMPETITIVE_ANALYSIS) {
+    startMessage = `Starting feature request analysis for Market Research document`;
+  }
+
   //Acknowledge user
   await say({
-    text: `${STEP_EMOJIS.start}Starting Feature Request Analysis for ${workflowType}`,
+    text: `${STEP_EMOJIS.start} ${startMessage}`,
     thread_ts: threadTs,
     mrkdwn: true,
   });
@@ -168,8 +176,8 @@ const processSlackMessage = async ({
       await uploadFileToSlack({
         filePath: result.competitorAnalysisPdfFilePath,
         fileComment:
-          STEP_EMOJIS.complete + "Here's your Competitor Analysis Document:",
-        fileTitle: "Competitor Analysis",
+          STEP_EMOJIS.complete + "Here's your Market Research Document:",
+        fileTitle: "Market Research",
         threadTs,
         channelId,
         say,

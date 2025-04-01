@@ -134,9 +134,9 @@ const nodeCompetitorAnalysisPdf = async (state: OverallStateType) => {
 
       await addSystemMsg(
         state,
-        `Competitor Analysis PDF created : ${filePath}`,
+        `Competitor Analysis (Market Research) PDF created : ${filePath}`,
         STEP_EMOJIS.pdf,
-        "Competitor Analysis PDF created"
+        "Market Research PDF created"
       );
 
       state.competitorAnalysisPdfFilePath = filePath;
