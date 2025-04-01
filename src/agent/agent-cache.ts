@@ -42,6 +42,9 @@ class AgentCache {
   }
 
   public async createIndexIfNotExists() {
+    /**
+     "FT.CREATE" "pmMaestro2:idx:agentCacheSearchIndex" "ON" "JSON" "PREFIX" "1" "pmMaestro2:agentCache:" "SCHEMA" "$.prompt" "AS" "prompt" "TEXT" "NOSTEM" "SORTABLE" "$.scope.feature" "AS" "scope_feature" "TAG" "$.scope.nodeName" "AS" "scope_nodeName" "TAG" "$.scope.userId" "AS" "scope_userId" "TAG" "$.scope.userSessionId" "AS" "scope_userSessionId" "TAG"
+     */
     const redisWrapperST = await RedisWrapperST.getAutoInstance();
     let indexExists = false;
 

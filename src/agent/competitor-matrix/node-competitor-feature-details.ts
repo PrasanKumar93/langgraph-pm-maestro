@@ -12,6 +12,51 @@ import { LoggerCls } from "../../utils/logger.js";
 import { STEP_EMOJIS } from "../../utils/constants.js";
 import { getPromptCompetitorFeatureDetails } from "../prompts/prompt-competitor-feature-details.js";
 import { addSystemMsg } from "../common.js";
+import { AgentCache } from "../agent-cache.js";
+
+const updateStateFromCache = async (state: OverallStateType) => {
+  let isCacheHit = false;
+
+  let competitorName = state.pendingProcessCompetitorList[0];
+
+  const agentCache = await AgentCache.getInstance();
+  const cached = await agentCache.getAgentCache({
+    prompt: competitorName,
+    scope: {
+      feature: state.productFeature,
+      nodeName: "nodeCompetitorFeatureDetails",
+    },
+  });
+
+  if (cached) {
+    const response = cached.response;
+    if (response) {
+      isCacheHit = true;
+
+      state.competitorFeatureDetailsList.push({
+        competitorName: competitorName,
+        featureDetails: response,
+      });
+
+      const msg = `(Cache) *${competitorName}* : feature research completed`;
+      await addSystemMsg(state, msg, STEP_EMOJIS.company);
+      LoggerCls.debug(msg);
+
+      //remove the processed competitor from the list
+      state.pendingProcessCompetitorList.shift();
+
+      if (state.pendingProcessCompetitorList.length === 0) {
+        await addSystemMsg(
+          state,
+          "All competitors research completed",
+          STEP_EMOJIS.allCompany
+        );
+      }
+    }
+  }
+
+  return isCacheHit;
+};
 
 const updateState = async (state: OverallStateType, rawResult: any) => {
   let competitorName = state.pendingProcessCompetitorList[0];
@@ -20,6 +65,16 @@ const updateState = async (state: OverallStateType, rawResult: any) => {
     // rawResult = string (after tool call)
     let resultStr = rawResult;
     if (resultStr) {
+      const agentCache = await AgentCache.getInstance();
+      await agentCache.setAgentCache({
+        prompt: competitorName,
+        response: resultStr,
+        scope: {
+          feature: state.productFeature,
+          nodeName: "nodeCompetitorFeatureDetails",
+        },
+      });
+
       state.competitorFeatureDetailsList.push({
         competitorName: competitorName,
         featureDetails: resultStr,
@@ -57,46 +112,50 @@ const updateState = async (state: OverallStateType, rawResult: any) => {
 };
 
 const nodeCompetitorFeatureDetails = async (state: OverallStateType) => {
-  try {
-    if (state.pendingProcessCompetitorList.length) {
-      const SYSTEM_PROMPT = getPromptCompetitorFeatureDetails(state);
+  const isCacheHit = await updateStateFromCache(state);
 
-      const competitorListPrompt = ChatPromptTemplate.fromMessages([
-        ["system", SYSTEM_PROMPT],
-      ]);
+  if (!isCacheHit) {
+    try {
+      if (state.pendingProcessCompetitorList.length) {
+        const SYSTEM_PROMPT = getPromptCompetitorFeatureDetails(state);
 
-      const llm = getLLM();
-      const model = llm.bindTools([toolTavilySearch]);
-
-      const outputParser = new StringOutputParser();
-
-      let chain: RunnableSequence<any, any> | null = null;
-
-      if (state.toolTavilySearchProcessed) {
-        //after tool call
-        chain = RunnableSequence.from([
-          competitorListPrompt,
-          model,
-          outputParser,
+        const competitorListPrompt = ChatPromptTemplate.fromMessages([
+          ["system", SYSTEM_PROMPT],
         ]);
-      } else {
-        state.toolTavilySearchProcessed = false;
-        state.toolTavilySearchData = "";
-        //before tool call
-        chain = RunnableSequence.from([competitorListPrompt, model]);
+
+        const llm = getLLM();
+        const model = llm.bindTools([toolTavilySearch]);
+
+        const outputParser = new StringOutputParser();
+
+        let chain: RunnableSequence<any, any> | null = null;
+
+        if (state.toolTavilySearchProcessed) {
+          //after tool call
+          chain = RunnableSequence.from([
+            competitorListPrompt,
+            model,
+            outputParser,
+          ]);
+        } else {
+          state.toolTavilySearchProcessed = false;
+          state.toolTavilySearchData = "";
+          //before tool call
+          chain = RunnableSequence.from([competitorListPrompt, model]);
+        }
+
+        const rawResult = await chain.invoke({
+          ...state,
+        });
+
+        await updateState(state, rawResult);
       }
-
-      const rawResult = await chain.invoke({
-        ...state,
-      });
-
-      await updateState(state, rawResult);
+    } catch (err) {
+      state.error = err;
     }
-  } catch (err) {
-    state.error = err;
-  }
 
-  checkErrorToStopWorkflow(state);
+    checkErrorToStopWorkflow(state);
+  }
 
   return state;
 };

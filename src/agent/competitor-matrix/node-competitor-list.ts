@@ -43,7 +43,9 @@ const updateStateFromCache = async (state: OverallStateType) => {
     const response = cached.response;
     if (response) {
       isCacheHit = true;
-      const competitorList = response.split(",");
+      let competitorList = response.split(",");
+      competitorList = reduceCompetitorList(competitorList);
+
       state.competitorList = competitorList;
       state.pendingProcessCompetitorList = [...competitorList];
 
