@@ -10,8 +10,54 @@ import { getPromptMiniPrd } from "./prompts/prompt-mini-prd.js";
 import { checkErrorToStopWorkflow } from "./error.js";
 import { addSystemMsg } from "./common.js";
 import { getLLM } from "./llms/llm.js";
+import { AgentCache } from "./agent-cache.js";
+
+const updateStateFromCache = async (state: OverallStateType) => {
+  let isCacheHit = false;
+
+  let sortedCompetitors = [...state.competitorList].sort().join(", ");
+  const prompt = `MiniPRD for ${state.productFeature} with competitors ${sortedCompetitors}`;
+  const agentCache = await AgentCache.getInstance();
+  const cached = await agentCache.getAgentCache({
+    prompt: prompt,
+    scope: {
+      feature: state.productFeature,
+      nodeName: "nodeMiniPrd",
+    },
+  });
+
+  if (cached) {
+    const response = cached.response;
+    if (response) {
+      isCacheHit = true;
+      state.outputProductPRD = response;
+
+      await addSystemMsg(
+        state,
+        "(Cache) Mini PRD markdown generated",
+        STEP_EMOJIS.docWriting
+      );
+    }
+  }
+
+  return isCacheHit;
+};
 
 const updateState = async (state: OverallStateType, resultStr: any) => {
+  if (resultStr) {
+    let sortedCompetitors = [...state.competitorList].sort().join(", ");
+    const prompt = `MiniPRD for ${state.productFeature} with competitors ${sortedCompetitors}`;
+    const agentCache = await AgentCache.getInstance();
+    await agentCache.setAgentCache({
+      prompt: prompt,
+      response: resultStr,
+      scope: {
+        feature: state.productFeature,
+        nodeName: "nodeMiniPrd",
+      },
+    });
+  }
+
   state.outputProductPRD = resultStr;
 
   await addSystemMsg(
@@ -22,29 +68,33 @@ const updateState = async (state: OverallStateType, resultStr: any) => {
 };
 
 const nodeMiniPrd = async (state: OverallStateType) => {
-  try {
-    const SYSTEM_PROMPT = getPromptMiniPrd(state);
+  const isCacheHit = await updateStateFromCache(state);
 
-    const miniPrdPrompt = ChatPromptTemplate.fromMessages([
-      ["system", SYSTEM_PROMPT],
-    ]);
+  if (!isCacheHit) {
+    try {
+      const SYSTEM_PROMPT = getPromptMiniPrd(state);
 
-    const llm = getLLM();
+      const miniPrdPrompt = ChatPromptTemplate.fromMessages([
+        ["system", SYSTEM_PROMPT],
+      ]);
 
-    const outputParser = new StringOutputParser();
+      const llm = getLLM();
 
-    const chain = RunnableSequence.from([miniPrdPrompt, llm, outputParser]);
+      const outputParser = new StringOutputParser();
 
-    const resultStr = await chain.invoke({
-      ...state,
-    });
+      const chain = RunnableSequence.from([miniPrdPrompt, llm, outputParser]);
 
-    await updateState(state, resultStr);
-  } catch (err) {
-    state.error = err;
+      const resultStr = await chain.invoke({
+        ...state,
+      });
+
+      await updateState(state, resultStr);
+    } catch (err) {
+      state.error = err;
+    }
+
+    checkErrorToStopWorkflow(state);
   }
-
-  checkErrorToStopWorkflow(state);
 
   return state;
 };

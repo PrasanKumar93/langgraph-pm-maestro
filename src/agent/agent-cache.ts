@@ -10,7 +10,7 @@ interface IAgentCacheData {
     [key: string]: string | number | boolean;
   };
   scope: {
-    feature: string;
+    feature?: string;
     nodeName: string;
     userId?: string;
     userSessionId?: string;
@@ -36,6 +36,7 @@ class AgentCache {
   public static async getInstance(): Promise<AgentCache> {
     if (!AgentCache.instance) {
       AgentCache.instance = new AgentCache();
+      //await AgentCache.instance.clearAgentCache();
       await AgentCache.instance.createIndexIfNotExists();
     }
     return AgentCache.instance;
@@ -93,7 +94,7 @@ class AgentCache {
     try {
       const redisWrapperST = await RedisWrapperST.getAutoInstance();
       key = crypto.randomUUID().replace(/-/g, "");
-      key = this.AGENT_CACHE_PREFIX + key;
+      key = this.AGENT_CACHE_PREFIX + data.scope.nodeName + ":" + key;
       await redisWrapperST.client?.json.set(key, "$", data as any);
       await redisWrapperST.client?.expire(key, this.CACHE_TTL);
     } catch (error) {
@@ -104,6 +105,9 @@ class AgentCache {
   }
 
   public async getAgentCache(filterData: IAgentCacheData) {
+    /**
+     "FT.SEARCH" "pmMaestro:idx:agentCacheSearchIndex" "@prompt:'CompetitorList' @scope_feature:{stored procedures} @scope_nodeName:{nodeCompetitorList}"
+     */
     //TODO: replace json search with semantic search
     let result: IAgentCacheData | null = null;
     try {
@@ -112,7 +116,7 @@ class AgentCache {
         const searchFilters = [];
 
         //text field
-        searchFilters.push(`@prompt:"${filterData.prompt}"`);
+        searchFilters.push(`@prompt:'${filterData.prompt}'`);
 
         //tag fields
         Object.entries(filterData.scope).forEach(([key, value]) => {

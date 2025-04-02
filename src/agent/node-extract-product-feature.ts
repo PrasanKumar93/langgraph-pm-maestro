@@ -6,13 +6,53 @@ import { JsonOutputParser } from "@langchain/core/output_parsers";
 
 import { checkErrorToStopWorkflow } from "./error.js";
 import { STEP_EMOJIS } from "../utils/constants.js";
+import { LoggerCls } from "../utils/logger.js";
 import { getPromptExtractProductFeature } from "./prompts/prompt-extract-product-feature.js";
 import { initializeState } from "./state.js";
 import { addSystemMsg } from "./common.js";
 import { getLLM } from "./llms/llm.js";
+import { AgentCache } from "./agent-cache.js";
+
+const updateStateFromCache = async (state: OverallStateType) => {
+  let isCacheHit = false;
+
+  const agentCache = await AgentCache.getInstance();
+  const cached = await agentCache.getAgentCache({
+    prompt: state.inputText,
+    scope: {
+      nodeName: "nodeExtractProductFeature",
+    },
+  });
+
+  if (cached) {
+    const response = cached.response;
+    if (response) {
+      isCacheHit = true;
+
+      state.productFeature = response;
+
+      await addSystemMsg(
+        state,
+        `(Cache) productFeature: \`${response}\``,
+        STEP_EMOJIS.subStep
+      );
+    }
+  }
+
+  return isCacheHit;
+};
 
 const updateState = async (state: OverallStateType, resultJson: any) => {
   if (resultJson?.productFeature) {
+    const agentCache = await AgentCache.getInstance();
+    await agentCache.setAgentCache({
+      prompt: state.inputText,
+      response: resultJson.productFeature,
+      scope: {
+        nodeName: "nodeExtractProductFeature",
+      },
+    });
+
     state.productFeature = resultJson.productFeature;
 
     await addSystemMsg(
@@ -28,35 +68,39 @@ const updateState = async (state: OverallStateType, resultJson: any) => {
 };
 
 const nodeExtractProductFeature = async (state: OverallStateType) => {
-  try {
-    initializeState(state);
+  initializeState(state);
 
-    const SYSTEM_PROMPT = getPromptExtractProductFeature(state);
+  const isCacheHit = await updateStateFromCache(state);
 
-    const extractProductFeaturePrompt = ChatPromptTemplate.fromMessages([
-      ["system", SYSTEM_PROMPT],
-    ]);
+  if (!isCacheHit) {
+    try {
+      const SYSTEM_PROMPT = getPromptExtractProductFeature(state);
 
-    const llm = getLLM();
+      const extractProductFeaturePrompt = ChatPromptTemplate.fromMessages([
+        ["system", SYSTEM_PROMPT],
+      ]);
 
-    const outputParser = new JsonOutputParser();
+      const llm = getLLM();
 
-    const chain = RunnableSequence.from([
-      extractProductFeaturePrompt,
-      llm,
-      outputParser,
-    ]);
+      const outputParser = new JsonOutputParser();
 
-    const resultJson = await chain.invoke({
-      ...state,
-    });
+      const chain = RunnableSequence.from([
+        extractProductFeaturePrompt,
+        llm,
+        outputParser,
+      ]);
 
-    await updateState(state, resultJson);
-  } catch (err) {
-    state.error = err;
+      const resultJson = await chain.invoke({
+        ...state,
+      });
+
+      await updateState(state, resultJson);
+    } catch (err) {
+      state.error = err;
+    }
+
+    checkErrorToStopWorkflow(state);
   }
-
-  checkErrorToStopWorkflow(state);
   return state;
 };
 
