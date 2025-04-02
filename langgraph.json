@@ -6,7 +6,9 @@
     ],
     "graphs": {
         "pm-prd": "./src/agent/workflow.ts:compiledGraph",
-        "pm-market-research": "./src/agent/competitor-matrix/workflow.ts:compiledGraph"
+        "pm-prd-gif": "./src/agent/workflow-dummy-gif.ts:compiledGraph",
+        "pm-market-research": "./src/agent/competitor-matrix/workflow.ts:compiledGraph",
+        "pm-market-research-gif": "./src/agent/competitor-matrix/workflow-dummy-gif.ts:compiledGraph"
     },
     "env": ".env"
 }
