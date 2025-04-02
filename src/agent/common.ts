@@ -1,6 +1,7 @@
 import type { OverallStateType } from "./state.js";
 
 import { SystemMessage } from "@langchain/core/messages";
+import { ChatPromptTemplate } from "@langchain/core/prompts";
 
 const addSystemMsg = async (
   state: OverallStateType,
@@ -20,4 +21,11 @@ const addSystemMsg = async (
   }
 };
 
-export { addSystemMsg };
+const createChatPrompt = (systemPrompt: string) => {
+  return ChatPromptTemplate.fromMessages([
+    ["system", systemPrompt],
+    ["human", "Please process the above input."], //claude sonnet issue
+  ]);
+};
+
+export { addSystemMsg, createChatPrompt };

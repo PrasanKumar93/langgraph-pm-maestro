@@ -1,7 +1,17 @@
 const getConfig = () => {
   return {
+    DEFAULT_LLM_PROVIDER: process.env.DEFAULT_LLM_PROVIDER || "openai",
+
     OPENAI_API_KEY: process.env.OPENAI_API_KEY,
     OPENAI_MODEL_NAME: process.env.OPENAI_MODEL_NAME || "gpt-4o", //"gpt-4o-mini"
+
+    AWS_ACCESS_KEY_ID: process.env.AWS_ACCESS_KEY_ID || "",
+    AWS_SECRET_ACCESS_KEY: process.env.AWS_SECRET_ACCESS_KEY || "",
+    AWS_SESSION_TOKEN: process.env.AWS_SESSION_TOKEN || "",
+    AWS_REGION: process.env.AWS_REGION || "us-east-1",
+    AWS_BEDROCK_MODEL_NAME:
+      process.env.AWS_BEDROCK_MODEL_NAME ||
+      "anthropic.claude-3-5-sonnet-20240620-v1:0",
 
     TAVILY_API_KEY: process.env.TAVILY_API_KEY,
     MAX_COMPETITOR_LIST_COUNT: process.env.MAX_COMPETITOR_LIST_COUNT || "10",

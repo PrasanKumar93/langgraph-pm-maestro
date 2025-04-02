@@ -1,6 +1,5 @@
 import type { OverallStateType } from "../state.js";
 
-import { ChatPromptTemplate } from "@langchain/core/prompts";
 import { RunnableSequence } from "@langchain/core/runnables";
 import { StringOutputParser } from "@langchain/core/output_parsers";
 
@@ -8,7 +7,7 @@ import { checkErrorToStopWorkflow } from "../error.js";
 import { STEP_EMOJIS } from "../../utils/constants.js";
 import { LoggerCls } from "../../utils/logger.js";
 import { getPromptCompetitorTableMatrix } from "../prompts/prompt-competitor-table-matrix.js";
-import { addSystemMsg } from "../common.js";
+import { addSystemMsg, createChatPrompt } from "../common.js";
 import { getLLM } from "../llms/llm.js";
 import { AgentCache } from "../agent-cache.js";
 
@@ -75,9 +74,7 @@ const nodeCompetitorTableMatrix = async (state: OverallStateType) => {
     try {
       const SYSTEM_PROMPT = getPromptCompetitorTableMatrix(state);
 
-      const competitorListPrompt = ChatPromptTemplate.fromMessages([
-        ["system", SYSTEM_PROMPT],
-      ]);
+      const competitorListPrompt = createChatPrompt(SYSTEM_PROMPT);
 
       const llm = getLLM();
 

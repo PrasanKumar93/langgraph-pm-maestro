@@ -1,6 +1,5 @@
 import type { OverallStateType } from "./state.js";
 
-import { ChatPromptTemplate } from "@langchain/core/prompts";
 import { RunnableSequence } from "@langchain/core/runnables";
 import { JsonOutputParser } from "@langchain/core/output_parsers";
 
@@ -8,7 +7,7 @@ import { checkErrorToStopWorkflow } from "./error.js";
 import { STEP_EMOJIS } from "../utils/constants.js";
 import { LoggerCls } from "../utils/logger.js";
 import { getPromptEffortEstimation } from "./prompts/prompt-effort-estimation.js";
-import { addSystemMsg } from "./common.js";
+import { addSystemMsg, createChatPrompt } from "./common.js";
 import { getLLM } from "./llms/llm.js";
 import { AgentCache } from "./agent-cache.js";
 
@@ -77,9 +76,7 @@ const nodeEffortEstimation = async (state: OverallStateType) => {
 
       const SYSTEM_PROMPT = getPromptEffortEstimation(state);
 
-      const effortEstimationPrompt = ChatPromptTemplate.fromMessages([
-        ["system", SYSTEM_PROMPT],
-      ]);
+      const effortEstimationPrompt = createChatPrompt(SYSTEM_PROMPT);
 
       const llm = getLLM();
 

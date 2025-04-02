@@ -33,6 +33,7 @@ const SALESFORCE_OBJECTS = {
 
 enum LLM_PROVIDER {
   OPENAI = "openai",
+  AWS_BEDROCK = "aws_bedrock",
 }
 
 export { HTTP_STATUS_CODES, STEP_EMOJIS, SALESFORCE_OBJECTS, LLM_PROVIDER };

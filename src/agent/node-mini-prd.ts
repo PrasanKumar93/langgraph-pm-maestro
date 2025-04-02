@@ -1,14 +1,12 @@
 import type { OverallStateType } from "./state.js";
 
-import { ChatPromptTemplate } from "@langchain/core/prompts";
 import { RunnableSequence } from "@langchain/core/runnables";
-import { SystemMessage } from "@langchain/core/messages";
 import { StringOutputParser } from "@langchain/core/output_parsers";
 
 import { STEP_EMOJIS } from "../utils/constants.js";
 import { getPromptMiniPrd } from "./prompts/prompt-mini-prd.js";
 import { checkErrorToStopWorkflow } from "./error.js";
-import { addSystemMsg } from "./common.js";
+import { addSystemMsg, createChatPrompt } from "./common.js";
 import { getLLM } from "./llms/llm.js";
 import { AgentCache } from "./agent-cache.js";
 
@@ -74,9 +72,7 @@ const nodeMiniPrd = async (state: OverallStateType) => {
     try {
       const SYSTEM_PROMPT = getPromptMiniPrd(state);
 
-      const miniPrdPrompt = ChatPromptTemplate.fromMessages([
-        ["system", SYSTEM_PROMPT],
-      ]);
+      const miniPrdPrompt = createChatPrompt(SYSTEM_PROMPT);
 
       const llm = getLLM();
 

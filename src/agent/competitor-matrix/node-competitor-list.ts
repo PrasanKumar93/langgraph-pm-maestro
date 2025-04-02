@@ -1,15 +1,15 @@
 import type { OverallStateType } from "../state.js";
-
-import { ChatPromptTemplate } from "@langchain/core/prompts";
 import { RunnableSequence } from "@langchain/core/runnables";
-import { JsonOutputParser } from "@langchain/core/output_parsers";
+import { StructuredOutputParser } from "@langchain/core/output_parsers";
+import { z } from "zod";
+import { StringOutputParser } from "@langchain/core/output_parsers";
 
 import { checkErrorToStopWorkflow } from "../error.js";
 import { toolTavilySearch } from "../tool-tavily-search.js";
 import { LoggerCls } from "../../utils/logger.js";
 import { STEP_EMOJIS } from "../../utils/constants.js";
 import { getPromptCompetitorList } from "../prompts/prompt-competitor-list.js";
-import { addSystemMsg } from "../common.js";
+import { addSystemMsg, createChatPrompt } from "../common.js";
 import { getLLM } from "../llms/llm.js";
 import { getConfig } from "../../config.js";
 import { AgentCache } from "../agent-cache.js";
@@ -109,25 +109,26 @@ const nodeCompetitorList = async (state: OverallStateType) => {
   if (!isCacheHit) {
     try {
       const SYSTEM_PROMPT = getPromptCompetitorList(state);
-
-      const competitorListPrompt = ChatPromptTemplate.fromMessages([
-        ["system", SYSTEM_PROMPT],
-      ]);
-
+      const competitorListPrompt = createChatPrompt(SYSTEM_PROMPT);
       const llm = getLLM();
-
       const model = llm.bindTools([toolTavilySearch]);
-
-      const outputParser = new JsonOutputParser();
 
       let chain: RunnableSequence<any, any> | null = null;
 
       if (state.toolTavilySearchProcessed) {
         //after tool call
+        const expectedSchema = z.object({
+          data: z.string(),
+        });
+        const stringParser = new StringOutputParser();
+        const structuredParser =
+          StructuredOutputParser.fromZodSchema(expectedSchema);
+
         chain = RunnableSequence.from([
           competitorListPrompt,
           model,
-          outputParser,
+          stringParser,
+          structuredParser,
         ]);
       } else {
         state.toolTavilySearchProcessed = false;

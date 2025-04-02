@@ -1,6 +1,5 @@
 import type { OverallStateType } from "../state.js";
 
-import { ChatPromptTemplate } from "@langchain/core/prompts";
 import { RunnableSequence } from "@langchain/core/runnables";
 import { SystemMessage } from "@langchain/core/messages";
 import { StringOutputParser } from "@langchain/core/output_parsers";
@@ -11,7 +10,7 @@ import { toolTavilySearch } from "../tool-tavily-search.js";
 import { LoggerCls } from "../../utils/logger.js";
 import { STEP_EMOJIS } from "../../utils/constants.js";
 import { getPromptCompetitorFeatureDetails } from "../prompts/prompt-competitor-feature-details.js";
-import { addSystemMsg } from "../common.js";
+import { addSystemMsg, createChatPrompt } from "../common.js";
 import { AgentCache } from "../agent-cache.js";
 
 const updateStateFromCache = async (state: OverallStateType) => {
@@ -119,9 +118,7 @@ const nodeCompetitorFeatureDetails = async (state: OverallStateType) => {
       if (state.pendingProcessCompetitorList.length) {
         const SYSTEM_PROMPT = getPromptCompetitorFeatureDetails(state);
 
-        const competitorListPrompt = ChatPromptTemplate.fromMessages([
-          ["system", SYSTEM_PROMPT],
-        ]);
+        const competitorListPrompt = createChatPrompt(SYSTEM_PROMPT);
 
         const llm = getLLM();
         const model = llm.bindTools([toolTavilySearch]);

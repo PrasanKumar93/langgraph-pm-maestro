@@ -1,6 +1,5 @@
 import type { OverallStateType } from "./state.js";
 
-import { ChatPromptTemplate } from "@langchain/core/prompts";
 import { RunnableSequence } from "@langchain/core/runnables";
 
 import { toolSystemSalesForce } from "./tool-system-sales-force.js";
@@ -8,7 +7,7 @@ import { toolSystemJira } from "./tool-system-jira.js";
 import { STEP_EMOJIS } from "../utils/constants.js";
 import { getPromptCustomerDemandAnalysis } from "./prompts/prompt-customer-demand-analysis.js";
 import { checkErrorToStopWorkflow } from "./error.js";
-import { addSystemMsg } from "./common.js";
+import { addSystemMsg, createChatPrompt } from "./common.js";
 import { getLLM } from "./llms/llm.js";
 
 const updateState = async (state: OverallStateType, rawResult: any) => {
@@ -21,9 +20,7 @@ const nodeCustomerDemandAnalysis = async (state: OverallStateType) => {
   try {
     const SYSTEM_PROMPT = getPromptCustomerDemandAnalysis(state);
 
-    const customerDemandAnalysisPrompt = ChatPromptTemplate.fromMessages([
-      ["system", SYSTEM_PROMPT],
-    ]);
+    const customerDemandAnalysisPrompt = createChatPrompt(SYSTEM_PROMPT);
 
     const llm = getLLM();
 
