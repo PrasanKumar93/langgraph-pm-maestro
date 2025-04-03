@@ -19,35 +19,30 @@ Consider the following customer data and market context from the Jira and Salesf
 
 Note: Jira or Salesforce data is not always complete, accurate or may be empty, so make sure to use the competitor data to make the best estimation.
 
-Return your output as a JSON object with exactly 2 keys:
-1. tshirtSize with properties:
-   - size: string (one of: "XS", "S", "M", "L", "XL")
-   - personMonths: number
-   - rationale: string (brief explanation of the sizing)
-
-2. components: Array of component objects, each containing:
-   - name: string (component/task name)
-   - description: string (work description)
-   - effortMonths: number (estimated person-months)
-   - customerImpact: string (how it addresses customer needs)
-   - technicalComplexity: string (one of: "Low", "Medium", "High")
-
-Example response format in YAML style (but return as JSON):
-tshirtSize:
-  size: "M"
-  personMonths: 4.5
-  rationale: "Medium complexity with existing infrastructure support"
-components:
-  - name: "Backend API"
-    description: "Implement REST endpoints for data processing"
-    effortMonths: 2
-    customerImpact: "Enables real-time data access for FinTech Solutions"
-    technicalComplexity: "Medium"
-  - name: "Frontend UI"
-    description: "Create a user-friendly dashboard for data visualization"
-    effortMonths: 2.5
-    customerImpact: "Improves user experience for TechStart Solutions"
-    technicalComplexity: "High"
+Return a JSON object with exactly this structure:
+{
+  "tshirtSize": {
+    "size": "M",                // Must be one of: "XS", "S", "M", "L", "XL"
+    "personMonths": 4.5,        // Number of person-months
+    "rationale": "Medium complexity with existing infrastructure support"
+  },
+  "components": [
+    {
+      "name": "Backend API",    // Component/task name
+      "description": "Implement REST endpoints for data processing",
+      "effortMonths": 2,        // Estimated person-months as number
+      "customerImpact": "Enables real-time data access for FinTech Solutions",
+      "technicalComplexity": "Medium"  // Must be one of: "Low", "Medium", "High"
+    },
+    {
+      "name": "Frontend UI",
+      "description": "Create a user-friendly dashboard for data visualization",
+      "effortMonths": 2.5,
+      "customerImpact": "Improves user experience for TechStart Solutions",
+      "technicalComplexity": "High"
+    }
+  ]
+}
 
 Context:
 - Jira Data: 
@@ -57,7 +52,12 @@ ${salesforceDataYaml}
 
 Feature: ${state.productFeature}
 
-Ensure your output is valid JSON with no extra text or markdown formatting.
+Important:
+1. Return ONLY the JSON object, no additional text or markdown
+2. Ensure all numbers are actual numbers, not strings
+3. Use proper JSON formatting with double quotes for strings
+4. T-shirt size must be one of: "XS", "S", "M", "L", "XL"
+5. Technical complexity must be one of: "Low", "Medium", "High"
 `;
 
   return SYSTEM_PROMPT;

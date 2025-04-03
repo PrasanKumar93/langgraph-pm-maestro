@@ -8,17 +8,17 @@ export const getPromptCompetitorList = (state: OverallStateType) => {
     Input:
     - Product Feature: ${state.productFeature}
 
-    Output:
-    - A result object containing a list of competitors in the 'data' field, with competitors separated by commas.
-    - An error message in the 'error' field if the tavily API call fails.
-
-    ---
-
-    Example: Say Product Feature is "Vector Search"
-
-    Response format in YAML style (but return as JSON):
-      "data": "Pinecone, MongoDB, Cassandra, ...so on"
+    IMPORTANT: Return ONLY a JSON object with exactly below structure, no additional text or explanations:
+    {
+      "data": "competitor1, competitor2, competitor3",
       "error": ""
+    }
+
+    Example Output for "Vector Search" feature:
+    {
+      "data": "Pinecone, MongoDB, Cassandra",
+      "error": ""
+    }
 
     ---
     Tool Status:
@@ -29,7 +29,9 @@ export const getPromptCompetitorList = (state: OverallStateType) => {
       ${state.toolTavilySearchData}
 
     ---  
-    Note: Do not call tavily search again if it has already been called.
+    Note: 
+    1. Do not call tavily search again if it has already been called.
+    2. Return ONLY the JSON object, no other text or explanations before or after.
 `;
   return SYSTEM_PROMPT;
 };

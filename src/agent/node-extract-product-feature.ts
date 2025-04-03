@@ -1,7 +1,8 @@
 import type { OverallStateType } from "./state.js";
 
 import { RunnableSequence } from "@langchain/core/runnables";
-import { JsonOutputParser } from "@langchain/core/output_parsers";
+import { StructuredOutputParser } from "@langchain/core/output_parsers";
+import { z } from "zod";
 
 import { checkErrorToStopWorkflow } from "./error.js";
 import { STEP_EMOJIS } from "../utils/constants.js";
@@ -74,12 +75,15 @@ const nodeExtractProductFeature = async (state: OverallStateType) => {
   if (!isCacheHit) {
     try {
       const SYSTEM_PROMPT = getPromptExtractProductFeature(state);
-
       const extractProductFeaturePrompt = createChatPrompt(SYSTEM_PROMPT);
-
       const llm = getLLM();
 
-      const outputParser = new JsonOutputParser();
+      const expectedSchema = z.object({
+        productFeature: z.string().nullable(),
+        error: z.string().nullable(),
+      });
+
+      const outputParser = StructuredOutputParser.fromZodSchema(expectedSchema);
 
       const chain = RunnableSequence.from([
         extractProductFeaturePrompt,

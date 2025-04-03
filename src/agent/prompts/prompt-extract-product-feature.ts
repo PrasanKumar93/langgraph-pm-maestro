@@ -6,29 +6,34 @@ export const getPromptExtractProductFeature = (state: OverallStateType) => {
 Instructions:
 1. Read the provided input text.
 2. Identify the explicit "product feature" being described. Focus solely on the "product feature" mentioned without adding or modifying any context.
-3. Respond strictly in JSON format with keys: "productFeature" and "error".
-4. If a valid "product feature"is found, return its exact name as a clean, concise string in the "productFeature"  field, and set "error" to null.
-5. If the input text does not clearly describe a "product feature", return:
-   - "productFeature": null
-   - "error": "Please provide a product feature"
+3. Return a JSON object with exactly this structure:
+{
+  "productFeature": "vector search",  // The extracted feature as string, or null if not found
+  "error": null                       // Error message as string, or null if no error
+}
 
-Input text: {inputText}
+Example responses:
 
-Response format in YAML style (but return as JSON):
+For input: "We need to implement vector search in Redis to help users find similar documents quickly"
+{
+  "productFeature": "vector search",
+  "error": null
+}
 
-  "productFeature": "<extracted feature or null>",
-  "error": "<null or error message>"
+For input with no clear feature:
+{
+  "productFeature": null,
+  "error": "Please provide a product feature"
+}
 
+Input text: ${state.inputText}
 
-Examples:
-- Example 1:
-  Input text: "We need to implement vector search in Redis to help users find similar documents quickly"
-  then the productFeature in response is "vector search"
-- Example 2:
-  Input text: "Please generate a PRD/ Mini PRD for vector search feature"
-  then the productFeature in response is "vector search"
-
-IMPORTANT: Do not modify the core concept of the product feature. Extract exactly what is mentioned in the input without adding extra context.`;
+Important:
+1. Return ONLY the JSON object, no additional text or markdown
+2. Use proper JSON formatting with double quotes for strings
+3. Use null (not "null") for null values
+4. Do not modify or add context to the extracted feature
+5. Extract exactly what is mentioned in the input`;
 
   return SYSTEM_PROMPT;
 };

@@ -1,8 +1,11 @@
 import type { OverallStateType } from "../state.js";
 import { RunnableSequence } from "@langchain/core/runnables";
-import { StructuredOutputParser } from "@langchain/core/output_parsers";
+import {
+  StructuredOutputParser,
+  StringOutputParser,
+} from "@langchain/core/output_parsers";
+import { SystemMessage, HumanMessage } from "@langchain/core/messages";
 import { z } from "zod";
-import { StringOutputParser } from "@langchain/core/output_parsers";
 
 import { checkErrorToStopWorkflow } from "../error.js";
 import { toolTavilySearch } from "../tool-tavily-search.js";
@@ -118,17 +121,19 @@ const nodeCompetitorList = async (state: OverallStateType) => {
       if (state.toolTavilySearchProcessed) {
         //after tool call
         const expectedSchema = z.object({
-          data: z.string(),
+          data: z.string(), // comma-separated list of competitors
+          error: z.string(),
         });
+
         const stringParser = new StringOutputParser();
-        const structuredParser =
+        const outputParser =
           StructuredOutputParser.fromZodSchema(expectedSchema);
 
         chain = RunnableSequence.from([
           competitorListPrompt,
           model,
           stringParser,
-          structuredParser,
+          outputParser,
         ]);
       } else {
         state.toolTavilySearchProcessed = false;

@@ -1,6 +1,6 @@
 import type { OverallStateType } from "./state.js";
 
-import { SystemMessage } from "@langchain/core/messages";
+import { SystemMessage, HumanMessage } from "@langchain/core/messages";
 import { ChatPromptTemplate } from "@langchain/core/prompts";
 
 const addSystemMsg = async (
@@ -22,10 +22,16 @@ const addSystemMsg = async (
 };
 
 const createChatPrompt = (systemPrompt: string) => {
-  return ChatPromptTemplate.fromMessages([
-    ["system", systemPrompt],
-    ["human", "Please process the above input."], //claude sonnet issue
-  ]);
+  return () => [
+    new SystemMessage(systemPrompt),
+    new HumanMessage("Please process the above input."), //claude sonnet issue
+  ];
+
+  // Original template-based behavior
+  // return ChatPromptTemplate.fromMessages([
+  //   ["system", systemPrompt],
+  //   ["human", "Please process the above input."], //claude sonnet issue
+  // ]);
 };
 
 export { addSystemMsg, createChatPrompt };
