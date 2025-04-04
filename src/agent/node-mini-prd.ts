@@ -4,7 +4,13 @@ import { RunnableSequence } from "@langchain/core/runnables";
 import { StringOutputParser } from "@langchain/core/output_parsers";
 
 import { STEP_EMOJIS } from "../utils/constants.js";
-import { getPromptMiniPrd } from "./prompts/prompt-mini-prd.js";
+import {
+  getPromptExecutiveSummary,
+  getPromptCustomerAnalysis,
+  getPromptProductStrategy,
+  getPromptImplementationStrategy,
+  getTableOfContents,
+} from "./prompts/prompt-mini-prd.js";
 import { checkErrorToStopWorkflow } from "./error.js";
 import { addSystemMsg, createChatPrompt } from "./common.js";
 import { getLLM } from "./llms/llm.js";
@@ -65,24 +71,69 @@ const updateState = async (state: OverallStateType, resultStr: any) => {
   );
 };
 
+const generatePRDSection = async (
+  state: OverallStateType,
+  promptFn: (state: OverallStateType) => string,
+  sectionName: string
+) => {
+  const SYSTEM_PROMPT = promptFn(state);
+  const prompt = createChatPrompt(SYSTEM_PROMPT);
+  const llm = getLLM();
+  const outputParser = new StringOutputParser();
+  const chain = RunnableSequence.from([prompt, llm, outputParser]);
+
+  await addSystemMsg(
+    state,
+    `Generating ${sectionName} section...`,
+    STEP_EMOJIS.docWriting
+  );
+
+  const result = await chain.invoke({
+    ...state,
+  });
+
+  return result;
+};
+
 const nodeMiniPrd = async (state: OverallStateType) => {
   const isCacheHit = await updateStateFromCache(state);
 
   if (!isCacheHit) {
     try {
-      const SYSTEM_PROMPT = getPromptMiniPrd(state);
+      // Generate each section separately
+      const executiveSummary = await generatePRDSection(
+        state,
+        getPromptExecutiveSummary,
+        "Executive Summary"
+      );
+      const customerAnalysis = await generatePRDSection(
+        state,
+        getPromptCustomerAnalysis,
+        "Customer Analysis"
+      );
+      const productStrategy = await generatePRDSection(
+        state,
+        getPromptProductStrategy,
+        "Product Strategy"
+      );
+      const implementationStrategy = await generatePRDSection(
+        state,
+        getPromptImplementationStrategy,
+        "Implementation Strategy"
+      );
 
-      const miniPrdPrompt = createChatPrompt(SYSTEM_PROMPT);
+      const tableOfContents = getTableOfContents(state.productFeature);
 
-      const llm = getLLM();
+      // Combine all sections
+      const resultStr = `${tableOfContents}
 
-      const outputParser = new StringOutputParser();
+${executiveSummary}
 
-      const chain = RunnableSequence.from([miniPrdPrompt, llm, outputParser]);
+${customerAnalysis}
 
-      const resultStr = await chain.invoke({
-        ...state,
-      });
+${productStrategy}
+
+${implementationStrategy}`;
 
       await updateState(state, resultStr);
     } catch (err) {
