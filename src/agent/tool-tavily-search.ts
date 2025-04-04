@@ -54,9 +54,9 @@ const searchByTavily = async (query: string) => {
         input: query,
       });
 
-      if (Array.isArray(searchResults)) {
-        searchResultsYaml = getYamlFromJson(searchResults);
-      }
+      // if (Array.isArray(searchResults)) {
+      //   searchResultsYaml = getYamlFromJson(searchResults);
+      // }
     } else {
       exceptionMsg = "Tavily search query is missing";
     }
@@ -69,7 +69,7 @@ const searchByTavily = async (query: string) => {
       query: 
         ${query} 
       results: 
-        ${searchResultsYaml}`;
+        ${JSON.stringify(searchResults, null, 2)}`; //searchResultsYaml
   } else if (exceptionMsg) {
     errorMsg = `Tavily search failed
       query: 

@@ -22,6 +22,12 @@ export const getPromptCompetitorTableMatrix = (state: OverallStateType) => {
     If there are more than two competitors, create multiple tables, each with two competitors.
     If there is an odd number of competitors, the last table should contain the remaining single competitor.
 
+    Table Organization Requirements:
+    1. Prioritize and list the most important/core capabilities at the top of the table
+    2. Group related features together
+    3. Place secondary or less critical features lower in the table
+    4. Use clear, concise feature descriptions
+    5. Highlight any standout or unique capabilities
 
     Note: Later, the final tables will be converted to PDF, so ensure the formatting is suitable for PDF conversion.
 
@@ -29,10 +35,10 @@ export const getPromptCompetitorTableMatrix = (state: OverallStateType) => {
      ${inputStr}
 
     Output:
-    - A provider/feature matrix with no more than two competitors per table.
-    - A summary of offerings.
+    - A provider/feature matrix with no more than two competitors per table, with top capabilities prioritized at the beginning
+    - A summary of offerings, highlighting the most important features first
     
-    Please ensure the matrix is clear, concise, and well-organized.
+    Please ensure the matrix is clear, concise, and well-organized with the most critical features appearing first.
 `;
   return SYSTEM_PROMPT;
 };

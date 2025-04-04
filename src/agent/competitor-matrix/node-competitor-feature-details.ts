@@ -121,7 +121,6 @@ const nodeCompetitorFeatureDetails = async (state: OverallStateType) => {
         const competitorListPrompt = createChatPrompt(SYSTEM_PROMPT);
 
         const llm = getLLM();
-        const model = llm.bindTools([toolTavilySearch]);
 
         const outputParser = new StringOutputParser();
 
@@ -131,13 +130,14 @@ const nodeCompetitorFeatureDetails = async (state: OverallStateType) => {
           //after tool call
           chain = RunnableSequence.from([
             competitorListPrompt,
-            model,
+            llm,
             outputParser,
           ]);
         } else {
           state.toolTavilySearchProcessed = false;
           state.toolTavilySearchData = "";
           //before tool call
+          const model = llm.bindTools([toolTavilySearch]);
           chain = RunnableSequence.from([competitorListPrompt, model]);
         }
 

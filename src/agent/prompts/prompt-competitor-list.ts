@@ -2,23 +2,24 @@ import type { OverallStateType } from "../state.js";
 
 export const getPromptCompetitorList = (state: OverallStateType) => {
   const SYSTEM_PROMPT = `
-    You are an experienced product manager and software engineer.
-    Given the product feature, perform a web search using the Tavily Search API to identify a list of software competitors offering the particular feature.
+    You are an experienced product manager and software engineer tasked with researching competitors.
+    Your task is to identify software competitors that offer the product feature "${
+      state.productFeature
+    }".
+
+    IMPORTANT: You MUST use the Tavily search tool to get the latest information about competitors, even if you think you already know about them. Always call the toolTavilySearch tool first before providing any information.
+    
+    Do not rely just on your internal knowledge about competitors. Always search for the most up-to-date information using the Tavily search tool.
 
     Input:
-    - Product Feature: ${state.productFeature}
+    - Product Feature: "${state.productFeature}"
 
-    IMPORTANT: Return ONLY a JSON object with exactly below structure, no additional text or explanations:
-    {
-      "data": "competitor1, competitor2, competitor3",
-      "error": ""
-    }
+    Output:
+    After using Tavily search, provide ONLY a comma-separated list of competitors, or an empty string if none found.
+    DO NOT include any other text or explanations.
 
-    Example Output for "Vector Search" feature:
-    {
-      "data": "Pinecone, MongoDB, Cassandra",
-      "error": ""
-    }
+    Example Output Format:
+    Competitor1, Competitor2, Competitor3
 
     ---
     Tool Status:
@@ -29,9 +30,8 @@ export const getPromptCompetitorList = (state: OverallStateType) => {
       ${state.toolTavilySearchData}
 
     ---  
-    Note: 
-    1. Do not call tavily search again if it has already been called.
-    2. Return ONLY the JSON object, no other text or explanations before or after.
+    Note: Do not call tavily search again if it has already been called, check the Tool Status above.
+    Return ONLY the comma-separated list or empty string, no other text.
 `;
   return SYSTEM_PROMPT;
 };

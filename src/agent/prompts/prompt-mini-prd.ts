@@ -3,16 +3,16 @@ import type { OverallStateType } from "../state.js";
 import { getYamlFromJson } from "../../utils/misc.js";
 
 export const getPromptMiniPrd = (state: OverallStateType) => {
-  let jiraDataYaml = getYamlFromJson(state.systemJiraDataList);
-  let salesforceDataYaml = getYamlFromJson(state.systemSalesForceDataList);
-  let effortEstimationYaml = getYamlFromJson([state.effortEstimationData]);
+  // let jiraDataYaml = getYamlFromJson(state.systemJiraDataList);
+  // let salesforceDataYaml = getYamlFromJson(state.systemSalesForceDataList);
+  // let effortEstimationYaml = getYamlFromJson([state.effortEstimationData]);
 
   const SYSTEM_PROMPT = `You are an experienced Product Manager tasked with creating a concise mini-PRD. Use the following inputs to create a comprehensive but focused product recommendation:
 
 INPUT CONTEXT:
 1. Product Feature: "${state.productFeature}"
 
-2. Competitor Analysis:
+2. Market Research (Competitor Analysis):
 
  ${state.competitorTableMatrix}
 
@@ -24,10 +24,10 @@ INPUT CONTEXT:
    Note: Jira or Salesforce data is not always complete, accurate or may be empty, so make sure to use the competitor data to make the best feature analysis.
 
 Jira Data: 
-${jiraDataYaml}
+${JSON.stringify(state.systemJiraDataList, null, 2)}
 
 Salesforce Data: 
-${salesforceDataYaml}
+${JSON.stringify(state.systemSalesForceDataList, null, 2)}
 
 4. Engineering Effort Analysis:
    Following is the estimation data that includes T-shirt sizing and component breakdown:
@@ -35,11 +35,11 @@ ${salesforceDataYaml}
    - Detailed component breakdown with effort, impact, and complexity
 
 Effort Estimation Data:
-${effortEstimationYaml}
+${JSON.stringify(state.effortEstimationData, null, 2)}
 
 ---
 REQUIRED OUTPUT:
-Create a structured mini-PRD (4-10 pages) with the following sections:
+Create a structured mini-PRD (5-10 pages) with the following sections:
 
 A. Executive Summary
    - Product overview
@@ -54,7 +54,9 @@ B. Customer Analysis (use Jira and Salesforce data if available from Market Anal
 
 C. Product Strategy
    - Goals and success metrics
-   - Competitor analysis (use full "Competitor Analysis" provided in input context)
+   - Market Research
+     - Provide detailed analysis of competitive positioning based on the extracted data
+     - Key market differentiators identified from competitor comparison
    - Proposed solution and key differentiators
    - MVP scope recommendation
 

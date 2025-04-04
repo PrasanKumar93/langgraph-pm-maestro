@@ -1,11 +1,7 @@
 import type { OverallStateType } from "../state.js";
 import { RunnableSequence } from "@langchain/core/runnables";
-import {
-  StructuredOutputParser,
-  StringOutputParser,
-} from "@langchain/core/output_parsers";
+import { StringOutputParser } from "@langchain/core/output_parsers";
 import { SystemMessage, HumanMessage } from "@langchain/core/messages";
-import { z } from "zod";
 
 import { checkErrorToStopWorkflow } from "../error.js";
 import { toolTavilySearch } from "../tool-tavily-search.js";
@@ -46,7 +42,10 @@ const updateStateFromCache = async (state: OverallStateType) => {
     const response = cached.response;
     if (response) {
       isCacheHit = true;
-      let competitorList = response.split(",");
+      let competitorList = response
+        .split(",")
+        .map((s: string) => s.trim())
+        .filter((s: string) => s);
       competitorList = reduceCompetitorList(competitorList);
 
       state.competitorList = competitorList;
@@ -64,20 +63,22 @@ const updateStateFromCache = async (state: OverallStateType) => {
 
 const updateState = async (state: OverallStateType, rawResult: any) => {
   if (state.toolTavilySearchProcessed) {
-    // rawResult = JSON (after tool call)
-    const resultJson = rawResult;
-    if (resultJson?.data) {
+    // rawResult = string output (after tool call)
+    if (rawResult) {
       const agentCache = await AgentCache.getInstance();
       await agentCache.setAgentCache({
         prompt: "CompetitorList",
-        response: resultJson.data,
+        response: rawResult,
         scope: {
           feature: state.productFeature,
           nodeName: "nodeCompetitorList",
         },
       });
 
-      let competitorList = resultJson.data.split(",");
+      let competitorList = rawResult
+        .split(",")
+        .map((s: string) => s.trim())
+        .filter((s: string) => s); // remove empty string
       competitorList = reduceCompetitorList(competitorList);
 
       state.competitorList = competitorList;
@@ -90,8 +91,10 @@ const updateState = async (state: OverallStateType, rawResult: any) => {
       //reset tool status for next node
       state.toolTavilySearchProcessed = false;
       state.toolTavilySearchData = "";
-    } else if (resultJson?.error) {
-      state.error = resultJson.error;
+    } else {
+      const msg = `No Competitors Found`;
+      await addSystemMsg(state, msg, STEP_EMOJIS.subStep);
+      LoggerCls.debug(msg);
     }
   } else {
     await addSystemMsg(
@@ -114,31 +117,22 @@ const nodeCompetitorList = async (state: OverallStateType) => {
       const SYSTEM_PROMPT = getPromptCompetitorList(state);
       const competitorListPrompt = createChatPrompt(SYSTEM_PROMPT);
       const llm = getLLM();
-      const model = llm.bindTools([toolTavilySearch]);
 
       let chain: RunnableSequence<any, any> | null = null;
 
       if (state.toolTavilySearchProcessed) {
-        //after tool call
-        const expectedSchema = z.object({
-          data: z.string(), // comma-separated list of competitors
-          error: z.string(),
-        });
-
-        const stringParser = new StringOutputParser();
-        const outputParser =
-          StructuredOutputParser.fromZodSchema(expectedSchema);
-
+        // After tool call
+        const outputParser = new StringOutputParser();
         chain = RunnableSequence.from([
           competitorListPrompt,
-          model,
-          stringParser,
+          llm,
           outputParser,
         ]);
       } else {
+        // Before tool call
+        const model = llm.bindTools([toolTavilySearch]);
         state.toolTavilySearchProcessed = false;
         state.toolTavilySearchData = "";
-        //before tool call
         chain = RunnableSequence.from([competitorListPrompt, model]);
       }
 

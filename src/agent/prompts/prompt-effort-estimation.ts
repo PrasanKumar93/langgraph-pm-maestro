@@ -3,12 +3,14 @@ import type { OverallStateType } from "../state.js";
 import { getYamlFromJson } from "../../utils/misc.js";
 
 export const getPromptEffortEstimation = (state: OverallStateType) => {
-  let jiraDataYaml = getYamlFromJson(state.systemJiraDataList);
-  let salesforceDataYaml = getYamlFromJson(state.systemSalesForceDataList);
+  // let jiraDataYaml = getYamlFromJson(state.systemJiraDataList);
+  // let salesforceDataYaml = getYamlFromJson(state.systemSalesForceDataList);
 
   const SYSTEM_PROMPT = `
       You are an experienced product manager and software engineer.
-Given the product feature "${state.productFeature}", estimate the development effort required.
+Given the product feature "${
+    state.productFeature
+  }", estimate the development effort required.
 
 Consider the following competitor data:
 ${state.competitorTableMatrix}
@@ -46,9 +48,9 @@ Return a JSON object with exactly this structure:
 
 Context:
 - Jira Data: 
-${jiraDataYaml}
+${JSON.stringify(state.systemJiraDataList, null, 2)}
 - Salesforce Data: 
-${salesforceDataYaml}
+${JSON.stringify(state.systemSalesForceDataList, null, 2)}
 
 Feature: ${state.productFeature}
 
