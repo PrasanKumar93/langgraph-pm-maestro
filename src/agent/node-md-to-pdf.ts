@@ -88,7 +88,9 @@ const generateMiniPrdFile = async (content: string) => {
 };
 
 const getMarkdownContent = (state: OverallStateType) => {
-  return state.outputProductPRD + "\n\n <hr/>" + state.competitorTableMatrix;
+  return (
+    state.outputProductPRD + "\n\n <hr/> \n\n " + state.competitorTableMatrix
+  );
 };
 
 const nodeMdToPdf = async (state: OverallStateType) => {

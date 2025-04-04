@@ -31,14 +31,26 @@ export const getPromptCompetitorTableMatrix = (state: OverallStateType) => {
 
     Note: Later, the final tables will be converted to PDF, so ensure the formatting is suitable for PDF conversion.
 
+    IMPORTANT OUTPUT CONSTRAINTS:
+    - Provide ONLY the markdown tables followed by a summary section
+    - Do not include any introductory text or explanations
+    - Start directly with the markdown table format
+    - Only include the specified sections with no additional commentary
+
     Input:
      ${inputStr}
 
-    Output:
-    - A provider/feature matrix with no more than two competitors per table, with top capabilities prioritized at the beginning
-    - A summary of offerings, highlighting the most important features first
-    
-    Please ensure the matrix is clear, concise, and well-organized with the most critical features appearing first.
+    Required Output Format:
+    [Tables Section]
+    | Feature | Competitor1 | Competitor2 |
+    |---------|------------|-------------|
+    ...
+
+    Additional tables as needed, with no text in between.
+
+    Summary of Offerings:
+    - A prioritized list of the most important features and capabilities
+    - Focus on key differentiators and standout features
 `;
   return SYSTEM_PROMPT;
 };

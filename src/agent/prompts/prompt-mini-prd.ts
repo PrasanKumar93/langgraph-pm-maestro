@@ -9,6 +9,13 @@ const MARKDOWN_FORMAT_REQUIREMENTS = `FORMAT REQUIREMENTS:
 6. If including tables, use proper markdown table syntax
 7. Ensure all sections are properly nested under their parent heading`;
 
+const COMMON_PROMPT_REQUIREMENTS = `${MARKDOWN_FORMAT_REQUIREMENTS}
+Additional requirements:
+8. DO NOT include any introductory or concluding text
+9. DO NOT explain what you're about to do or what you've done
+10. Start and end with just the section content
+11. Ensure heading IDs match the ones used in Table of Contents`;
+
 export const getTableOfContents = (
   productFeature: string
 ) => `# Mini PRD: ${productFeature}
@@ -86,10 +93,9 @@ Create the Executive Summary section in proper markdown format:
 ### Key Recommendations
 [Generate key recommendations]
 
-${MARKDOWN_FORMAT_REQUIREMENTS}
-Additional requirements:
-8. Include relevant data points to support recommendations
-9. Ensure heading IDs match the ones used in Table of Contents (e.g., #executive-summary, #product-overview)`;
+${COMMON_PROMPT_REQUIREMENTS}
+Additional section-specific requirements:
+12. Include relevant data points to support recommendations`;
 
   return SYSTEM_PROMPT;
 };
@@ -117,10 +123,9 @@ Create the Customer Analysis section in proper markdown format:
 ### Feature Requests Prioritization
 [Generate prioritized feature requests]
 
-${MARKDOWN_FORMAT_REQUIREMENTS}
-Additional requirements:
-8. Include relevant data points from Jira and Salesforce data
-9. Ensure heading IDs match the ones used in Table of Contents (e.g., #customer-analysis, #target-audience-profile)`;
+${COMMON_PROMPT_REQUIREMENTS}
+Additional section-specific requirements:
+12. Include relevant data points from Jira and Salesforce data`;
 
   return SYSTEM_PROMPT;
 };
@@ -152,11 +157,10 @@ Create the Product Strategy section in proper markdown format:
 ### MVP Scope Recommendation
 [Generate MVP recommendations]
 
-${MARKDOWN_FORMAT_REQUIREMENTS}
-Additional requirements:
-8. Include relevant data points to support strategy
-9. Use level 4 headings (####) for Market Research subsections
-10. Ensure heading IDs match the ones used in Table of Contents (e.g., #product-strategy, #goals-and-success-metrics)`;
+${COMMON_PROMPT_REQUIREMENTS}
+Additional section-specific requirements:
+12. Include relevant data points to support strategy
+13. Use level 4 headings (####) for Market Research subsections`;
 
   return SYSTEM_PROMPT;
 };
@@ -188,11 +192,10 @@ Create the Implementation Strategy section in proper markdown format:
 ### Key Technical Considerations
 [Generate technical considerations]
 
-${MARKDOWN_FORMAT_REQUIREMENTS}
-Additional requirements:
-8. Include relevant data points from effort estimation
-9. For the RICE framework, use a properly formatted markdown table
-10. Ensure heading IDs match the ones used in Table of Contents (e.g., #implementation-strategy, #effort-estimation-summary)`;
+${COMMON_PROMPT_REQUIREMENTS}
+Additional section-specific requirements:
+12. Include relevant data points from effort estimation
+13. For the RICE framework, use a properly formatted markdown table`;
 
   return SYSTEM_PROMPT;
 };
