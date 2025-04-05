@@ -30,11 +30,12 @@ export const getTableOfContents = (
   - [Pain Points and Needs Analysis](#pain-points-and-needs-analysis)
   - [Current Workarounds and Impact](#current-workarounds-and-impact)
   - [Feature Requests Prioritization](#feature-requests-prioritization)
+- [Market Research](#market-research)
+  - [Competitive Positioning Analysis](#competitive-positioning-analysis)
+  - [Key Market Differentiators](#key-market-differentiators)
+  - [Competitor Table Matrix](#competitor-table-matrix)
 - [Product Strategy](#product-strategy)
   - [Goals and Success Metrics](#goals-and-success-metrics)
-  - [Market Research](#market-research)
-    - [Competitive Positioning Analysis](#competitive-positioning-analysis)
-    - [Key Market Differentiators](#key-market-differentiators)
   - [Proposed Solution](#proposed-solution)
   - [MVP Scope Recommendation](#mvp-scope-recommendation)
 - [Implementation Strategy](#implementation-strategy)
@@ -130,6 +131,32 @@ Additional section-specific requirements:
   return SYSTEM_PROMPT;
 };
 
+export const getPromptMarketResearch = (state: OverallStateType) => {
+  const SYSTEM_PROMPT = `You are an experienced Product Manager tasked with creating the Market Research section of a mini-PRD. Use the following inputs to create a comprehensive market analysis:
+
+${BASE_CONTEXT(state)}
+
+---
+REQUIRED OUTPUT:
+Create the Market Research section in proper markdown format:
+
+## Market Research
+
+### Competitive Positioning Analysis
+[Generate detailed competitive analysis based on competitor data]
+
+### Key Market Differentiators
+[Generate key differentiators and unique value propositions]
+
+${COMMON_PROMPT_REQUIREMENTS}
+Additional section-specific requirements:
+12. Include relevant data points from competitor analysis
+13. Use clear comparisons and contrasts between competitors
+14. Highlight unique opportunities in the market`;
+
+  return SYSTEM_PROMPT;
+};
+
 export const getPromptProductStrategy = (state: OverallStateType) => {
   const SYSTEM_PROMPT = `You are an experienced Product Manager tasked with creating the Product Strategy section of a mini-PRD. Use the following inputs to create a comprehensive strategy:
 
@@ -144,13 +171,6 @@ Create the Product Strategy section in proper markdown format:
 ### Goals and Success Metrics
 [Generate goals and metrics]
 
-### Market Research
-#### Competitive Positioning Analysis
-[Generate competitive analysis]
-
-#### Key Market Differentiators
-[Generate market differentiators]
-
 ### Proposed Solution
 [Generate solution details]
 
@@ -160,7 +180,7 @@ Create the Product Strategy section in proper markdown format:
 ${COMMON_PROMPT_REQUIREMENTS}
 Additional section-specific requirements:
 12. Include relevant data points to support strategy
-13. Use level 4 headings (####) for Market Research subsections`;
+13. Ensure alignment with market research findings`;
 
   return SYSTEM_PROMPT;
 };

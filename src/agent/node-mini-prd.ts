@@ -9,6 +9,7 @@ import {
   getPromptCustomerAnalysis,
   getPromptProductStrategy,
   getPromptImplementationStrategy,
+  getPromptMarketResearch,
   getTableOfContents,
 } from "./prompts/prompt-mini-prd.js";
 import { checkErrorToStopWorkflow } from "./error.js";
@@ -111,6 +112,11 @@ const nodeMiniPrd = async (state: OverallStateType) => {
         getPromptCustomerAnalysis,
         "Customer Analysis"
       );
+      const marketResearch = await generatePRDSection(
+        state,
+        getPromptMarketResearch,
+        "Market Research"
+      );
       const productStrategy = await generatePRDSection(
         state,
         getPromptProductStrategy,
@@ -130,6 +136,11 @@ const nodeMiniPrd = async (state: OverallStateType) => {
 ${executiveSummary}
 
 ${customerAnalysis}
+
+${marketResearch}
+
+### Competitor Table Matrix
+${state.competitorTableMatrix}
 
 ${productStrategy}
 
