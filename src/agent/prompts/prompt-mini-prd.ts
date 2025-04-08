@@ -41,8 +41,7 @@ export const getTableOfContents = (
 - [Implementation Strategy](#implementation-strategy)
   - [Effort Estimation Summary](#effort-estimation-summary)
   - [Risk Assessment](#risk-assessment)
-  - [Prioritized Requirements](#prioritized-requirements)
-  - [Prioritized Capability Roadmap](#prioritized-capability-roadmap)
+  - [Prioritized Requirements and Roadmap](#prioritized-requirements-and-roadmap)
   - [Key Technical Considerations](#key-technical-considerations)
 
 ---
@@ -224,8 +223,10 @@ Additional section-specific requirements:
   return SYSTEM_PROMPT;
 };
 
-export const getPromptImplementationStrategy = (state: OverallStateType) => {
-  const SYSTEM_PROMPT = `You are an experienced Product Manager tasked with creating the Implementation Strategy section of a mini-PRD. Use the following inputs to create an actionable plan:
+export const getPromptImplementationStrategyPart1 = (
+  state: OverallStateType
+) => {
+  const SYSTEM_PROMPT = `You are an experienced Product Manager tasked with creating the first part of the Implementation Strategy section of a mini-PRD. Use the following inputs to create an actionable plan:
 
 INPUT CONTEXT:
 1. Product Feature: "${state.productFeature}"
@@ -256,7 +257,7 @@ ${JSON.stringify(state.effortEstimationData, null, 2)}
 
 ---
 REQUIRED OUTPUT:
-Create the Implementation Strategy section in proper markdown format:
+Create the first part of the Implementation Strategy section in proper markdown format:
 
 ## Implementation Strategy
 
@@ -274,40 +275,149 @@ Create the Implementation Strategy section in proper markdown format:
 - Mitigation strategies
 - Impact levels (High/Medium/Low)]
 
-### Prioritized Requirements
+${COMMON_PROMPT_REQUIREMENTS}
+Additional section-specific requirements:
+12. Include relevant data points to support estimates
+13. Ensure risks are clearly tied to market and technical evidence
+14. Keep risk assessment actionable with clear mitigation strategies`;
 
-| ID | Requirements | Benefits | Priority |
-|---|-------------|----------|----------|
-[Generate detailed requirements (top 20) table following these rules:
-- ID: Use hierarchical numbering (e.g., 1, 2, 2.1, 2.2, 3, etc.)
-- Requirements: Clear, detailed description of what needs to be implemented
-- Benefits: Specific value proposition or impact for users/business
-- Priority: HIGH (🔴), MEDIUM (🟡), LOW (⚪️)]
+  return SYSTEM_PROMPT;
+};
 
-### Prioritized Capability Roadmap
-[Generate SRICE framework-based roadmap table for top 10 requirements:
+export const getPromptImplementationStrategyPart2 = (
+  state: OverallStateType
+) => {
+  const SYSTEM_PROMPT = `You are an experienced Product Manager tasked with creating the second part of the Implementation Strategy section of a mini-PRD. Use the following inputs to create an actionable plan:
 
-| ID | Requirement | Scope | Reach | Impact | Confidence | Effort | SRICE Score |
-|---|-------------|-------|-------|--------|------------|--------|-------------|
-Where:
-- Scope: Clear definition of feature scope
-- Reach: Number of users/customers impacted (1-10)
-- Impact: Potential business value (1-10)
-- Confidence: Confidence in estimates (1-10)
-- Effort: Implementation effort (1-10)
-- SRICE Score: (Scope * Reach * Impact * Confidence) / Effort]
+INPUT CONTEXT:
+1. Product Feature: "${state.productFeature}"
+
+2. Market Research (Competitor Analysis):
+${state.competitorTableMatrix}
+
+3. Market Analysis:
+   The following data from Jira and Salesforce provides customer insights:
+   - Data may show customer pain points, feature requests, potential deal sizes and industries
+   - Data may show current customer workarounds and their business impact, and priority levels across different industries
+
+   Note: Jira or Salesforce data is not always complete, accurate or may be empty, so make sure to use the competitor data to make the best feature analysis.
+
+Jira Data: 
+${JSON.stringify(state.systemJiraDataList, null, 2)}
+
+Salesforce Data: 
+${JSON.stringify(state.systemSalesForceDataList, null, 2)}
+
+4. Engineering Effort Analysis:
+   Following is the estimation data that includes T-shirt sizing and component breakdown:
+   - T-shirt size (XS to XL) with person-months and rationale
+   - Detailed component breakdown with effort, impact, and complexity
+
+Effort Estimation Data:
+${JSON.stringify(state.effortEstimationData, null, 2)}
+
+---
+REQUIRED OUTPUT:
+Create the second part of the Implementation Strategy section in proper HTML table format. You MUST complete all sections fully - do not truncate or skip any content due to length.
+
+### Prioritized Requirements and Roadmap
+Generate a comprehensive table for minimum top 10 requirements using this HTML format:
+
+<table>
+  <tr>
+    <th style="text-align:right">ID</th>
+    <th style="text-align:left">Feature</th>
+    <th style="text-align:center">Priority</th>
+    <th style="text-align:center">RICE</th>
+    <th style="text-align:right">Score</th>
+  </tr>
+</table>
+
+Full example with proper structure and content:
+
+<table>
+  <tr>
+    <th style="text-align:right">ID</th>
+    <th style="text-align:left">Feature</th>
+    <th style="text-align:center">Priority</th>
+    <th style="text-align:center">RICE</th>
+    <th style="text-align:right">Score</th>
+  </tr>
+  <tr style="border-top: 2px solid #ddd;">
+    <td style="text-align:right" rowspan="3">1</td>
+    <td style="text-align:left">User Authentication System</td>
+    <td style="text-align:center">🔴</td>
+    <td style="text-align:center">9/9/8/7</td>
+    <td style="text-align:right">928</td>
+  </tr>
+  <tr>
+    <td colspan="4" style="text-align:left">Benefits: Enterprise SSO with 80% security incident reduction and 40% improved user satisfaction.</td>
+  </tr>
+  <tr style="border-bottom: 2px solid #ddd;">
+    <td colspan="4" style="text-align:left">Technical: OAuth2 + MFA + SAML/OIDC with RBAC, audit logging, and session management.</td>
+  </tr>
+  <tr style="border-top: 2px solid #ddd;">
+    <td style="text-align:right" rowspan="3">2</td>
+    <td style="text-align:left">Data Export API</td>
+    <td style="text-align:center">🟡</td>
+    <td style="text-align:center">8/7/9/6</td>
+    <td style="text-align:right">756</td>
+  </tr>
+  <tr>
+    <td colspan="4" style="text-align:left">Benefits: Programmatic data access with BI tool integration, reducing manual exports by 95%.</td>
+  </tr>
+  <tr style="border-bottom: 2px solid #ddd;">
+    <td colspan="4" style="text-align:left">Technical: RESTful API with rate limiting, pagination, multi-format support, and access controls.</td>
+  </tr>
+</table>
+
+Rules for each feature group (3 rows):
+1. Feature Row:
+   - ID: Uses rowspan="3" to merge across all 3 rows
+   - Feature: Clear, concise name (max 40 chars)
+   - Priority: 🔴 (High), 🟡 (Medium), ⚪️ (Low)
+   - RICE: "R/I/C/E" format where each is 1-10
+     * R: Reach (users impacted)
+     * I: Impact (business value)
+     * C: Confidence (estimate accuracy)
+     * E: Effort (implementation)
+   - Score: SRICE Score = (Scope * R * I * C) / E
+
+2. Benefits Row (Single Line):
+   - Use "Benefits:" prefix
+   - Focus on key metrics and business impact
+   - Keep under 100 characters
+   - Use clear quantifiable results
+
+3. Technical Row (Single Line):
+   - Use "Technical:" prefix
+   - List core components and integrations
+   - Keep under 100 characters
+   - Focus on key technical elements
+
+Sort all requirements by Score (highest to lowest)
+Visual Grouping:
+- Use rowspan="3" for ID column
+- Add border-top to first row of each group
+- Add border-bottom to last row of each group
+- Sort all requirements by Score (highest to lowest)
 
 ### Key Technical Considerations
-[Generate technical considerations]
+List 5-7 critical technical points covering:
+- Core architecture decisions
+- Key dependencies
+- Technical constraints
+- Integration requirements
+- Security considerations
 
 ${COMMON_PROMPT_REQUIREMENTS}
 Additional section-specific requirements:
-12. Requirements must be specific, measurable, and actionable
-13. Benefits must clearly articulate business or user value
-14. Priority must be justified based on business impact and technical feasibility
-15. SRICE scoring must be consistent and well-reasoned
-16. Risk assessment must include clear mitigation strategies
-17. Effort estimation must be based on complexity and team capacity`;
+12. Use rowspan for ID column to group rows
+13. Keep benefits and technical scope to one concise line each
+14. Add visual separation between feature groups
+15. Use consistent terminology and formatting
+16. Ensure RICE scoring is well-reasoned
+17. Link technical points to specific requirements`;
 
   return SYSTEM_PROMPT;
 };

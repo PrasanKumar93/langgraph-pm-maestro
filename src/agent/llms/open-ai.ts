@@ -5,6 +5,10 @@ import { LoggerCls } from "../../utils/logger.js";
 import { getConfig } from "../../config.js";
 
 class OpenAiCls {
+  private static instance: ChatOpenAI | null = null;
+
+  private constructor() {}
+
   static async getAvailableModels() {
     let retModels: string[] = [];
     try {
@@ -27,21 +31,22 @@ class OpenAiCls {
     return retModels;
   }
 
-  static getLLM(customModel?: string) {
-    let llm: ChatOpenAI;
-    try {
-      const config = getConfig();
+  static getLLM(customModel?: string): ChatOpenAI {
+    if (!OpenAiCls.instance) {
+      try {
+        const config = getConfig();
 
-      llm = new ChatOpenAI({
-        modelName: customModel || config.OPENAI_MODEL_NAME,
-        temperature: 0,
-        apiKey: config.OPENAI_API_KEY,
-      });
-    } catch (error) {
-      LoggerCls.error("Error fetching LLM:", error);
-      throw error;
+        OpenAiCls.instance = new ChatOpenAI({
+          modelName: customModel || config.OPENAI_MODEL_NAME,
+          temperature: 0,
+          apiKey: config.OPENAI_API_KEY,
+        });
+      } catch (error) {
+        LoggerCls.error("Error fetching LLM:", error);
+        throw error;
+      }
     }
-    return llm;
+    return OpenAiCls.instance;
   }
 }
 

@@ -8,7 +8,8 @@ import {
   getPromptExecutiveSummary,
   getPromptCustomerAnalysis,
   getPromptProductStrategy,
-  getPromptImplementationStrategy,
+  getPromptImplementationStrategyPart1,
+  getPromptImplementationStrategyPart2,
   getPromptMarketResearch,
   getTableOfContents,
 } from "./prompts/prompt-mini-prd.js";
@@ -122,10 +123,16 @@ const nodeMiniPrd = async (state: OverallStateType) => {
         getPromptProductStrategy,
         "Product Strategy"
       );
-      const implementationStrategy = await generatePRDSection(
+
+      const implementationStrategyPart1 = await generatePRDSection(
         state,
-        getPromptImplementationStrategy,
-        "Implementation Strategy"
+        getPromptImplementationStrategyPart1,
+        "Implementation Strategy Part 1"
+      );
+      const implementationStrategyPart2 = await generatePRDSection(
+        state,
+        getPromptImplementationStrategyPart2,
+        "Implementation Strategy Part 2"
       );
 
       const tableOfContents = getTableOfContents(state.productFeature);
@@ -144,7 +151,8 @@ ${state.competitorTableMatrix}
 
 ${productStrategy}
 
-${implementationStrategy}`;
+${implementationStrategyPart1}
+${implementationStrategyPart2}`;
 
       await updateState(state, resultStr);
     } catch (err) {
