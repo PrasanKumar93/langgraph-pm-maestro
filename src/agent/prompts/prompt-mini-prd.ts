@@ -318,106 +318,74 @@ ${JSON.stringify(state.effortEstimationData, null, 2)}
 
 ---
 REQUIRED OUTPUT:
-Create the second part of the Implementation Strategy section in proper HTML table format. You MUST complete all sections fully - do not truncate or skip any content due to length.
+Return a JSON object with the following structure:
 
-### Prioritized Requirements and Roadmap
-Generate a comprehensive table for minimum top 10 requirements using this HTML format:
+{
+  "requirements": [
+    {
+      "id": number,
+      "feature": string (max 70 chars),
+      "priority": "HIGH" | "MEDIUM" | "LOW",
+      "rice": {
+        "reach": number (1-10),
+        "impact": number (1-10),
+        "confidence": number (1-10),
+        "effort": number (1-10)
+      },
+      "score": number (calculated as reach * impact * confidence / effort),
+      "benefits": string,
+      "technicalScope": string
+    }
+  ],
+  "keyTechnicalConsiderations": string[]
+}
 
-<table>
-  <tr>
-    <th style="text-align:right">ID</th>
-    <th style="text-align:left">Feature</th>
-    <th style="text-align:center">Priority</th>
-    <th style="text-align:center">RICE</th>
-    <th style="text-align:right">Score</th>
-  </tr>
-</table>
+EXAMPLE OUTPUT:
 
-Full example with proper structure and content:
+{
+  "requirements": [
+    {
+      "id": 1,
+      "feature": "Feature 1",
+      "priority": "HIGH",
+      "rice": {
+        "reach": 8,
+        "impact": 9,
+        "confidence": 8,
+        "effort": 7
+      },
+      "score": 82.3,
+      "benefits": "Benefits of Feature 1",
+      "technicalScope": "Technical scope of Feature 1"
+    }
+  ],
+  "keyTechnicalConsiderations": ["Technical Consideration 1", "Technical Consideration 2"]
+}
 
-<table>
-  <tr>
-    <th style="text-align:right">ID</th>
-    <th style="text-align:left">Feature</th>
-    <th style="text-align:center">Priority</th>
-    <th style="text-align:center">RICE</th>
-    <th style="text-align:right">Score</th>
-  </tr>
-  <tr style="border-top: 2px solid #ddd;">
-    <td style="text-align:right" rowspan="3">1</td>
-    <td style="text-align:left">User Authentication System</td>
-    <td style="text-align:center">🔴</td>
-    <td style="text-align:center">9/9/8/7</td>
-    <td style="text-align:right">928</td>
-  </tr>
-  <tr>
-    <td colspan="4" style="text-align:left">Benefits: Enterprise SSO with 80% security incident reduction and 40% improved user satisfaction.</td>
-  </tr>
-  <tr style="border-bottom: 2px solid #ddd;">
-    <td colspan="4" style="text-align:left">Technical: OAuth2 + MFA + SAML/OIDC with RBAC, audit logging, and session management.</td>
-  </tr>
-  <tr style="border-top: 2px solid #ddd;">
-    <td style="text-align:right" rowspan="3">2</td>
-    <td style="text-align:left">Data Export API</td>
-    <td style="text-align:center">🟡</td>
-    <td style="text-align:center">8/7/9/6</td>
-    <td style="text-align:right">756</td>
-  </tr>
-  <tr>
-    <td colspan="4" style="text-align:left">Benefits: Programmatic data access with BI tool integration, reducing manual exports by 95%.</td>
-  </tr>
-  <tr style="border-bottom: 2px solid #ddd;">
-    <td colspan="4" style="text-align:left">Technical: RESTful API with rate limiting, pagination, multi-format support, and access controls.</td>
-  </tr>
-</table>
 
-Rules for each feature group (3 rows):
-1. Feature Row:
-   - ID: Uses rowspan="3" to merge across all 3 rows
-   - Feature: Clear, concise name (max 40 chars)
-   - Priority: 🔴 (High), 🟡 (Medium), ⚪️ (Low)
-   - RICE: "R/I/C/E" format where each is 1-10
-     * R: Reach (users impacted)
-     * I: Impact (business value)
-     * C: Confidence (estimate accuracy)
-     * E: Effort (implementation)
-   - Score: SRICE Score = (Scope * R * I * C) / E
+Rules for requirements:
+1. Generate minimum 15 requirements
+2. Priority levels: HIGH, MEDIUM, LOW
+3. RICE components must be between 1-10
+4. Sort requirements by score (highest to lowest)
+5. Benefits should focus on business impact and metrics
+6. Technical scope should focus on implementation details
+7. Ensure RICE scoring is well-reasoned
 
-2. Benefits Row (Single Line):
-   - Use "Benefits:" prefix
-   - Focus on key metrics and business impact
-   - Keep under 100 characters
-   - Use clear quantifiable results
-
-3. Technical Row (Single Line):
-   - Use "Technical:" prefix
-   - List core components and integrations
-   - Keep under 100 characters
-   - Focus on key technical elements
-
-Sort all requirements by Score (highest to lowest)
-Visual Grouping:
-- Use rowspan="3" for ID column
-- Add border-top to first row of each group
-- Add border-bottom to last row of each group
-- Sort all requirements by Score (highest to lowest)
-
-### Key Technical Considerations
-List 5-7 critical technical points covering:
-- Core architecture decisions
-- Key dependencies
-- Technical constraints
-- Integration requirements
-- Security considerations
+For keyTechnicalConsiderations:
+1. List 5-7 critical technical points covering:
+   - Core architecture decisions
+   - Key dependencies
+   - Technical constraints
+   - Integration requirements
+   - Security considerations
 
 ${COMMON_PROMPT_REQUIREMENTS}
-Additional section-specific requirements:
-12. Use rowspan for ID column to group rows
-13. Keep benefits and technical scope to one concise line each
-14. Add visual separation between feature groups
-15. Use consistent terminology and formatting
-16. Ensure RICE scoring is well-reasoned
-17. Link technical points to specific requirements`;
+Additional requirements:
+12. Ensure all JSON is properly formatted and valid
+13. Use consistent terminology
+14. Link technical points to specific requirements
+15. DO NOT include any explanatory text, ONLY output the JSON object`;
 
   return SYSTEM_PROMPT;
 };
