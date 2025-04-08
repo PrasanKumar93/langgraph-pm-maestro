@@ -24,10 +24,24 @@ cp .env.example .env
 ```
 
 - Open the `.env` file and provide the necessary credentials
+
   - **Mandatory fields**
-    - `OPENAI_API_KEY` : For LLM provider
+
+    - `DEFAULT_LLM_PROVIDER` : openai (openai/ aws_bedrock)
+
+    - If OpenAI is selected as DEFAULT_LLM_PROVIDER, then the following fields are required
+
+      - `OPENAI_API_KEY` : For LLM provider OpenAI
+
+    - If AWS Bedrock is selected as DEFAULT_LLM_PROVIDER, then the following fields are required
+      - `AWS_BEDROCK_MODEL_NAME` : For LLM provider AWS Bedrock
+      - `AWS_REGION` : For AWS region
+      - `AWS_ACCESS_KEY_ID` : For AWS access key id
+      - `AWS_SECRET_ACCESS_KEY` : For AWS secret access key
+      - `AWS_SESSION_TOKEN` : For AWS session token
     - `REDIS_URL` : For checkpointers, vector DB, LLM cache ..etc
     - `TAVILY_SEARCH_API_KEY` : To search the latest web content for competitor analysis of the requested feature
+
   - **Optional fields group**
     - SALESFORCE CONFIGURATION : To search the requested feature in Salesforce
     - JIRA CONFIGURATION : To search the requested feature in Jira

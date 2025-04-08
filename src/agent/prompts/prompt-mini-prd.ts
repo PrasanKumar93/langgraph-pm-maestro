@@ -24,7 +24,7 @@ export const getTableOfContents = (
 - [Executive Summary](#executive-summary)
   - [Product Overview](#product-overview)
   - [Market Opportunity](#market-opportunity)
-  - [Key Recommendations](#key-recommendations)
+  - [Key Pain Points](#key-pain-points)
 - [Customer Analysis](#customer-analysis)
   - [Target Audience Profile](#target-audience-profile)
   - [Pain Points and Needs Analysis](#pain-points-and-needs-analysis)
@@ -41,13 +41,63 @@ export const getTableOfContents = (
 - [Implementation Strategy](#implementation-strategy)
   - [Effort Estimation Summary](#effort-estimation-summary)
   - [Risk Assessment](#risk-assessment)
+  - [Prioritized Requirements](#prioritized-requirements)
   - [Prioritized Capability Roadmap](#prioritized-capability-roadmap)
   - [Key Technical Considerations](#key-technical-considerations)
 
 ---
 `;
 
-const BASE_CONTEXT = (state: OverallStateType) => `INPUT CONTEXT:
+export const getPromptExecutiveSummary = (state: OverallStateType) => {
+  const SYSTEM_PROMPT = `You are an experienced Product Manager tasked with creating the Executive Summary section of a mini-PRD. Use the following inputs to create a focused summary:
+
+INPUT CONTEXT:
+1. Product Feature: "${state.productFeature}"
+
+2. Market Research (Competitor Analysis):
+${state.competitorTableMatrix}
+
+3. Market Analysis:
+   The following data from Jira and Salesforce provides customer insights:
+   - Data may show customer pain points, feature requests, potential deal sizes and industries
+   - Data may show current customer workarounds and their business impact, and priority levels across different industries
+
+   Note: Jira or Salesforce data is not always complete, accurate or may be empty, so make sure to use the competitor data to make the best feature analysis.
+
+Jira Data: 
+${JSON.stringify(state.systemJiraDataList, null, 2)}
+
+Salesforce Data: 
+${JSON.stringify(state.systemSalesForceDataList, null, 2)}
+
+---
+REQUIRED OUTPUT:
+Create the Executive Summary section in proper markdown format:
+
+## Executive Summary
+
+### Product Overview
+[Generate concise product overview focusing on the core value proposition and target market]
+
+### Market Opportunity
+[Generate market opportunity analysis highlighting market size, growth potential, and key trends]
+
+### Key Pain Points
+[Generate 3-5 critical pain points based on customer demand analysis and market research data]
+
+${COMMON_PROMPT_REQUIREMENTS}
+Additional section-specific requirements:
+12. Include relevant data points to support identified pain points
+13. Keep each section concise and focused on high-level strategic insights
+14. Ensure pain points are clearly tied to market and customer evidence`;
+
+  return SYSTEM_PROMPT;
+};
+
+export const getPromptCustomerAnalysis = (state: OverallStateType) => {
+  const SYSTEM_PROMPT = `You are an experienced Product Manager tasked with creating the Customer Analysis section of a mini-PRD. Use the following inputs to create a detailed analysis:
+
+INPUT CONTEXT:
 1. Product Feature: "${state.productFeature}"
 
 2. Market Research (Competitor Analysis):
@@ -72,39 +122,7 @@ ${JSON.stringify(state.systemSalesForceDataList, null, 2)}
    - Detailed component breakdown with effort, impact, and complexity
 
 Effort Estimation Data:
-${JSON.stringify(state.effortEstimationData, null, 2)}`;
-
-export const getPromptExecutiveSummary = (state: OverallStateType) => {
-  const SYSTEM_PROMPT = `You are an experienced Product Manager tasked with creating the Executive Summary section of a mini-PRD. Use the following inputs to create a focused summary:
-
-${BASE_CONTEXT(state)}
-
----
-REQUIRED OUTPUT:
-Create the Executive Summary section in proper markdown format:
-
-## Executive Summary
-
-### Product Overview
-[Generate concise product overview]
-
-### Market Opportunity
-[Generate market opportunity analysis]
-
-### Key Recommendations
-[Generate key recommendations]
-
-${COMMON_PROMPT_REQUIREMENTS}
-Additional section-specific requirements:
-12. Include relevant data points to support recommendations`;
-
-  return SYSTEM_PROMPT;
-};
-
-export const getPromptCustomerAnalysis = (state: OverallStateType) => {
-  const SYSTEM_PROMPT = `You are an experienced Product Manager tasked with creating the Customer Analysis section of a mini-PRD. Use the following inputs to create a detailed analysis:
-
-${BASE_CONTEXT(state)}
+${JSON.stringify(state.effortEstimationData, null, 2)}
 
 ---
 REQUIRED OUTPUT:
@@ -134,7 +152,11 @@ Additional section-specific requirements:
 export const getPromptMarketResearch = (state: OverallStateType) => {
   const SYSTEM_PROMPT = `You are an experienced Product Manager tasked with creating the Market Research section of a mini-PRD. Use the following inputs to create a comprehensive market analysis:
 
-${BASE_CONTEXT(state)}
+INPUT CONTEXT:
+1. Product Feature: "${state.productFeature}"
+
+2. Market Research (Competitor Analysis):
+${state.competitorTableMatrix}
 
 ---
 REQUIRED OUTPUT:
@@ -160,7 +182,24 @@ Additional section-specific requirements:
 export const getPromptProductStrategy = (state: OverallStateType) => {
   const SYSTEM_PROMPT = `You are an experienced Product Manager tasked with creating the Product Strategy section of a mini-PRD. Use the following inputs to create a comprehensive strategy:
 
-${BASE_CONTEXT(state)}
+INPUT CONTEXT:
+1. Product Feature: "${state.productFeature}"
+
+2. Market Research (Competitor Analysis):
+${state.competitorTableMatrix}
+
+3. Market Analysis:
+   The following data from Jira and Salesforce provides customer insights:
+   - Data may show customer pain points, feature requests, potential deal sizes and industries
+   - Data may show current customer workarounds and their business impact, and priority levels across different industries
+
+   Note: Jira or Salesforce data is not always complete, accurate or may be empty, so make sure to use the competitor data to make the best feature analysis.
+
+Jira Data: 
+${JSON.stringify(state.systemJiraDataList, null, 2)}
+
+Salesforce Data: 
+${JSON.stringify(state.systemSalesForceDataList, null, 2)}
 
 ---
 REQUIRED OUTPUT:
@@ -188,7 +227,32 @@ Additional section-specific requirements:
 export const getPromptImplementationStrategy = (state: OverallStateType) => {
   const SYSTEM_PROMPT = `You are an experienced Product Manager tasked with creating the Implementation Strategy section of a mini-PRD. Use the following inputs to create an actionable plan:
 
-${BASE_CONTEXT(state)}
+INPUT CONTEXT:
+1. Product Feature: "${state.productFeature}"
+
+2. Market Research (Competitor Analysis):
+${state.competitorTableMatrix}
+
+3. Market Analysis:
+   The following data from Jira and Salesforce provides customer insights:
+   - Data may show customer pain points, feature requests, potential deal sizes and industries
+   - Data may show current customer workarounds and their business impact, and priority levels across different industries
+
+   Note: Jira or Salesforce data is not always complete, accurate or may be empty, so make sure to use the competitor data to make the best feature analysis.
+
+Jira Data: 
+${JSON.stringify(state.systemJiraDataList, null, 2)}
+
+Salesforce Data: 
+${JSON.stringify(state.systemSalesForceDataList, null, 2)}
+
+4. Engineering Effort Analysis:
+   Following is the estimation data that includes T-shirt sizing and component breakdown:
+   - T-shirt size (XS to XL) with person-months and rationale
+   - Detailed component breakdown with effort, impact, and complexity
+
+Effort Estimation Data:
+${JSON.stringify(state.effortEstimationData, null, 2)}
 
 ---
 REQUIRED OUTPUT:
@@ -197,25 +261,53 @@ Create the Implementation Strategy section in proper markdown format:
 ## Implementation Strategy
 
 ### Effort Estimation Summary
-[Generate effort summary]
+[Generate effort summary including:
+- Overall project size estimation
+- Timeline estimates
+- Resource requirements
+- Key dependencies]
 
 ### Risk Assessment
-[Generate risk assessment]
+[Generate risk assessment including:
+- Technical risks
+- Business risks
+- Mitigation strategies
+- Impact levels (High/Medium/Low)]
+
+### Prioritized Requirements
+
+| ID | Requirements | Benefits | Priority |
+|---|-------------|----------|----------|
+[Generate detailed requirements (top 20) table following these rules:
+- ID: Use hierarchical numbering (e.g., 1, 2, 2.1, 2.2, 3, etc.)
+- Requirements: Clear, detailed description of what needs to be implemented
+- Benefits: Specific value proposition or impact for users/business
+- Priority: HIGH (🔴), MEDIUM (🟡), LOW (⚪️)]
 
 ### Prioritized Capability Roadmap
-[Generate RICE framework-based roadmap]
-- Reach
-- Impact
-- Confidence
-- Effort
+[Generate SRICE framework-based roadmap table for top 10 requirements:
+
+| ID | Requirement | Scope | Reach | Impact | Confidence | Effort | SRICE Score |
+|---|-------------|-------|-------|--------|------------|--------|-------------|
+Where:
+- Scope: Clear definition of feature scope
+- Reach: Number of users/customers impacted (1-10)
+- Impact: Potential business value (1-10)
+- Confidence: Confidence in estimates (1-10)
+- Effort: Implementation effort (1-10)
+- SRICE Score: (Scope * Reach * Impact * Confidence) / Effort]
 
 ### Key Technical Considerations
 [Generate technical considerations]
 
 ${COMMON_PROMPT_REQUIREMENTS}
 Additional section-specific requirements:
-12. Include relevant data points from effort estimation
-13. For the RICE framework, use a properly formatted markdown table`;
+12. Requirements must be specific, measurable, and actionable
+13. Benefits must clearly articulate business or user value
+14. Priority must be justified based on business impact and technical feasibility
+15. SRICE scoring must be consistent and well-reasoned
+16. Risk assessment must include clear mitigation strategies
+17. Effort estimation must be based on complexity and team capacity`;
 
   return SYSTEM_PROMPT;
 };
