@@ -1,20 +1,22 @@
 import type { OverallStateType } from "../state.js";
 
 const MARKDOWN_FORMAT_REQUIREMENTS = `FORMAT REQUIREMENTS:
-1. Use proper markdown heading tags (##, ###, ####)
-2. Use bullet points with proper markdown syntax (-)
-3. Use emphasis where appropriate (**bold** or *italic*)
-4. Keep content concise and actionable
-5. Use proper markdown line breaks between sections
-6. If including tables, use proper markdown table syntax
-7. Ensure all sections are properly nested under their parent heading`;
+- Use proper markdown heading tags (##, ###, ####)
+- Use bullet points with proper markdown syntax (-)
+- Use emphasis where appropriate (**bold** or *italic*)
+- Keep content concise and actionable
+- Use proper markdown line breaks between sections
+- If including tables, use proper markdown table syntax
+- Ensure all sections are properly nested under their parent heading`;
+
+const ADDITIONAL_REQUIREMENTS = `Additional requirements:
+- DO NOT include any introductory or concluding text
+- DO NOT explain what you're about to do or what you've done
+- Start and end with just the section content
+- Ensure heading IDs match the ones used in Table of Contents`;
 
 const COMMON_PROMPT_REQUIREMENTS = `${MARKDOWN_FORMAT_REQUIREMENTS}
-Additional requirements:
-8. DO NOT include any introductory or concluding text
-9. DO NOT explain what you're about to do or what you've done
-10. Start and end with just the section content
-11. Ensure heading IDs match the ones used in Table of Contents`;
+${ADDITIONAL_REQUIREMENTS}`;
 
 export const getTableOfContents = (
   productFeature: string
@@ -373,19 +375,18 @@ Rules for requirements:
 7. Ensure RICE scoring is well-reasoned
 
 For keyTechnicalConsiderations:
-1. List 5-7 critical technical points covering:
+1. List 5 to 7 critical technical points covering:
    - Core architecture decisions
    - Key dependencies
    - Technical constraints
    - Integration requirements
    - Security considerations
 
-${COMMON_PROMPT_REQUIREMENTS}
-Additional requirements:
-12. Ensure all JSON is properly formatted and valid
-13. Use consistent terminology
-14. Link technical points to specific requirements
-15. DO NOT include any explanatory text, ONLY output the JSON object`;
+${ADDITIONAL_REQUIREMENTS}
+- Ensure all JSON is properly formatted and valid
+- Use consistent terminology
+- Link technical points to specific requirements
+- DO NOT include any explanatory text, ONLY output the JSON object`;
 
   return SYSTEM_PROMPT;
 };

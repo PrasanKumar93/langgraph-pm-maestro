@@ -24,8 +24,12 @@ class AwsBedrockCls {
             },
           }),
           modelKwargs: {
-            temperature: 0,
+            temperature: 0.3,
+            anthropic_version: "bedrock-2023-05-31",
+            max_tokens: 8192,
           },
+          maxRetries: 3,
+          maxConcurrency: 1,
           streaming: false,
         });
       } catch (error) {
