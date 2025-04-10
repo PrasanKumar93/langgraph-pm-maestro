@@ -40,7 +40,7 @@ const implementationStrategySchema = z.object({
       technicalScope: z.string(),
     })
   ),
-  keyTechnicalConsiderations: z.array(z.string()).min(5).max(7),
+  keyTechnicalConsiderations: z.array(z.string()).min(1),
 });
 
 type ImplementationStrategyPart2 = z.infer<typeof implementationStrategySchema>;

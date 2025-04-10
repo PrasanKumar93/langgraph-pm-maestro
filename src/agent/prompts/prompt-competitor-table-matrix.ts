@@ -23,11 +23,14 @@ export const getPromptCompetitorTableMatrix = (state: OverallStateType) => {
     If there is an odd number of competitors, the last table should contain the remaining single competitor.
 
     Table Organization Requirements:
-    1. Prioritize and list the most important/core capabilities at the top of the table
-    2. Group related features together
-    3. Place secondary or less critical features lower in the table
-    4. Use clear, concise feature descriptions
-    5. Highlight any standout or unique capabilities
+    1. First, analyze ALL competitors to create a comprehensive, unified list of features
+    2. Use this SAME feature list across ALL tables to ensure consistent comparison
+    3. Prioritize and list the most important/core capabilities at the top of the table
+    4. Group related features together
+    5. Place secondary or less critical features lower in the table
+    6. Use clear, concise feature descriptions
+    7. Highlight any standout or unique capabilities
+    8. If a feature is not available for a competitor, mark it as "Not Available" or "N/A"
 
     Note: Later, the final tables will be converted to PDF, so ensure the formatting is suitable for PDF conversion.
 
@@ -36,6 +39,8 @@ export const getPromptCompetitorTableMatrix = (state: OverallStateType) => {
     - Do not include any introductory text or explanations
     - Start directly with the markdown table format
     - Only include the specified sections with no additional commentary
+    - Use the EXACT SAME feature list in ALL tables
+    - Maintain consistent feature ordering across all tables
 
     Input:
      ${inputStr}
