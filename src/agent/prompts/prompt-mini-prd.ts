@@ -111,6 +111,8 @@ ${state.competitorTableMatrix}
 
    Note: Jira or Salesforce data is not always complete, accurate or may be empty, so make sure to use the competitor data to make the best feature analysis.
 
+   IMPORTANT: If Jira or Salesforce data is empty, incomplete, or insufficient, you should leverage your own knowledge and market understanding to provide a comprehensive Customer Analysis. Use industry best practices, market trends, and your expertise to fill in the gaps and ensure the analysis is thorough and valuable.
+
 Jira Data: 
 ${JSON.stringify(state.systemJiraDataList, null, 2)}
 
@@ -145,7 +147,9 @@ Create the Customer Analysis section in proper markdown format:
 
 ${COMMON_PROMPT_REQUIREMENTS}
 Additional section-specific requirements:
-12. Include relevant data points from Jira and Salesforce data`;
+12. Include relevant data points from Jira and Salesforce data when available
+13. When data is missing or incomplete, provide insights based on your knowledge of the market, industry trends, and best practices
+14. Ensure all analysis is well-reasoned and supported by evidence, whether from provided data or your expertise`;
 
   return SYSTEM_PROMPT;
 };
