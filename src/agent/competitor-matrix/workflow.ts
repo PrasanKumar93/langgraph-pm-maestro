@@ -14,6 +14,7 @@ import { nodeCompetitorFeatureDetails } from "./node-competitor-feature-details.
 import { nodeCompetitorTableMatrix } from "./node-competitor-table-matrix.js";
 import { nodeCompetitorAnalysisPdf } from "./node-competitor-analysis-pdf.js";
 import { toolTavilySearch } from "../tool-tavily-search.js";
+import { LANGGRAPH_CONFIG } from "../../utils/constants.js";
 
 const toolNodeWithGraphState = async (state: OverallStateType) => {
   setContextVariable("currentState", state);
@@ -147,6 +148,7 @@ const runWorkflow = async (input: InputStateType) => {
     configurable: {
       thread_id: crypto.randomUUID(), //MemorySaver checkpointer requires a thread ID for storing state.
     },
+    recursionLimit: LANGGRAPH_CONFIG.RECURSION_LIMIT,
   });
   return result;
 };

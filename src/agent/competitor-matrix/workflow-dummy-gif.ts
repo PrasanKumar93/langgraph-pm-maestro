@@ -32,7 +32,7 @@ const nodeCompetitorList = async (state: OverallStateType) => {
     new AIMessage("Fetching competitor list..."),
   ];
 
-  state.competitorList = ["SQL Server", "MySQL", "PostgreSQL"];
+  state.competitorList = ["SQL Server", "MySQL"];
   state.pendingProcessCompetitorList = [...state.competitorList];
 
   return state;

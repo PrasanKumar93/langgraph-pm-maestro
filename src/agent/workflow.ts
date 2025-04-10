@@ -11,11 +11,12 @@ import { InputStateAnnotation, OverallStateAnnotation } from "./state.js";
 import { nodeExtractProductFeature } from "./node-extract-product-feature.js";
 import { nodeCustomerDemandAnalysis } from "./node-customer-demand-analysis.js";
 import { nodeEffortEstimation } from "./node-effort-estimation.js";
-import { nodeMiniPrd } from "./node-mini-prd.js";
 import { nodeMdToPdf } from "./node-md-to-pdf.js";
 import { toolSystemSalesForce } from "./tool-system-sales-force.js";
 import { toolSystemJira } from "./tool-system-jira.js";
 import { getCompetitorSubgraph } from "./competitor-matrix/workflow.js";
+import { getPrdGenerationSubgraph } from "./prd-generation/workflow.js";
+import { LANGGRAPH_CONFIG } from "../utils/constants.js";
 
 const toolNodeWithGraphState = async (state: OverallStateType) => {
   setContextVariable("currentState", state);
@@ -65,6 +66,7 @@ const generateGraph = () => {
   });
 
   const competitorSubgraphBuilder = getCompetitorSubgraph();
+  const prdGenerationSubgraphBuilder = getPrdGenerationSubgraph();
 
   graph
     .addNode("extractProductFeature", nodeExtractProductFeature)
@@ -78,7 +80,12 @@ const generateGraph = () => {
     .addNode("tools", toolNodeWithGraphState)
 
     .addNode("effortEstimation", nodeEffortEstimation)
-    .addNode("miniPrd", nodeMiniPrd)
+    .addNode(
+      "prdGenerationSubgraph",
+      prdGenerationSubgraphBuilder.compile({
+        checkpointer,
+      })
+    )
     .addNode("markdownToPdf", nodeMdToPdf)
 
     .addEdge(START, "extractProductFeature")
@@ -89,8 +96,8 @@ const generateGraph = () => {
       "effortEstimation",
     ])
     .addEdge("tools", "customerDemandAnalysis")
-    .addEdge("effortEstimation", "miniPrd")
-    .addEdge("miniPrd", "markdownToPdf")
+    .addEdge("effortEstimation", "prdGenerationSubgraph")
+    .addEdge("prdGenerationSubgraph", "markdownToPdf")
     .addEdge("markdownToPdf", END);
 
   const finalGraph = graph.compile({
@@ -108,6 +115,7 @@ const runWorkflow = async (input: InputStateType) => {
     configurable: {
       thread_id: crypto.randomUUID(), //MemorySaver checkpointer requires a thread ID for storing state.
     },
+    recursionLimit: LANGGRAPH_CONFIG.RECURSION_LIMIT,
   });
   return result;
 };

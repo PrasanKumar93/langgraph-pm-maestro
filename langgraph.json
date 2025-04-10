@@ -10,5 +10,8 @@
         "pm-market-research": "./src/agent/competitor-matrix/workflow.ts:compiledGraph",
         "pm-market-research-gif": "./src/agent/competitor-matrix/workflow-dummy-gif.ts:compiledGraph"
     },
-    "env": ".env"
+    "env": ".env",
+    "config": {
+        "recursionLimit": 200
+    }
 }

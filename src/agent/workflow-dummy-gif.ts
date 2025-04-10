@@ -11,6 +11,7 @@ import { DynamicStructuredTool } from "@langchain/core/tools";
 import { z } from "zod";
 
 import { getCompetitorSubgraph } from "./competitor-matrix/workflow-dummy-gif.js";
+import { getPrdGenerationSubgraph } from "./prd-generation/workflow-dummy-gif.js";
 
 const DELAY_TIME_MS = 500;
 
@@ -42,15 +43,6 @@ const nodeEffortEstimation = async (state: OverallStateType) => {
   state.messages = [
     ...(state.messages || []),
     new AIMessage("Estimating effort..."),
-  ];
-  return state;
-};
-
-const nodeMiniPrd = async (state: OverallStateType) => {
-  await new Promise((resolve) => setTimeout(resolve, DELAY_TIME_MS));
-  state.messages = [
-    ...(state.messages || []),
-    new AIMessage("Creating mini PRD..."),
   ];
   return state;
 };
@@ -139,6 +131,7 @@ const generateGraph = () => {
   });
 
   const competitorSubgraphBuilder = getCompetitorSubgraph();
+  const prdGenerationSubgraphBuilder = getPrdGenerationSubgraph();
 
   graph
     .addNode("extractProductFeature", nodeExtractProductFeature)
@@ -151,7 +144,12 @@ const generateGraph = () => {
     .addNode("customerDemandAnalysis", nodeCustomerDemandAnalysis)
     .addNode("tools", toolNodeWithGraphState)
     .addNode("effortEstimation", nodeEffortEstimation)
-    .addNode("miniPrd", nodeMiniPrd)
+    .addNode(
+      "prdGenerationSubgraph",
+      prdGenerationSubgraphBuilder.compile({
+        checkpointer,
+      })
+    )
     .addNode("markdownToPdf", nodeMdToPdf)
     .addEdge(START, "extractProductFeature")
     .addEdge("extractProductFeature", "competitorSubgraph")
@@ -161,8 +159,8 @@ const generateGraph = () => {
       "effortEstimation",
     ])
     .addEdge("tools", "customerDemandAnalysis")
-    .addEdge("effortEstimation", "miniPrd")
-    .addEdge("miniPrd", "markdownToPdf")
+    .addEdge("effortEstimation", "prdGenerationSubgraph")
+    .addEdge("prdGenerationSubgraph", "markdownToPdf")
     .addEdge("markdownToPdf", END);
 
   return graph.compile({

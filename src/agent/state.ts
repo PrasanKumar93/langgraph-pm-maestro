@@ -19,6 +19,14 @@ const CompetitorMatrixAnnotation = Annotation.Root({
   competitorAnalysisPdfFilePath: Annotation<string>,
 });
 
+const PRDGenerationAnnotation = Annotation.Root({
+  prdExecutiveSummary: Annotation<string>,
+  prdCustomerAnalysis: Annotation<string>,
+  prdMarketResearch: Annotation<string>,
+  prdProductStrategy: Annotation<string>,
+  prdImplementationStrategyPart1: Annotation<string>,
+  prdImplementationStrategyPart2: Annotation<string>,
+});
 const SlackBotAnnotation = Annotation.Root({
   onNotifyProgress: Annotation<(detail: string) => Promise<void>>,
 });
@@ -35,6 +43,7 @@ const OverallStateAnnotation = Annotation.Root({
   ...InputStateAnnotation.spec,
   ...CompetitorMatrixAnnotation.spec,
   ...tavilySearchAnnotation.spec,
+  ...PRDGenerationAnnotation.spec,
   productFeature: Annotation<string>,
   systemSalesForceDataList: Annotation<any[]>,
   systemJiraDataList: Annotation<any[]>,
@@ -70,6 +79,13 @@ const initializeState = (state: OverallStateType) => {
   state.toolTavilySearchProcessed = false;
   state.toolTavilySearchData = "";
   state.allTavilySearchDataList = [];
+
+  state.prdExecutiveSummary = "";
+  state.prdCustomerAnalysis = "";
+  state.prdMarketResearch = "";
+  state.prdProductStrategy = "";
+  state.prdImplementationStrategyPart1 = "";
+  state.prdImplementationStrategyPart2 = "";
 };
 
 export { InputStateAnnotation, OverallStateAnnotation, initializeState };
