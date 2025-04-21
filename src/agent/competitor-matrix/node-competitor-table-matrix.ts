@@ -14,14 +14,13 @@ import { AgentCache } from "../agent-cache.js";
 const updateStateFromCache = async (state: OverallStateType) => {
   let isCacheHit = false;
 
-  let sortedCompetitorList = [...state.competitorList].sort();
-
   const agentCache = await AgentCache.getInstance();
   const cached = await agentCache.getAgentCache({
-    prompt: sortedCompetitorList.join(", "),
+    prompt: "CompetitorTableMatrix",
     scope: {
       feature: state.productFeature,
       nodeName: "nodeCompetitorTableMatrix",
+      competitorsListStr: [...state.competitorList].sort().join(","),
     },
   });
 
@@ -44,14 +43,14 @@ const updateStateFromCache = async (state: OverallStateType) => {
 
 const updateState = async (state: OverallStateType, resultStr: any) => {
   if (resultStr) {
-    let sortedCompetitorList = [...state.competitorList].sort();
     const agentCache = await AgentCache.getInstance();
     await agentCache.setAgentCache({
-      prompt: sortedCompetitorList.join(", "),
+      prompt: "CompetitorTableMatrix",
       response: resultStr,
       scope: {
         feature: state.productFeature,
         nodeName: "nodeCompetitorTableMatrix",
+        competitorsListStr: [...state.competitorList].sort().join(","),
       },
     });
 

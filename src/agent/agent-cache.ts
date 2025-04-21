@@ -14,6 +14,7 @@ interface IAgentCacheData {
     nodeName: string;
     userId?: string;
     userSessionId?: string;
+    competitorsListStr?: string;
     [key: string]: string | number | boolean | undefined;
   };
 }
@@ -80,6 +81,11 @@ class AgentCache {
           type: SchemaFieldTypes.TAG,
           AS: "scope_userSessionId",
         },
+        "$.scope.competitorsListStr": {
+          type: SchemaFieldTypes.TAG,
+          AS: "scope_competitorsListStr",
+          SEPARATOR: ",",
+        },
       };
       await redisWrapperST.client?.ft.create(this.SEARCH_INDEX, schema, {
         ON: "JSON",
@@ -104,6 +110,18 @@ class AgentCache {
     return key;
   }
 
+  public escapeRedisTagValue(value: string) {
+    let retVal = value;
+    if (typeof value === "string") {
+      retVal = value
+        .replace(/\\/g, "\\\\") // Escape backslashes
+        .replace(/ /g, "\\ ") // Escape spaces
+        .replace(/:/g, "\\:"); // Escape colon
+      //.replace(/,/g, "\\,"); // Escape commas (if used in tags)
+    }
+    return retVal;
+  }
+
   public async getAgentCache(filterData: IAgentCacheData) {
     /**
      "FT.SEARCH" "pmMaestro:idx:agentCacheSearchIndex" "@prompt:'CompetitorList' @scope_feature:{stored procedures} @scope_nodeName:{nodeCompetitorList}"
@@ -120,7 +138,14 @@ class AgentCache {
 
         //tag fields
         Object.entries(filterData.scope).forEach(([key, value]) => {
-          searchFilters.push(`@scope_${key}:{${value}}`);
+          const escapedValue = this.escapeRedisTagValue(value as string);
+          if (key === "competitorsListStr") {
+            searchFilters.push(
+              `@scope_${key}:{${escapedValue.split(",").join("|")}}`
+            );
+          } else {
+            searchFilters.push(`@scope_${key}:{${escapedValue}}`);
+          }
         });
 
         const searchQuery = searchFilters.join(" ");
@@ -154,6 +179,9 @@ class AgentCache {
         await redisWrapperST.client?.del(keys);
         LoggerCls.debug(`Cleared cache for ${pattern}`);
       }
+
+      await redisWrapperST.client?.ft.dropIndex(this.SEARCH_INDEX);
+      LoggerCls.debug(`Dropped search index: ${this.SEARCH_INDEX}`);
     } catch (error) {
       const pureError = LoggerCls.getPureError(error);
       LoggerCls.error("Error clearing agent cache:", pureError);

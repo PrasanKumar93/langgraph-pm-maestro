@@ -15,7 +15,7 @@ const updateStateFromCache = async (state: OverallStateType) => {
     scope: {
       nodeName: "nodeExecutiveSummary",
       feature: state.productFeature,
-      competitorsList: [...state.competitorList].sort().join(", "),
+      competitorsListStr: [...state.competitorList].sort().join(","),
     },
   });
 
@@ -48,7 +48,7 @@ const updateState = async (
     scope: {
       nodeName: "nodeExecutiveSummary",
       feature: state.productFeature,
-      competitorsList: [...state.competitorList].sort().join(", "),
+      competitorsListStr: [...state.competitorList].sort().join(","),
     },
   });
 

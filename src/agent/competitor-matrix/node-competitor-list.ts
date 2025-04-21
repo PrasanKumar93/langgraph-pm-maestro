@@ -44,7 +44,7 @@ const updateStateFromCache = async (state: OverallStateType) => {
       isCacheHit = true;
       let competitorList = response
         .split(",")
-        .map((s: string) => s.trim())
+        .map((s: string) => s.trim().replace(/\s+/g, "_"))
         .filter((s: string) => s);
       competitorList = reduceCompetitorList(competitorList);
 
@@ -77,7 +77,7 @@ const updateState = async (state: OverallStateType, rawResult: any) => {
 
       let competitorList = rawResult
         .split(",")
-        .map((s: string) => s.trim())
+        .map((s: string) => s.trim().replace(/\s+/g, "_"))
         .filter((s: string) => s); // remove empty string
       competitorList = reduceCompetitorList(competitorList);
 

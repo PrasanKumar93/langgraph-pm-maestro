@@ -15,14 +15,13 @@ import { AgentCache } from "./agent-cache.js";
 const updateStateFromCache = async (state: OverallStateType) => {
   let isCacheHit = false;
 
-  let sortedCompetitors = [...state.competitorList].sort().join(", ");
-  const prompt = `EffortEstimation for ${state.productFeature} with competitors ${sortedCompetitors}`;
   const agentCache = await AgentCache.getInstance();
   const cached = await agentCache.getAgentCache({
-    prompt: prompt,
+    prompt: "EffortEstimation",
     scope: {
       feature: state.productFeature,
       nodeName: "nodeEffortEstimation",
+      competitorsListStr: [...state.competitorList].sort().join(","),
     },
   });
 
@@ -44,15 +43,14 @@ const updateStateFromCache = async (state: OverallStateType) => {
 
 const updateState = async (state: OverallStateType, resultJson: any) => {
   if (resultJson) {
-    let sortedCompetitors = [...state.competitorList].sort().join(", ");
-    const prompt = `EffortEstimation for ${state.productFeature} with competitors ${sortedCompetitors}`;
     const agentCache = await AgentCache.getInstance();
     await agentCache.setAgentCache({
-      prompt: prompt,
+      prompt: "EffortEstimation",
       response: resultJson,
       scope: {
         feature: state.productFeature,
         nodeName: "nodeEffortEstimation",
+        competitorsListStr: [...state.competitorList].sort().join(","),
       },
     });
   }
