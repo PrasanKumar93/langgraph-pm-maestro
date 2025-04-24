@@ -1,5 +1,6 @@
 import type { InputStateType, OverallStateType } from "../state.js";
 
+import crypto from "crypto";
 import { StateGraph, START, END, MemorySaver } from "@langchain/langgraph";
 import {
   getContextVariable,
