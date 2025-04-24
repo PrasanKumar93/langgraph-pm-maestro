@@ -15,7 +15,7 @@ export const getPromptCompetitorList = (state: OverallStateType) => {
     - Product Feature: "${state.productFeature}"
 
     Output:
-    After using Tavily search, provide ONLY a comma-separated list of competitors, or an empty string if none found.
+    After using Tavily search, provide ONLY a comma-separated list of competitors sorted by priority, or an empty string if none found.
     DO NOT include any other text or explanations.
 
     Example Output Format:
