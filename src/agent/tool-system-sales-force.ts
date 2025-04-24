@@ -27,12 +27,10 @@ const searchSalesforce = async (productFeature: string, query?: string) => {
         SEARCH_FIELD: productFeature,
       });
     } else {
-      throw new Error("searchSalesforce() : ProductFeature/ Query is missing");
+      throw "searchSalesforce() : ProductFeature/ Query is missing";
     }
   } else {
-    throw new Error(
-      "searchSalesforce() : Salesforce ENV variables are missing"
-    );
+    throw "searchSalesforce() : Salesforce ENV variables are missing";
   }
 
   return result;

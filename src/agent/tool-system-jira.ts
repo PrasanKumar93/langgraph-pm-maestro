@@ -44,10 +44,10 @@ const searchJira = async (productFeature: string, query?: string) => {
         });
       }
     } else {
-      throw new Error("searchJira() : ProductFeature/ Query is missing");
+      throw "searchJira() : ProductFeature/ Query is missing";
     }
   } else {
-    throw new Error("searchJira() : JIRA ENV variables are missing");
+    throw "searchJira() : JIRA ENV variables are missing";
   }
 
   return result;
