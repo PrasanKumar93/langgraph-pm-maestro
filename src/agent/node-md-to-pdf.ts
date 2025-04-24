@@ -1,10 +1,14 @@
 import type { OverallStateType } from "./state.js";
 
+import { fileURLToPath } from "url";
+import path from "path";
 import { convertMarkdownToPdf } from "../utils/misc.js";
 import { STEP_EMOJIS } from "../utils/constants.js";
 import { checkErrorToStopWorkflow } from "./error.js";
 import { addSystemMsg } from "./common.js";
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 const style = `
        @page {
           margin: 1cm;
@@ -78,13 +82,16 @@ const style = `
 
 const generateMiniPrdFile = async (content: string) => {
   const dateTimeString = new Date().toISOString().replace(/[:.]/g, "-");
-  const fileName = `./prd-files/mini-prd-${dateTimeString}.pdf`;
+  const fileName = `mini-prd-${dateTimeString}.pdf`;
+
+  const filePath = path.join(__dirname, "../../prd-files", fileName);
+
   await convertMarkdownToPdf({
     content: content,
-    destination: fileName,
+    destination: filePath,
     css: style,
   });
-  return fileName;
+  return filePath;
 };
 
 const getMarkdownContent = (state: OverallStateType) => {
