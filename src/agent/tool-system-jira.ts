@@ -16,35 +16,40 @@ import { getConfig } from "../config.js";
 
 const searchJira = async (productFeature: string, query?: string) => {
   const config = getConfig();
-
   let result: any[] = [];
-  query = query || config.JIRA_JQL_QUERY || "";
-  let returnFields = ["id", "key", "summary", "description"]; //, "status"
 
-  if (productFeature && query) {
-    const jiraST = JiraST.getInstance();
-    result = await jiraST.searchIssues(
-      query,
-      {
-        SEARCH_FIELD: productFeature,
-      },
-      returnFields
-    );
+  if (config.JIRA_API_TOKEN && config.JIRA_BASE_URL && config.JIRA_EMAIL) {
+    query = query || config.JIRA_JQL_QUERY || "";
+    let returnFields = ["id", "key", "summary", "description"]; //, "status"
 
-    if (result?.length) {
-      result = result.map((item) => {
-        return {
-          id: item.id,
-          key: item.key,
-          summary: item.fields.summary,
-          description: item.fields.description,
-          //          status: item.fields.status,
-        };
-      });
+    if (productFeature && query) {
+      const jiraST = JiraST.getInstance();
+      result = await jiraST.searchIssues(
+        query,
+        {
+          SEARCH_FIELD: productFeature,
+        },
+        returnFields
+      );
+
+      if (result?.length) {
+        result = result.map((item) => {
+          return {
+            id: item.id,
+            key: item.key,
+            summary: item.fields.summary,
+            description: item.fields.description,
+            //          status: item.fields.status,
+          };
+        });
+      }
+    } else {
+      throw new Error("searchJira() : ProductFeature/ Query is missing");
     }
   } else {
-    throw new Error("searchJira() : ProductFeature/ Query is missing");
+    throw new Error("searchJira() : JIRA ENV variables are missing");
   }
+
   return result;
 };
 

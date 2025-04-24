@@ -17,16 +17,24 @@ const searchSalesforce = async (productFeature: string, query?: string) => {
   const config = getConfig();
 
   let result: any[] = [];
-  query = query || config.SF_SEARCH_FEATURE_QUERY || "";
 
-  if (productFeature && query) {
-    const salesforceST = SalesforceST.getInstance();
-    result = await salesforceST.runSearchQuery(query, {
-      SEARCH_FIELD: productFeature,
-    });
+  if (config.SF_USERNAME && config.SF_PASSWORD && config.SF_SECURITY_TOKEN) {
+    query = query || config.SF_SEARCH_FEATURE_QUERY || "";
+
+    if (productFeature && query) {
+      const salesforceST = SalesforceST.getInstance();
+      result = await salesforceST.runSearchQuery(query, {
+        SEARCH_FIELD: productFeature,
+      });
+    } else {
+      throw new Error("searchSalesforce() : ProductFeature/ Query is missing");
+    }
   } else {
-    throw new Error("searchSalesforce() : ProductFeature/ Query is missing");
+    throw new Error(
+      "searchSalesforce() : Salesforce ENV variables are missing"
+    );
   }
+
   return result;
 };
 
