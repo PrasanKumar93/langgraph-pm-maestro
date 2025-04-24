@@ -44,6 +44,9 @@ const convertMarkdownToPdf = async (params: IConvertMarkdownToPdfParams) => {
       {
         dest: params.destination,
         css: params.css,
+        launch_options: {
+          args: ["--no-sandbox", "--disable-setuid-sandbox"], // ubuntu server fix (EC2)
+        },
       }
     );
     return pdf;
