@@ -6,6 +6,7 @@ import { convertMarkdownToPdf } from "../../utils/misc.js";
 import { STEP_EMOJIS } from "../../utils/constants.js";
 import { checkErrorToStopWorkflow } from "../error.js";
 import { addSystemMsg } from "../common.js";
+import { LoggerCls } from "../../utils/logger.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -92,6 +93,8 @@ const generatePdf = async (content: string) => {
     destination: filePath,
     css: style,
   });
+
+  LoggerCls.info(filePath);
   return filePath;
 };
 

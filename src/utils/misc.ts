@@ -1,5 +1,6 @@
 import { dump as yamlDump } from "js-yaml";
 import { mdToPdf } from "md-to-pdf";
+import { LoggerCls } from "./logger.js";
 
 interface IConvertMarkdownToPdfParams {
   content: string;
@@ -37,14 +38,20 @@ const getYamlFromJson = (data: any[]) => {
 };
 
 const convertMarkdownToPdf = async (params: IConvertMarkdownToPdfParams) => {
-  const pdf = await mdToPdf(
-    { content: params.content },
-    {
-      dest: params.destination,
-      css: params.css,
-    }
-  );
-  return pdf;
+  try {
+    const pdf = await mdToPdf(
+      { content: params.content },
+      {
+        dest: params.destination,
+        css: params.css,
+      }
+    );
+    return pdf;
+  } catch (err) {
+    const pureError = LoggerCls.getPureError(err);
+    LoggerCls.error("Error converting markdown to pdf", pureError);
+    throw pureError;
+  }
 };
 
 export { getYamlFromJson, convertMarkdownToPdf };
