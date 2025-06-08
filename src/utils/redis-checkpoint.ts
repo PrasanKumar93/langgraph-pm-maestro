@@ -23,6 +23,7 @@ export type RedisSaverParams = {
   commonPrefix?: string;
   redisOptions?: RedisClientOptions;
   insertRawJson?: boolean; //for local debugging only
+  ttl?: number; // TTL in seconds for keys
 };
 
 /**
@@ -38,6 +39,7 @@ export class RedisCheckpointSaver extends BaseCheckpointSaver {
   protected writesPrefix: string;
   protected commonPrefix: string;
   protected insertRawJson: boolean;
+  protected ttl?: number;
 
   constructor(params: RedisSaverParams, serde?: SerializerProtocol) {
     super(serde);
@@ -49,6 +51,7 @@ export class RedisCheckpointSaver extends BaseCheckpointSaver {
       params.writesPrefix ?? "langgraph:checkpoint_writes:"
     }`;
     this.insertRawJson = params.insertRawJson ?? false;
+    this.ttl = params.ttl;
     this.client = createClient({
       url: params.connectionString,
       ...params.redisOptions,
@@ -304,6 +307,9 @@ export class RedisCheckpointSaver extends BaseCheckpointSaver {
       checkpoint: checkpointSerialized.value,
       metadata: metadataSerialized.value,
     });
+    if (this.ttl) {
+      await this.client.expire(key, this.ttl);
+    }
     return {
       configurable: {
         thread_id: threadId,
@@ -338,6 +344,9 @@ export class RedisCheckpointSaver extends BaseCheckpointSaver {
           idx,
         };
         await this.client.rPush(writesKey, JSON.stringify(entry));
+      }
+      if (this.ttl) {
+        await this.client.expire(writesKey, this.ttl);
       }
     } else {
       // No-op: nothing to write if we don't have a full checkpoint context

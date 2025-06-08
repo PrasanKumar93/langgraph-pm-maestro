@@ -120,6 +120,7 @@ const generateGraph = () => {
     connectionString: config.REDIS_URL,
     insertRawJson: config.LANGGRAPH.DEBUG_RAW_JSON,
     commonPrefix: config.REDIS_KEYS.ROOT_PREFIX,
+    ttl: config.REDIS_KEYS.CACHE_TTL,
   });
 
   //const checkpointer = new MemorySaver();

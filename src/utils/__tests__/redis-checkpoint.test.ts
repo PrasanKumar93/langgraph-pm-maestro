@@ -85,6 +85,7 @@ describe("RedisCheckpointSaver", () => {
       connectionString: redisUrl,
       commonPrefix: commonPrefix,
       insertRawJson: config.LANGGRAPH.DEBUG_RAW_JSON,
+      ttl: config.REDIS_KEYS.CACHE_TTL,
     });
 
     // get undefined checkpoint
