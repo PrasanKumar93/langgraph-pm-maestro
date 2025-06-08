@@ -91,89 +91,139 @@ export class RedisCheckpointSaver extends BaseCheckpointSaver {
   }
 
   /**
+   * Utility to serialize a value (checkpoint, metadata, or write value) based on insertRawJson flag.
+   */
+  private serializeValue(value: any): { type: string; value: string } {
+    let type: string;
+    let serialized: string;
+    if (this.insertRawJson) {
+      type = "json";
+      serialized = JSON.stringify(value);
+    } else {
+      let result = this.serde.dumpsTyped(value);
+      type = result[0];
+      // result[1] is Uint8Array, convert to base64 string
+      serialized = Buffer.from(result[1]).toString("base64");
+    }
+    return { type, value: serialized };
+  }
+
+  /**
+   * Utility to deserialize a value (checkpoint, metadata, or write value) based on type.
+   */
+  private async deserializeValue(type: string, value: string): Promise<any> {
+    let retValue: any;
+    if (type === "json") {
+      retValue = JSON.parse(value);
+    } else {
+      retValue = await this.serde.loadsTyped(
+        type,
+        Buffer.from(value, "base64").toString("utf8")
+      );
+    }
+    return retValue;
+  }
+
+  /**
+   * Utility to deserialize a pending write entry from Redis.
+   */
+  private async deserializePendingWrite(
+    item: string
+  ): Promise<CheckpointPendingWrite> {
+    const parsed = JSON.parse(item);
+    let pValue;
+    if (parsed.type === "json") {
+      pValue = JSON.parse(parsed.value);
+    } else {
+      pValue = await this.serde.loadsTyped(
+        parsed.type,
+        Buffer.from(parsed.value, "base64").toString("utf8")
+      );
+    }
+    return [parsed.task_id, parsed.channel, pValue] as CheckpointPendingWrite;
+  }
+
+  /**
+   * Get the latest checkpoint key for a given thread_id and checkpoint_ns by scanning, sorting, and picking the last one.
+   */
+  private async getLatestCheckpointKey(
+    thread_id: string,
+    checkpoint_ns: string
+  ): Promise<string> {
+    let retKey = "";
+    const pattern = `${this.checkpointPrefix}${thread_id}:${checkpoint_ns}:*`;
+    const keys = await this.client.keys(pattern);
+    if (keys.length) {
+      const sortedKeys = keys.sort();
+      retKey = sortedKeys[sortedKeys.length - 1];
+    }
+    return retKey;
+  }
+
+  /**
    * Retrieves a checkpoint from Redis based on the config.
    */
-  async getTuple(config: RunnableConfig): Promise<CheckpointTuple | undefined> {
+  async getTuple(config: RunnableConfig) {
+    let result: CheckpointTuple | undefined;
+
     await this.ensureConnected();
     const {
       thread_id,
       checkpoint_ns = "",
       checkpoint_id,
     } = config.configurable ?? {};
-    if (!thread_id) return undefined;
-    let key: string;
-    if (checkpoint_id) {
-      key = this.checkpointKey(thread_id, checkpoint_ns, checkpoint_id);
-    } else {
-      // Find the latest checkpoint by scanning keys
-      const pattern = `${this.checkpointPrefix}${thread_id}:${checkpoint_ns}:*`;
-      const keys = await this.client.keys(pattern);
-      if (!keys.length) return undefined;
-      // Sort by checkpoint_id (assume lexicographical order is sufficient)
-      keys.sort();
-      key = keys[keys.length - 1];
+    let key: string | undefined;
+    if (thread_id) {
+      if (checkpoint_id) {
+        key = this.checkpointKey(thread_id, checkpoint_ns, checkpoint_id);
+      } else {
+        key = await this.getLatestCheckpointKey(thread_id, checkpoint_ns);
+      }
+
+      if (key) {
+        const doc = await this.client.hGetAll(key);
+        if (doc?.checkpoint) {
+          const configurableValues = {
+            thread_id,
+            checkpoint_ns,
+            checkpoint_id: doc.checkpoint_id,
+          };
+
+          const checkpoint = await this.deserializeValue(
+            doc.type,
+            doc.checkpoint
+          );
+          const metadata = await this.deserializeValue(doc.type, doc.metadata);
+
+          // Pending writes
+          const writesKey = this.writesKey(
+            thread_id,
+            checkpoint_ns,
+            doc.checkpoint_id
+          );
+          const serializedWrites = await this.client.lRange(writesKey, 0, -1);
+          const pendingWrites: CheckpointPendingWrite[] = await Promise.all(
+            serializedWrites.map((item) => this.deserializePendingWrite(item))
+          );
+          result = {
+            config: { configurable: configurableValues },
+            checkpoint,
+            pendingWrites,
+            metadata,
+            parentConfig: doc.parent_checkpoint_id
+              ? {
+                  configurable: {
+                    thread_id,
+                    checkpoint_ns,
+                    checkpoint_id: doc.parent_checkpoint_id,
+                  },
+                }
+              : undefined,
+          };
+        }
+      }
     }
-    const doc = await this.client.hGetAll(key);
-
-    if (!doc || !doc.checkpoint) return undefined;
-    const configurableValues = {
-      thread_id,
-      checkpoint_ns,
-      checkpoint_id: doc.checkpoint_id,
-    };
-
-    let checkpoint, metadata;
-    if (doc.type === "json") {
-      checkpoint = JSON.parse(doc.checkpoint);
-      metadata = JSON.parse(doc.metadata);
-    } else {
-      checkpoint = (await this.serde.loadsTyped(
-        doc.type,
-        Buffer.from(doc.checkpoint, "base64").toString("utf8")
-      )) as Checkpoint;
-
-      metadata = (await this.serde.loadsTyped(
-        doc.type,
-        Buffer.from(doc.metadata, "base64").toString("utf8")
-      )) as CheckpointMetadata;
-    }
-
-    // Pending writes
-    const writesKey = this.writesKey(
-      thread_id,
-      checkpoint_ns,
-      doc.checkpoint_id
-    );
-    const serializedWrites = await this.client.lRange(writesKey, 0, -1);
-    const pendingWrites: CheckpointPendingWrite[] = await Promise.all(
-      serializedWrites.map(async (item) => {
-        const parsed = JSON.parse(item);
-        return [
-          parsed.task_id,
-          parsed.channel,
-          await this.serde.loadsTyped(
-            parsed.type,
-            Buffer.from(parsed.value, "base64").toString("utf8")
-          ),
-        ] as CheckpointPendingWrite;
-      })
-    );
-    return {
-      config: { configurable: configurableValues },
-      checkpoint,
-      pendingWrites,
-      metadata,
-      parentConfig:
-        doc.parent_checkpoint_id != null
-          ? {
-              configurable: {
-                thread_id,
-                checkpoint_ns,
-                checkpoint_id: doc.parent_checkpoint_id,
-              },
-            }
-          : undefined,
-    };
+    return result;
   }
 
   /**
@@ -191,35 +241,26 @@ export class RedisCheckpointSaver extends BaseCheckpointSaver {
     let pattern = `${this.checkpointPrefix}${thread_id}:${checkpoint_ns}:*`;
     let keys = await this.client.keys(pattern);
     // Optionally filter by before
-    const beforeConfig =
-      before && before.configurable ? before.configurable : undefined;
-    if (beforeConfig && beforeConfig.checkpoint_id) {
+    const beforeConfigCheckPointId = before?.configurable?.checkpoint_id
+      ? before.configurable.checkpoint_id
+      : null;
+    if (beforeConfigCheckPointId) {
       keys = keys.filter((k) => {
         const parts = k.split(":");
-        return parts[parts.length - 1] < beforeConfig.checkpoint_id;
+        return parts[parts.length - 1] < beforeConfigCheckPointId;
       });
     }
     // Sort by checkpoint_id descending
     keys.sort((a, b) => (a > b ? -1 : 1));
-    if (limit !== undefined) keys = keys.slice(0, limit);
+    if (limit) {
+      keys = keys.slice(0, limit);
+    }
     for (const key of keys) {
       const doc = await this.client.hGetAll(key);
       if (!doc || !doc.checkpoint) continue;
 
-      let checkpoint, metadata;
-      if (doc.type === "json") {
-        checkpoint = JSON.parse(doc.checkpoint);
-        metadata = JSON.parse(doc.metadata);
-      } else {
-        checkpoint = (await this.serde.loadsTyped(
-          doc.type,
-          Buffer.from(doc.checkpoint, "base64").toString("utf8")
-        )) as Checkpoint;
-        metadata = (await this.serde.loadsTyped(
-          doc.type,
-          Buffer.from(doc.metadata, "base64").toString("utf8")
-        )) as CheckpointMetadata;
-      }
+      const checkpoint = await this.deserializeValue(doc.type, doc.checkpoint);
+      const metadata = await this.deserializeValue(doc.type, doc.metadata);
 
       yield {
         config: {
@@ -259,36 +300,26 @@ export class RedisCheckpointSaver extends BaseCheckpointSaver {
     const thread_id = config.configurable?.thread_id;
     const checkpoint_ns = config.configurable?.checkpoint_ns ?? "";
     const checkpoint_id = checkpoint.id;
-    if (thread_id === undefined) {
+    if (!thread_id) {
       throw new Error(
         `The provided config must contain a configurable field with a "thread_id" field.`
       );
     }
-    let [checkpointType, serializedCheckpoint] =
-      this.serde.dumpsTyped(checkpoint);
-    let [metadataType, serializedMetadata] = this.serde.dumpsTyped(metadata);
-    if (checkpointType !== metadataType) {
+    const checkpointSerialized = this.serializeValue(checkpoint);
+    const metadataSerialized = this.serializeValue(metadata);
+    if (checkpointSerialized.type !== metadataSerialized.type) {
       throw new Error("Mismatched checkpoint and metadata types.");
     }
     const key = this.checkpointKey(thread_id, checkpoint_ns, checkpoint_id);
 
-    let checkpointValue, metadataValue;
-    if (this.insertRawJson) {
-      checkpointValue = JSON.stringify(checkpoint);
-      metadataValue = JSON.stringify(metadata);
-      checkpointType = "json";
-    } else {
-      checkpointValue = Buffer.from(serializedCheckpoint).toString("base64");
-      metadataValue = Buffer.from(serializedMetadata).toString("base64");
-    }
     await this.client.hSet(key, {
       thread_id,
       checkpoint_ns,
       checkpoint_id,
       parent_checkpoint_id: config.configurable?.checkpoint_id ?? "",
-      type: checkpointType,
-      checkpoint: checkpointValue,
-      metadata: metadataValue,
+      type: checkpointSerialized.type,
+      checkpoint: checkpointSerialized.value,
+      metadata: metadataSerialized.value,
     });
     return {
       configurable: {
@@ -311,33 +342,27 @@ export class RedisCheckpointSaver extends BaseCheckpointSaver {
     const thread_id = config.configurable?.thread_id;
     const checkpoint_ns = config.configurable?.checkpoint_ns ?? "";
     const checkpoint_id = config.configurable?.checkpoint_id;
-    if (!thread_id || !checkpoint_ns || !checkpoint_id) {
+
+    if (thread_id && checkpoint_ns && checkpoint_id) {
+      const writesKey = this.writesKey(thread_id, checkpoint_ns, checkpoint_id);
+      // Store each write as a JSON string in a Redis list
+      for (let idx = 0; idx < writes.length; idx++) {
+        const [channel, value] = writes[idx];
+        const serialized = this.serializeValue(value);
+        const entry = {
+          task_id: taskId,
+          channel,
+          type: serialized.type,
+          value: serialized.value,
+          idx,
+        };
+        await this.client.rPush(writesKey, JSON.stringify(entry));
+      }
+    } else {
       // No-op: nothing to write if we don't have a full checkpoint context
-      return;
       //   throw new Error(
       //     `The provided config must contain a configurable field with "thread_id", "checkpoint_ns" and "checkpoint_id" fields.`
       //   );
-    }
-    const writesKey = this.writesKey(thread_id, checkpoint_ns, checkpoint_id);
-    // Store each write as a JSON string in a Redis list
-    for (let idx = 0; idx < writes.length; idx++) {
-      const [channel, value] = writes[idx];
-      let [type, serializedValue] = this.serde.dumpsTyped(value);
-      let insertValue: any;
-      if (this.insertRawJson) {
-        insertValue = JSON.stringify(value);
-        type = "json";
-      } else {
-        insertValue = Buffer.from(serializedValue).toString("base64");
-      }
-      const entry = {
-        task_id: taskId,
-        channel,
-        type,
-        value: insertValue,
-        idx,
-      };
-      await this.client.rPush(writesKey, JSON.stringify(entry));
     }
   }
 }
