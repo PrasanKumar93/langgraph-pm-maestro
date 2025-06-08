@@ -44,6 +44,10 @@ const getConfig = () => {
       CACHE_PREFIX: "agentCache:",
       CACHE_TTL: 60 * 60 * 24, // 24 hours in seconds
     },
+
+    LANGGRAPH: {
+      DEBUG_RAW_JSON: true,
+    },
   };
 };
 

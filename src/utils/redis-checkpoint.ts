@@ -1,3 +1,5 @@
+//NOTE : This is just a sample code for Redis Checkpoint Saver.
+
 import { createClient, type RedisClientOptions } from "redis";
 import type { RunnableConfig } from "@langchain/core/runnables";
 import {
@@ -16,7 +18,9 @@ export type RedisSaverParams = {
   connectionString: string;
   checkpointPrefix?: string;
   writesPrefix?: string;
+  commonPrefix?: string;
   redisOptions?: RedisClientOptions;
+  insertRawJson?: boolean; //for local debugging only
 };
 
 /**
@@ -30,20 +34,38 @@ export class RedisCheckpointSaver extends BaseCheckpointSaver {
   protected client;
   checkpointPrefix = "langgraph:checkpoints:";
   writesPrefix = "langgraph:checkpoint_writes:";
+  commonPrefix = "";
+  insertRawJson = false;
 
   constructor(
     {
       connectionString,
       checkpointPrefix,
       writesPrefix,
+      commonPrefix,
       redisOptions,
+      insertRawJson,
     }: RedisSaverParams,
     serde?: SerializerProtocol
   ) {
     super(serde);
     this.client = createClient({ url: connectionString, ...redisOptions });
-    if (checkpointPrefix) this.checkpointPrefix = checkpointPrefix;
-    if (writesPrefix) this.writesPrefix = writesPrefix;
+    if (commonPrefix) {
+      this.commonPrefix = commonPrefix;
+    }
+    if (checkpointPrefix) {
+      this.checkpointPrefix = checkpointPrefix;
+    }
+    if (writesPrefix) {
+      this.writesPrefix = writesPrefix;
+    }
+
+    this.checkpointPrefix = `${this.commonPrefix}${this.checkpointPrefix}`;
+    this.writesPrefix = `${this.commonPrefix}${this.writesPrefix}`;
+
+    if (insertRawJson) {
+      this.insertRawJson = insertRawJson;
+    }
   }
 
   private async ensureConnected() {
@@ -92,16 +114,30 @@ export class RedisCheckpointSaver extends BaseCheckpointSaver {
       key = keys[keys.length - 1];
     }
     const doc = await this.client.hGetAll(key);
+
     if (!doc || !doc.checkpoint) return undefined;
     const configurableValues = {
       thread_id,
       checkpoint_ns,
       checkpoint_id: doc.checkpoint_id,
     };
-    const checkpoint = (await this.serde.loadsTyped(
-      doc.type,
-      Buffer.from(doc.checkpoint, "base64").toString("utf8")
-    )) as Checkpoint;
+
+    let checkpoint, metadata;
+    if (doc.type === "json") {
+      checkpoint = JSON.parse(doc.checkpoint);
+      metadata = JSON.parse(doc.metadata);
+    } else {
+      checkpoint = (await this.serde.loadsTyped(
+        doc.type,
+        Buffer.from(doc.checkpoint, "base64").toString("utf8")
+      )) as Checkpoint;
+
+      metadata = (await this.serde.loadsTyped(
+        doc.type,
+        Buffer.from(doc.metadata, "base64").toString("utf8")
+      )) as CheckpointMetadata;
+    }
+
     // Pending writes
     const writesKey = this.writesKey(
       thread_id,
@@ -126,10 +162,7 @@ export class RedisCheckpointSaver extends BaseCheckpointSaver {
       config: { configurable: configurableValues },
       checkpoint,
       pendingWrites,
-      metadata: (await this.serde.loadsTyped(
-        doc.type,
-        Buffer.from(doc.metadata, "base64").toString("utf8")
-      )) as CheckpointMetadata,
+      metadata,
       parentConfig:
         doc.parent_checkpoint_id != null
           ? {
@@ -172,14 +205,22 @@ export class RedisCheckpointSaver extends BaseCheckpointSaver {
     for (const key of keys) {
       const doc = await this.client.hGetAll(key);
       if (!doc || !doc.checkpoint) continue;
-      const checkpoint = (await this.serde.loadsTyped(
-        doc.type,
-        Buffer.from(doc.checkpoint, "base64").toString("utf8")
-      )) as Checkpoint;
-      const metadata = (await this.serde.loadsTyped(
-        doc.type,
-        Buffer.from(doc.metadata, "base64").toString("utf8")
-      )) as CheckpointMetadata;
+
+      let checkpoint, metadata;
+      if (doc.type === "json") {
+        checkpoint = JSON.parse(doc.checkpoint);
+        metadata = JSON.parse(doc.metadata);
+      } else {
+        checkpoint = (await this.serde.loadsTyped(
+          doc.type,
+          Buffer.from(doc.checkpoint, "base64").toString("utf8")
+        )) as Checkpoint;
+        metadata = (await this.serde.loadsTyped(
+          doc.type,
+          Buffer.from(doc.metadata, "base64").toString("utf8")
+        )) as CheckpointMetadata;
+      }
+
       yield {
         config: {
           configurable: {
@@ -213,7 +254,7 @@ export class RedisCheckpointSaver extends BaseCheckpointSaver {
   ): Promise<RunnableConfig> {
     await this.ensureConnected();
 
-    LoggerCls.debug("PUT called", { config, checkpoint, metadata });
+    // LoggerCls.debug("PUT called", { config, checkpoint, metadata });
 
     const thread_id = config.configurable?.thread_id;
     const checkpoint_ns = config.configurable?.checkpoint_ns ?? "";
@@ -223,21 +264,31 @@ export class RedisCheckpointSaver extends BaseCheckpointSaver {
         `The provided config must contain a configurable field with a "thread_id" field.`
       );
     }
-    const [checkpointType, serializedCheckpoint] =
+    let [checkpointType, serializedCheckpoint] =
       this.serde.dumpsTyped(checkpoint);
-    const [metadataType, serializedMetadata] = this.serde.dumpsTyped(metadata);
+    let [metadataType, serializedMetadata] = this.serde.dumpsTyped(metadata);
     if (checkpointType !== metadataType) {
       throw new Error("Mismatched checkpoint and metadata types.");
     }
     const key = this.checkpointKey(thread_id, checkpoint_ns, checkpoint_id);
+
+    let checkpointValue, metadataValue;
+    if (this.insertRawJson) {
+      checkpointValue = JSON.stringify(checkpoint);
+      metadataValue = JSON.stringify(metadata);
+      checkpointType = "json";
+    } else {
+      checkpointValue = Buffer.from(serializedCheckpoint).toString("base64");
+      metadataValue = Buffer.from(serializedMetadata).toString("base64");
+    }
     await this.client.hSet(key, {
       thread_id,
       checkpoint_ns,
       checkpoint_id,
       parent_checkpoint_id: config.configurable?.checkpoint_id ?? "",
       type: checkpointType,
-      checkpoint: Buffer.from(serializedCheckpoint).toString("base64"),
-      metadata: Buffer.from(serializedMetadata).toString("base64"),
+      checkpoint: checkpointValue,
+      metadata: metadataValue,
     });
     return {
       configurable: {
@@ -271,12 +322,19 @@ export class RedisCheckpointSaver extends BaseCheckpointSaver {
     // Store each write as a JSON string in a Redis list
     for (let idx = 0; idx < writes.length; idx++) {
       const [channel, value] = writes[idx];
-      const [type, serializedValue] = this.serde.dumpsTyped(value);
+      let [type, serializedValue] = this.serde.dumpsTyped(value);
+      let insertValue: any;
+      if (this.insertRawJson) {
+        insertValue = JSON.stringify(value);
+        type = "json";
+      } else {
+        insertValue = Buffer.from(serializedValue).toString("base64");
+      }
       const entry = {
         task_id: taskId,
         channel,
         type,
-        value: Buffer.from(serializedValue).toString("base64"),
+        value: insertValue,
         idx,
       };
       await this.client.rPush(writesKey, JSON.stringify(entry));

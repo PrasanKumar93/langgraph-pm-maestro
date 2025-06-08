@@ -65,6 +65,8 @@ const shouldContinueTools = (state: OverallStateType) => {
 const generateGraph = () => {
   const checkpointer = new RedisCheckpointSaver({
     connectionString: config.REDIS_URL,
+    insertRawJson: config.LANGGRAPH.DEBUG_RAW_JSON,
+    commonPrefix: config.REDIS_KEYS.ROOT_PREFIX,
   });
   // const checkpointer = new MemorySaver();
 
