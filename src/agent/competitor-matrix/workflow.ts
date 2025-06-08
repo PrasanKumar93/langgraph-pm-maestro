@@ -16,6 +16,10 @@ import { nodeCompetitorTableMatrix } from "./node-competitor-table-matrix.js";
 import { nodeCompetitorAnalysisPdf } from "./node-competitor-analysis-pdf.js";
 import { toolTavilySearch } from "../tool-tavily-search.js";
 import { LANGGRAPH_CONFIG } from "../../utils/constants.js";
+import { RedisCheckpointSaver } from "../../utils/redis-checkpoint.js";
+import { getConfig } from "../../config.js";
+
+const config = getConfig();
 
 const toolNodeWithGraphState = async (state: OverallStateType) => {
   setContextVariable("currentState", state);
@@ -112,7 +116,11 @@ const getCompetitorSubgraph = () => {
 };
 
 const generateGraph = () => {
-  const checkpointer = new MemorySaver();
+  const checkpointer = new RedisCheckpointSaver({
+    connectionString: config.REDIS_URL,
+  });
+
+  //const checkpointer = new MemorySaver();
 
   const graph = new StateGraph({
     input: InputStateAnnotation,

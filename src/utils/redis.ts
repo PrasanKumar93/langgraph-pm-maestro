@@ -77,6 +77,9 @@ class RedisWrapperST extends RedisWrapper {
       RedisWrapperST.instance = new RedisWrapperST(config.REDIS_URL);
       await RedisWrapperST.instance.connect();
     }
+    if (!RedisWrapperST.instance.client?.isOpen) {
+      await RedisWrapperST.instance.client?.connect();
+    }
     return RedisWrapperST.instance;
   }
 }

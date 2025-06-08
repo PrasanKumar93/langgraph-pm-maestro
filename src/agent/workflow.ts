@@ -18,6 +18,10 @@ import { toolSystemJira } from "./tool-system-jira.js";
 import { getCompetitorSubgraph } from "./competitor-matrix/workflow.js";
 import { getPrdGenerationSubgraph } from "./prd-generation/workflow.js";
 import { LANGGRAPH_CONFIG } from "../utils/constants.js";
+import { RedisCheckpointSaver } from "../utils/redis-checkpoint.js";
+import { getConfig } from "../config.js";
+
+const config = getConfig();
 
 const toolNodeWithGraphState = async (state: OverallStateType) => {
   setContextVariable("currentState", state);
@@ -59,7 +63,10 @@ const shouldContinueTools = (state: OverallStateType) => {
 };
 
 const generateGraph = () => {
-  const checkpointer = new MemorySaver();
+  const checkpointer = new RedisCheckpointSaver({
+    connectionString: config.REDIS_URL,
+  });
+  // const checkpointer = new MemorySaver();
 
   const graph = new StateGraph({
     input: InputStateAnnotation,
