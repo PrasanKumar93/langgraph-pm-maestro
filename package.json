@@ -7,7 +7,7 @@
   },
   "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "vitest",
     "build": "tsc",
     "start-slack-bot": "npm run build && node dist/slack-bot/index.js",
     "start-api": "npm run build && node dist/index.js",
@@ -23,11 +23,14 @@
   "devDependencies": {
     "@types/cors": "^2.8.17",
     "@types/express": "^5.0.0",
+    "@types/jest": "^29.5.14",
     "@types/js-yaml": "^4.0.9",
     "@types/node": "^22.13.1",
+    "@vitest/ui": "^3.2.2",
     "concurrently": "^9.1.2",
     "nodemon": "^3.1.9",
-    "typescript": "^5.7.3"
+    "typescript": "^5.7.3",
+    "vitest": "^3.2.2"
   },
   "dependencies": {
     "@aws-sdk/client-bedrock-runtime": "^3.779.0",

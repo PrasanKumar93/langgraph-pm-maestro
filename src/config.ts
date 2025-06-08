@@ -46,7 +46,7 @@ const getConfig = () => {
     },
 
     LANGGRAPH: {
-      DEBUG_RAW_JSON: true,
+      DEBUG_RAW_JSON: false,
     },
   };
 };

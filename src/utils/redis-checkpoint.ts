@@ -14,6 +14,8 @@ import {
 } from "@langchain/langgraph-checkpoint";
 import { LoggerCls } from "./logger.js";
 
+const CUSTOM_DEBUG_JSON = "debugJSON";
+
 export type RedisSaverParams = {
   connectionString: string;
   checkpointPrefix?: string;
@@ -90,7 +92,7 @@ export class RedisCheckpointSaver extends BaseCheckpointSaver {
   private serializeValue(value: any) {
     let retItem: { type: string; value: string };
     if (this.insertRawJson) {
-      retItem = { type: "json", value: JSON.stringify(value) };
+      retItem = { type: CUSTOM_DEBUG_JSON, value: JSON.stringify(value) };
     } else {
       const [type, data] = this.serde.dumpsTyped(value);
       retItem = { type, value: Buffer.from(data).toString("base64") };
@@ -103,7 +105,7 @@ export class RedisCheckpointSaver extends BaseCheckpointSaver {
    */
   private async deserializeValue(type: string, value: string): Promise<any> {
     let retValue: any;
-    if (type === "json") {
+    if (type === CUSTOM_DEBUG_JSON) {
       retValue = JSON.parse(value);
     } else {
       retValue = await this.serde.loadsTyped(
@@ -323,7 +325,7 @@ export class RedisCheckpointSaver extends BaseCheckpointSaver {
     const threadId = config.configurable?.thread_id;
     const checkpointNs = config.configurable?.checkpoint_ns ?? "";
     const checkpointId = config.configurable?.checkpoint_id;
-    if (threadId && checkpointNs && checkpointId) {
+    if (threadId && checkpointId) {
       const writesKey = this.getWritesKey(threadId, checkpointNs, checkpointId);
       for (let idx = 0; idx < writes.length; idx++) {
         const [channel, value] = writes[idx];
