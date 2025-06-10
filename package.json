@@ -14,7 +14,8 @@
     "start": "concurrently \"npm run start-slack-bot\" \"npm run start-api\"",
     "dev-api": "concurrently \"tsc --watch\" \"nodemon dist/index.js\"",
     "dev-studio": "npx @langchain/langgraph-cli dev",
-    "dev": "concurrently \"npm run dev-api\" \"npm run dev-studio\""
+    "dev": "concurrently \"npm run dev-api\" \"npm run dev-studio\"",
+    "checkpointer-demo": "npm run build && node dist/utils/__tests__/redis-checkpoint.demo.js"
   },
   "keywords": [],
   "author": "",

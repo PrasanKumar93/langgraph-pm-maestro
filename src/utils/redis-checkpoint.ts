@@ -1,4 +1,4 @@
-//NOTE : This is just a sample code for Redis Checkpoint Saver.
+//NOTE : This is a sample implementation of a Redis Checkpoint Saver intended for temporary demo use  (the official Redis JS checkpointer is yet to be released by the team.)
 
 import { createClient, type RedisClientOptions } from "redis";
 import type { RunnableConfig } from "@langchain/core/runnables";
