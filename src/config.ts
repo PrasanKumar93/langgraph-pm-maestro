@@ -1,3 +1,5 @@
+import "dotenv/config";
+
 const getConfig = () => {
   return {
     DEFAULT_LLM_PROVIDER: process.env.DEFAULT_LLM_PROVIDER || "openai",
@@ -47,6 +49,10 @@ const getConfig = () => {
 
     LANGGRAPH: {
       DEBUG_RAW_JSON: false,
+    },
+    LANGCACHE: {
+      URL: process.env.LANGCACHE_URL || "http://localhost:8080",
+      CACHE_ID: process.env.LANGCACHE_CACHE_ID || "cacheUUID1",
     },
   };
 };

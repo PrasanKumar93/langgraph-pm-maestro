@@ -1,6 +1,4 @@
 import { describe, it, expect, beforeAll, afterAll } from "vitest";
-import "dotenv/config";
-
 import { createClient } from "redis";
 import {
   Checkpoint,
@@ -48,6 +46,7 @@ const checkpoint2: Checkpoint = {
 
 const config = getConfig();
 const redisUrl = config.REDIS_URL;
+
 const redisClient = createClient({ url: redisUrl });
 const commonPrefix = "unitTest:";
 
