@@ -11,7 +11,7 @@ import { getPromptCompetitorList } from "../prompts/prompt-competitor-list.js";
 import { addSystemMsg, createChatPrompt } from "../common.js";
 import { getLLM } from "../llms/llm.js";
 import { getConfig } from "../../config.js";
-import { AgentCache } from "../agent-cache.js";
+import { SemanticCacheFactory } from "../../utils/cache/cache.js";
 
 const reduceCompetitorList = (competitorList: string[]) => {
   const config = getConfig();
@@ -29,8 +29,8 @@ const reduceCompetitorList = (competitorList: string[]) => {
 const updateStateFromCache = async (state: OverallStateType) => {
   let isCacheHit = false;
 
-  const agentCache = await AgentCache.getInstance();
-  const cached = await agentCache.getAgentCache({
+  const cacheInst = await SemanticCacheFactory.createInstance();
+  const cached = await cacheInst.getCache({
     prompt: "CompetitorList",
     scope: {
       feature: state.productFeature,
@@ -65,8 +65,8 @@ const updateState = async (state: OverallStateType, rawResult: any) => {
   if (state.toolTavilySearchProcessed) {
     // rawResult = string output (after tool call)
     if (rawResult) {
-      const agentCache = await AgentCache.getInstance();
-      await agentCache.setAgentCache({
+      const cacheInst = await SemanticCacheFactory.createInstance();
+      await cacheInst.setCache({
         prompt: "CompetitorList",
         response: rawResult,
         scope: {

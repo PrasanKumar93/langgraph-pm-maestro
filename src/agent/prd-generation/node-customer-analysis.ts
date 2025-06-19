@@ -4,13 +4,13 @@ import { STEP_EMOJIS } from "../../utils/constants.js";
 import { getPromptCustomerAnalysis } from "../prompts/prompt-mini-prd.js";
 import { generatePRDSection } from "./prd-utils.js";
 import { checkErrorToStopWorkflow } from "../error.js";
-import { AgentCache } from "../agent-cache.js";
+import { SemanticCacheFactory } from "../../utils/cache/cache.js";
 
 const updateStateFromCache = async (state: OverallStateType) => {
   let isCacheHit = false;
 
-  const agentCache = await AgentCache.getInstance();
-  const cached = await agentCache.getAgentCache({
+  const cacheInst = await SemanticCacheFactory.createInstance();
+  const cached = await cacheInst.getCache({
     prompt: `CustomerAnalysis`,
     scope: {
       nodeName: "nodeCustomerAnalysis",
@@ -41,8 +41,8 @@ const updateState = async (
   state: OverallStateType,
   customerAnalysis: string
 ) => {
-  const agentCache = await AgentCache.getInstance();
-  await agentCache.setAgentCache({
+  const cacheInst = await SemanticCacheFactory.createInstance();
+  await cacheInst.setCache({
     prompt: `CustomerAnalysis`,
     response: customerAnalysis,
     scope: {

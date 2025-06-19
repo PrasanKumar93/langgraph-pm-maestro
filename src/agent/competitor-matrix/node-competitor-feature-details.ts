@@ -11,15 +11,15 @@ import { LoggerCls } from "../../utils/logger.js";
 import { STEP_EMOJIS } from "../../utils/constants.js";
 import { getPromptCompetitorFeatureDetails } from "../prompts/prompt-competitor-feature-details.js";
 import { addSystemMsg, createChatPrompt } from "../common.js";
-import { AgentCache } from "../agent-cache.js";
+import { SemanticCacheFactory } from "../../utils/cache/cache.js";
 
 const updateStateFromCache = async (state: OverallStateType) => {
   let isCacheHit = false;
 
   let competitorName = state.pendingProcessCompetitorList[0];
 
-  const agentCache = await AgentCache.getInstance();
-  const cached = await agentCache.getAgentCache({
+  const cacheInst = await SemanticCacheFactory.createInstance();
+  const cached = await cacheInst.getCache({
     prompt: competitorName,
     scope: {
       feature: state.productFeature,
@@ -64,8 +64,8 @@ const updateState = async (state: OverallStateType, rawResult: any) => {
     // rawResult = string (after tool call)
     let resultStr = rawResult;
     if (resultStr) {
-      const agentCache = await AgentCache.getInstance();
-      await agentCache.setAgentCache({
+      const cacheInst = await SemanticCacheFactory.createInstance();
+      await cacheInst.setCache({
         prompt: competitorName,
         response: resultStr,
         scope: {

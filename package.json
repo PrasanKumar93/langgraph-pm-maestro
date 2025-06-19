@@ -40,7 +40,7 @@
     "@langchain/core": "^0.3.38",
     "@langchain/langgraph": "^0.2.44",
     "@langchain/openai": "^0.4.2",
-    "@redis-ai/langcache": "^0.2.7",
+    "@redis-ai/langcache": "^0.2.8",
     "@slack/bolt": "^4.2.0",
     "axios": "^1.8.1",
     "chalk": "^5.4.1",

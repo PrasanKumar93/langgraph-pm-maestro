@@ -5,8 +5,8 @@ import type {
   DeleteEntriesRequest,
 } from "@redis-ai/langcache/models";
 
-class LangCacheCls {
-  private static instance: LangCacheCls | null = null;
+class LangcacheCls {
+  private static instance: LangcacheCls | null = null;
   private langcacheSDK: LangcacheSDK;
   private cacheId: string;
 
@@ -28,11 +28,11 @@ class LangCacheCls {
     this.cacheId = cacheId;
   }
 
-  public static getInstance(serverURL: string, cacheId: string): LangCacheCls {
-    if (!LangCacheCls.instance) {
-      LangCacheCls.instance = new LangCacheCls(serverURL, cacheId);
+  public static getInstance(serverURL: string, cacheId: string): LangcacheCls {
+    if (!LangcacheCls.instance) {
+      LangcacheCls.instance = new LangcacheCls(serverURL, cacheId);
     }
-    return LangCacheCls.instance;
+    return LangcacheCls.instance;
   }
 
   async checkHealth() {
@@ -86,12 +86,12 @@ class LangCacheCls {
   }
 }
 
-export { LangCacheCls };
+export { LangcacheCls };
 
 /**
 // Usage example:
-import { LangCacheCls } from './lang-cache.js';
-const langCache = LangCacheCls.getInstance('http://localhost:8080', 'cacheUUID1');
+import { LangcacheCls } from './lang-cache.js';
+const langCache = LangcacheCls.getInstance('http://localhost:8080', 'cacheUUID1');
 await langCache.insertEntry({
   prompt: 'What is AI?',
   response: 'Artificial Intelligence',

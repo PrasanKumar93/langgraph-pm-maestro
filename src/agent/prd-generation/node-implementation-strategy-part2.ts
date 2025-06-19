@@ -8,13 +8,13 @@ import {
   formatImplementationStrategyToMarkdown,
 } from "./prd-utils.js";
 import { checkErrorToStopWorkflow } from "../error.js";
-import { AgentCache } from "../agent-cache.js";
+import { SemanticCacheFactory } from "../../utils/cache/cache.js";
 
 const updateStateFromCache = async (state: OverallStateType) => {
   let isCacheHit = false;
 
-  const agentCache = await AgentCache.getInstance();
-  const cached = await agentCache.getAgentCache({
+  const cacheInst = await SemanticCacheFactory.createInstance();
+  const cached = await cacheInst.getCache({
     prompt: `ImplementationStrategyPart2`,
     scope: {
       nodeName: "nodeImplementationStrategyPart2",
@@ -45,8 +45,8 @@ const updateState = async (
   state: OverallStateType,
   implementationStrategyPart2: string
 ) => {
-  const agentCache = await AgentCache.getInstance();
-  await agentCache.setAgentCache({
+  const cacheInst = await SemanticCacheFactory.createInstance();
+  await cacheInst.setCache({
     prompt: `ImplementationStrategyPart2`,
     response: implementationStrategyPart2,
     scope: {

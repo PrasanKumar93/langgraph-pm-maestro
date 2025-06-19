@@ -10,13 +10,13 @@ import { LoggerCls } from "../utils/logger.js";
 import { getPromptEffortEstimation } from "./prompts/prompt-effort-estimation.js";
 import { addSystemMsg, createChatPrompt } from "./common.js";
 import { getLLM } from "./llms/llm.js";
-import { AgentCache } from "./agent-cache.js";
+import { SemanticCacheFactory } from "../utils/cache/cache.js";
 
 const updateStateFromCache = async (state: OverallStateType) => {
   let isCacheHit = false;
 
-  const agentCache = await AgentCache.getInstance();
-  const cached = await agentCache.getAgentCache({
+  const cacheInst = await SemanticCacheFactory.createInstance();
+  const cached = await cacheInst.getCache({
     prompt: "EffortEstimation",
     scope: {
       feature: state.productFeature,
@@ -43,8 +43,8 @@ const updateStateFromCache = async (state: OverallStateType) => {
 
 const updateState = async (state: OverallStateType, resultJson: any) => {
   if (resultJson) {
-    const agentCache = await AgentCache.getInstance();
-    await agentCache.setAgentCache({
+    const cacheInst = await SemanticCacheFactory.createInstance();
+    await cacheInst.setCache({
       prompt: "EffortEstimation",
       response: resultJson,
       scope: {

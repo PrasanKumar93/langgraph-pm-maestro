@@ -43,16 +43,18 @@ const getConfig = () => {
 
     REDIS_KEYS: {
       ROOT_PREFIX: "pmMaestro:",
-      CACHE_PREFIX: "agentCache:",
-      CACHE_TTL: 60 * 60 * 24, // 24 hours in seconds
+      CACHE_PREFIX: "jsonCache:",
+      CACHE_TTL: 60 * 60 * 24, // 24 hours in seconds (jsonCache & langCache)
     },
 
     LANGGRAPH: {
       DEBUG_RAW_JSON: false,
     },
     LANGCACHE: {
+      ENABLED: process.env.LANGCACHE_ENABLED || "false",
       URL: process.env.LANGCACHE_URL || "http://localhost:8080",
       CACHE_ID: process.env.LANGCACHE_CACHE_ID || "cacheUUID1",
+      SIMILARITY_THRESHOLD: 0.2,
     },
   };
 };

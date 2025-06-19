@@ -1,31 +1,17 @@
+import type { ISemanticCache, ISemanticCacheData } from "../../types.js";
+
 import crypto from "crypto";
 
-import { RedisWrapperST, SchemaFieldTypes } from "../utils/redis.js";
-import { LoggerCls } from "../utils/logger.js";
-import { getConfig } from "../config.js";
+import { RedisWrapperST, SchemaFieldTypes } from "../redis.js";
+import { LoggerCls } from "../logger.js";
+import { getConfig } from "../../config.js";
 
-//TODO: temporary file : to be replaced with the lang cache (semantic cache)
-interface IAgentCacheData {
-  prompt: string;
-  response?: string;
-  metadata?: {
-    [key: string]: string | number | boolean;
-  };
-  scope: {
-    feature?: string;
-    nodeName: string;
-    userId?: string;
-    userSessionId?: string;
-    competitorsListStr?: string;
-    [key: string]: string | number | boolean | undefined;
-  };
-}
-
-class AgentCache {
-  private static instance: AgentCache;
+class JsonCacheWrapperCls implements ISemanticCache {
+  private static instance: JsonCacheWrapperCls;
   private CACHE_TTL: number;
   private AGENT_CACHE_PREFIX: string;
   private SEARCH_INDEX: string;
+
   private constructor() {
     const config = getConfig();
 
@@ -36,16 +22,16 @@ class AgentCache {
       config.REDIS_KEYS.ROOT_PREFIX + "idx:agentCacheSearchIndex";
   }
 
-  public static async getInstance(): Promise<AgentCache> {
-    if (!AgentCache.instance) {
-      AgentCache.instance = new AgentCache();
-      //await AgentCache.instance.clearAgentCache();
-      await AgentCache.instance.createIndexIfNotExists();
+  public static async getInstance(): Promise<JsonCacheWrapperCls> {
+    if (!JsonCacheWrapperCls.instance) {
+      JsonCacheWrapperCls.instance = new JsonCacheWrapperCls();
+      //await JsonCacheWrapperCls.instance.clearCache();
+      await JsonCacheWrapperCls.instance.createIndexIfNotExists();
     }
-    return AgentCache.instance;
+    return JsonCacheWrapperCls.instance;
   }
 
-  public async createIndexIfNotExists() {
+  private async createIndexIfNotExists() {
     /**
      "FT.CREATE" "pmMaestro2:idx:agentCacheSearchIndex" "ON" "JSON" "PREFIX" "1" "pmMaestro2:agentCache:" "SCHEMA" "$.prompt" "AS" "prompt" "TEXT" "NOSTEM" "SORTABLE" "$.scope.feature" "AS" "scope_feature" "TAG" "$.scope.nodeName" "AS" "scope_nodeName" "TAG" "$.scope.userId" "AS" "scope_userId" "TAG" "$.scope.userSessionId" "AS" "scope_userSessionId" "TAG"
      */
@@ -97,7 +83,7 @@ class AgentCache {
     }
   }
 
-  public async setAgentCache(data: IAgentCacheData): Promise<string> {
+  public async setCache(data: ISemanticCacheData): Promise<string> {
     let key = "";
     try {
       const redisWrapperST = await RedisWrapperST.getAutoInstance();
@@ -107,29 +93,29 @@ class AgentCache {
       await redisWrapperST.client?.expire(key, this.CACHE_TTL);
     } catch (error) {
       const pureError = LoggerCls.getPureError(error);
-      LoggerCls.error("Error in setAgentCache", pureError);
+      LoggerCls.error("Error in setCache", pureError);
     }
     return key;
   }
 
-  public escapeRedisTagValue(value: string) {
+  private escapeRedisTagValue(value: any) {
     let retVal = value;
     if (typeof value === "string") {
       retVal = value
         .replace(/\\/g, "\\\\") // Escape backslashes
         .replace(/ /g, "\\ ") // Escape spaces
         .replace(/:/g, "\\:"); // Escape colon
-      //.replace(/,/g, "\\,"); // Escape commas (if used in tags)
     }
     return retVal;
   }
 
-  public async getAgentCache(filterData: IAgentCacheData) {
+  public async getCache(
+    filterData: ISemanticCacheData
+  ): Promise<ISemanticCacheData | null> {
     /**
      "FT.SEARCH" "pmMaestro:idx:agentCacheSearchIndex" "@prompt:'CompetitorList' @scope_feature:{stored procedures} @scope_nodeName:{nodeCompetitorList}"
      */
-    //TODO: replace json search with semantic search
-    let result: IAgentCacheData | null = null;
+    let result: ISemanticCacheData | null = null;
     try {
       if (filterData.prompt && Object.keys(filterData.scope).length > 0) {
         const redisWrapperST = await RedisWrapperST.getAutoInstance();
@@ -140,7 +126,7 @@ class AgentCache {
 
         //tag fields
         Object.entries(filterData.scope).forEach(([key, value]) => {
-          const escapedValue = this.escapeRedisTagValue(value as string);
+          const escapedValue = this.escapeRedisTagValue(value);
           if (key === "competitorsListStr") {
             searchFilters.push(
               `@scope_${key}:{${escapedValue.split(",").join("|")}}`
@@ -165,13 +151,13 @@ class AgentCache {
       }
     } catch (error) {
       const pureError = LoggerCls.getPureError(error);
-      LoggerCls.error("Error in getAgentCache", pureError);
+      LoggerCls.error("Error in getCache", pureError);
     }
 
     return result;
   }
 
-  public async clearAgentCache(): Promise<void> {
+  public async clearCache(): Promise<void> {
     try {
       const redisWrapperST = await RedisWrapperST.getAutoInstance();
       const pattern = `${this.AGENT_CACHE_PREFIX}*`;
@@ -186,9 +172,9 @@ class AgentCache {
       LoggerCls.debug(`Dropped search index: ${this.SEARCH_INDEX}`);
     } catch (error) {
       const pureError = LoggerCls.getPureError(error);
-      LoggerCls.error("Error clearing agent cache:", pureError);
+      LoggerCls.error("Error clearing cache:", pureError);
     }
   }
 }
 
-export { AgentCache };
+export { JsonCacheWrapperCls };

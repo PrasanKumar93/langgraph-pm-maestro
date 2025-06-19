@@ -1,17 +1,17 @@
 import { describe, it, expect } from "vitest";
-import { LangCacheCls } from "../lang-cache.js";
+import { LangcacheCls } from "../cache/langcache.js";
 import { getConfig } from "../../config.js";
 
 const config = getConfig();
 const serverURL = config.LANGCACHE.URL;
 const cacheId = config.LANGCACHE.CACHE_ID;
-const langCache = LangCacheCls.getInstance(serverURL, cacheId);
+const langCache = LangcacheCls.getInstance(serverURL, cacheId);
 
 const attributes = { appId: "langcacheUnitTest" };
-const SIMILARITY_THRESHOLD = 0.2;
+const SIMILARITY_THRESHOLD = config.LANGCACHE.SIMILARITY_THRESHOLD;
 const TTL_MILLIS = 60 * 1000; //60 seconds
 
-describe("LangCacheCls Integration", () => {
+describe("LangcacheCls Integration", () => {
   it("should check health", async () => {
     const result = await langCache.checkHealth();
     expect(result.ok).toBe(true);

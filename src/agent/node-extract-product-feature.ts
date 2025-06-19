@@ -11,13 +11,13 @@ import { getPromptExtractProductFeature } from "./prompts/prompt-extract-product
 import { initializeState } from "./state.js";
 import { addSystemMsg, createChatPrompt } from "./common.js";
 import { getLLM } from "./llms/llm.js";
-import { AgentCache } from "./agent-cache.js";
+import { SemanticCacheFactory } from "../utils/cache/cache.js";
 
 const updateStateFromCache = async (state: OverallStateType) => {
   let isCacheHit = false;
 
-  const agentCache = await AgentCache.getInstance();
-  const cached = await agentCache.getAgentCache({
+  const cacheInst = await SemanticCacheFactory.createInstance();
+  const cached = await cacheInst.getCache({
     prompt: state.inputText,
     scope: {
       nodeName: "nodeExtractProductFeature",
@@ -44,8 +44,8 @@ const updateStateFromCache = async (state: OverallStateType) => {
 
 const updateState = async (state: OverallStateType, resultJson: any) => {
   if (resultJson?.productFeature) {
-    const agentCache = await AgentCache.getInstance();
-    await agentCache.setAgentCache({
+    const cacheInst = await SemanticCacheFactory.createInstance();
+    await cacheInst.setCache({
       prompt: state.inputText,
       response: resultJson.productFeature,
       scope: {
