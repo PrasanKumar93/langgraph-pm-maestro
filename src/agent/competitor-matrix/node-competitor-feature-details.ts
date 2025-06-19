@@ -12,6 +12,7 @@ import { STEP_EMOJIS } from "../../utils/constants.js";
 import { getPromptCompetitorFeatureDetails } from "../prompts/prompt-competitor-feature-details.js";
 import { addSystemMsg, createChatPrompt } from "../common.js";
 import { SemanticCacheFactory } from "../../utils/cache/cache.js";
+import { getConfig } from "../../config.js";
 
 const updateStateFromCache = async (state: OverallStateType) => {
   let isCacheHit = false;
@@ -37,7 +38,10 @@ const updateStateFromCache = async (state: OverallStateType) => {
         featureDetails: response,
       });
 
-      const msg = `(Cache) *${competitorName}* : feature research completed`;
+      const config = getConfig();
+      const lblPrefix = config.LANGCACHE.ENABLED ? "(Langcache)" : "(Cache)";
+
+      const msg = `${lblPrefix} *${competitorName}* : feature research completed`;
       await addSystemMsg(state, msg, STEP_EMOJIS.company);
       LoggerCls.debug(msg);
 

@@ -5,6 +5,7 @@ import { getPromptImplementationStrategyPart1 } from "../prompts/prompt-mini-prd
 import { generatePRDSection } from "./prd-utils.js";
 import { checkErrorToStopWorkflow } from "../error.js";
 import { SemanticCacheFactory } from "../../utils/cache/cache.js";
+import { getConfig } from "../../config.js";
 
 const updateStateFromCache = async (state: OverallStateType) => {
   let isCacheHit = false;
@@ -26,9 +27,12 @@ const updateStateFromCache = async (state: OverallStateType) => {
 
       state.prdImplementationStrategyPart1 = response;
 
+      const config = getConfig();
+      const lblPrefix = config.LANGCACHE.ENABLED ? "(Langcache)" : "(Cache)";
+
       await addSystemMsg(
         state,
-        `(Cache) Implementation Strategy Part 1 section generated`,
+        `${lblPrefix} Implementation Strategy Part 1 section generated`,
         STEP_EMOJIS.docWriting
       );
     }

@@ -12,6 +12,7 @@ import { initializeState } from "./state.js";
 import { addSystemMsg, createChatPrompt } from "./common.js";
 import { getLLM } from "./llms/llm.js";
 import { SemanticCacheFactory } from "../utils/cache/cache.js";
+import { getConfig } from "../config.js";
 
 const updateStateFromCache = async (state: OverallStateType) => {
   let isCacheHit = false;
@@ -31,9 +32,12 @@ const updateStateFromCache = async (state: OverallStateType) => {
 
       state.productFeature = response;
 
+      const config = getConfig();
+      const lblPrefix = config.LANGCACHE.ENABLED ? "(Langcache)" : "(Cache)";
+
       await addSystemMsg(
         state,
-        `(Cache) productFeature: \`${response}\``,
+        `${lblPrefix} productFeature: \`${response}\``,
         STEP_EMOJIS.subStep
       );
     }

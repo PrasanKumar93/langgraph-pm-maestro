@@ -52,7 +52,10 @@ const updateStateFromCache = async (state: OverallStateType) => {
       state.pendingProcessCompetitorList = [...competitorList];
 
       const competitorListStr = competitorList.join(", ");
-      const msg = `(Cache) Current Competitors : \`${competitorListStr}\``;
+      const config = getConfig();
+      const lblPrefix = config.LANGCACHE.ENABLED ? "(Langcache)" : "(Cache)";
+
+      const msg = `${lblPrefix} Current Competitors : \`${competitorListStr}\``;
       await addSystemMsg(state, msg, STEP_EMOJIS.subStep);
       LoggerCls.debug(msg);
     }

@@ -5,6 +5,7 @@ import { getPromptCustomerAnalysis } from "../prompts/prompt-mini-prd.js";
 import { generatePRDSection } from "./prd-utils.js";
 import { checkErrorToStopWorkflow } from "../error.js";
 import { SemanticCacheFactory } from "../../utils/cache/cache.js";
+import { getConfig } from "../../config.js";
 
 const updateStateFromCache = async (state: OverallStateType) => {
   let isCacheHit = false;
@@ -26,9 +27,12 @@ const updateStateFromCache = async (state: OverallStateType) => {
 
       state.prdCustomerAnalysis = response;
 
+      const config = getConfig();
+      const lblPrefix = config.LANGCACHE.ENABLED ? "(Langcache)" : "(Cache)";
+
       await addSystemMsg(
         state,
-        `(Cache) Customer Analysis section generated`,
+        `${lblPrefix} Customer Analysis section generated`,
         STEP_EMOJIS.docWriting
       );
     }

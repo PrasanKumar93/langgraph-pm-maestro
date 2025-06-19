@@ -9,6 +9,7 @@ import {
 } from "./prd-utils.js";
 import { checkErrorToStopWorkflow } from "../error.js";
 import { SemanticCacheFactory } from "../../utils/cache/cache.js";
+import { getConfig } from "../../config.js";
 
 const updateStateFromCache = async (state: OverallStateType) => {
   let isCacheHit = false;
@@ -30,9 +31,12 @@ const updateStateFromCache = async (state: OverallStateType) => {
 
       state.prdImplementationStrategyPart2 = response;
 
+      const config = getConfig();
+      const lblPrefix = config.LANGCACHE.ENABLED ? "(Langcache)" : "(Cache)";
+
       await addSystemMsg(
         state,
-        `(Cache) Implementation Strategy Part 2 section generated`,
+        `${lblPrefix} Implementation Strategy Part 2 section generated`,
         STEP_EMOJIS.docWriting
       );
     }
