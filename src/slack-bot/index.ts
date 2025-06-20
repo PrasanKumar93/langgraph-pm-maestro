@@ -66,7 +66,7 @@ const initAndListenSlackBot = async () => {
 
   // Handle slash command
   app.command("/pm-prd", handleSlashCommandPrd);
-  app.command("/priya-prd", handleSlashCommandPrd);
+  app.command("/pria-prd", handleSlashCommandPrd);
 
   const handleSlashCommandMarketResearch = async ({
     command,
@@ -94,7 +94,7 @@ const initAndListenSlackBot = async () => {
 
   // Handle slash command
   app.command("/pm-market-research", handleSlashCommandMarketResearch);
-  app.command("/priya-market-research", handleSlashCommandMarketResearch);
+  app.command("/pria-market-research", handleSlashCommandMarketResearch);
 
   await app
     .start(parseInt(config.SLACK_BOT_PORT))
