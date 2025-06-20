@@ -51,7 +51,7 @@ const getConfig = () => {
       DEBUG_RAW_JSON: false,
     },
     LANGCACHE: {
-      ENABLED: process.env.LANGCACHE_ENABLED || "false",
+      ENABLED: process.env.LANGCACHE_ENABLED || "",
       URL: process.env.LANGCACHE_URL || "http://localhost:8080",
       CACHE_ID: process.env.LANGCACHE_CACHE_ID || "cacheUUID1",
       SIMILARITY_THRESHOLD: 0.2,
