@@ -42,6 +42,13 @@ cp .env.example .env
     - `REDIS_URL` : For checkpointers, vector DB, LLM cache ..etc
     - `TAVILY_SEARCH_API_KEY` : To search the latest web content for competitor analysis of the requested feature
 
+  - Langcache configuration
+
+    - `LANGCACHE_ENABLED` : To enable or disable the langcache
+    - `LANGCACHE_URL` : For langcache url
+    - `LANGCACHE_CACHE_ID` : For langcache cache id
+    - `LANGCACHE_SIMILARITY_THRESHOLD` : For langcache similarity threshold
+
   - **Optional fields group**
     - SALESFORCE CONFIGURATION : To search the requested feature in Salesforce
     - JIRA CONFIGURATION : To search the requested feature in Jira

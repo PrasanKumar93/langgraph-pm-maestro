@@ -1,3 +1,4 @@
+import slackBoltPkg from "@slack/bolt";
 import "dotenv/config";
 
 import { LoggerCls } from "../utils/logger.js";
@@ -39,8 +40,11 @@ const initAndListenSlackBot = async () => {
     await processSlackMessage({ threadTs, channelId, text, say });
   });
 
-  // Handle slash command
-  app.command("/pm-prd", async ({ command, ack, say }) => {
+  const handleSlashCommandPrd = async ({
+    command,
+    ack,
+    say,
+  }: slackBoltPkg.SlackCommandMiddlewareArgs) => {
     await ack();
 
     const channelId = command.channel_id;
@@ -58,10 +62,17 @@ const initAndListenSlackBot = async () => {
       text,
       say,
     });
-  });
+  };
 
   // Handle slash command
-  app.command("/pm-market-research", async ({ command, ack, say }) => {
+  app.command("/pm-prd", handleSlashCommandPrd);
+  app.command("/priya-prd", handleSlashCommandPrd);
+
+  const handleSlashCommandMarketResearch = async ({
+    command,
+    ack,
+    say,
+  }: slackBoltPkg.SlackCommandMiddlewareArgs) => {
     await ack();
     const channelId = command.channel_id;
     const text = command.text;
@@ -79,7 +90,11 @@ const initAndListenSlackBot = async () => {
       say,
       workflowType: WorkFlowTypeEnum.COMPETITIVE_ANALYSIS,
     });
-  });
+  };
+
+  // Handle slash command
+  app.command("/pm-market-research", handleSlashCommandMarketResearch);
+  app.command("/priya-market-research", handleSlashCommandMarketResearch);
 
   await app
     .start(parseInt(config.SLACK_BOT_PORT))
