@@ -5,7 +5,7 @@
 - Sign in to `https://api.slack.com/apps`
 - Create a new app using the manifest below
 
-### App Manifest
+### Sample App Manifest
 
 ```json
 // sample manifest.json

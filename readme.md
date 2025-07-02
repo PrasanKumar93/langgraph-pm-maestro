@@ -1,8 +1,6 @@
 # PM Maestro
 
-- [About PM Maestro](docs/about-pm-maestro.md)
-
-- [Tech Stack](docs/tech-stack.md)
+- [About PM Maestro](docs/tutorials/about-pm-maestro.md)
 
 - [Project Setup](docs/project-setup.md)
 

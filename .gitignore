@@ -36,3 +36,5 @@ temp/
 **/videos/
 
 **/*.pdf
+
+**/*.mov

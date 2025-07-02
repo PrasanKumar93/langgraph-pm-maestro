@@ -16,10 +16,11 @@ export const getPromptCompetitorList = (state: OverallStateType) => {
 
     Output:
     After using Tavily search, provide ONLY a comma-separated list of competitors sorted by priority, or an empty string if none found.
+    For each competitor name, if it is multi-word (e.g., "azure search"), output it as a single PascalCase word (e.g., "AzureSearch").
     DO NOT include any other text or explanations.
 
     Example Output Format:
-    Competitor1, Competitor2, Competitor3
+    AzureSearch, GoogleCloud, Elastic, etc.
 
     ---
     Tool Status:
