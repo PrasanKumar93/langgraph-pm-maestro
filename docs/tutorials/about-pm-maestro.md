@@ -1,38 +1,38 @@
 # PM Maestro
 
-PM Maestro is a demonstration AI agent built with [LangGraph JS](https://langchain-ai.github.io/langgraphjs/) to automate common Product Management tasks. It integrates various technologies—including `Redis` as `checkpointers`, `vector databases` and `LLM cache` for the agent's memory, and more—to showcase how developers can build robust AI-driven workflows for real-world use cases.
+PM Maestro is an AI demonstration agent built with [LangGraph JS](https://langchain-ai.github.io/langgraphjs/) to automate common Product Management tasks. It integrates various technologies—including `Redis` for `checkpointers`, `vector databases`, and `LLM cache` for memory management—to showcase how developers can build robust, AI-driven workflows for practical, real-world use cases.
 
 ## Introduction
 
-In modern software development, Product Managers spend a significant amount of time performing repetitive but critical tasks—collecting customer feedback, researching markets, estimating efforts, and drafting product requirements. LangGraph `PM Maestro` is a proof-of-concept agent that demonstrates how you can automate these tasks using an AI agent. This repository also acts as a practical example of how LangGraph integrates with data stores like `Redis` and advanced features (checkpointers, LLM cache, vector DB, etc.) to build reliable, modular AI workflows.
+Product Managers often spend significant time on repetitive yet critical tasks, such as gathering customer feedback, conducting market research, estimating efforts, and drafting product requirements. `PM Maestro`, powered by LangGraph JS, demonstrates how these tasks can be automated with AI agents. This repository serves as a practical example illustrating how LangGraph integrates with `Redis` and advanced memory features like checkpointers, LLM caching, and vector databases to build reliable, modular AI workflows.
 
 ## Tech stack
 
 - Language : TypeScript (NodeJS)
 - Framework : [LangGraph JS](https://langchain-ai.github.io/langgraphjs/) for workflow orchestration
 - Database : [Redis](https://redis.io/learn) as `checkpointer` and `LLM cache`
-- LLM Provider : `OpenAI`
+- LLM provider : `OpenAI`
 - Search tool : `Tavily` for web search
-- (Optional) Slack Bot Integration : To trigger the agent via slack
-- (Optional) Salesforce Data Integration : To include search results of the requested feature from Salesforce CRM for better context
-- (Optional) Jira Data Integration : To include search results of the requested feature from Jira for better context
+- Slack bot integration (Optional): Trigger workflows via `Slack`
+- Salesforce data integration (Optional): Enhance context with `Salesforce CRM` data
+- Jira data integration (Optional): Enhance context with `Jira` data
 
 ## Project setup
 
-### Clone the Repository
+### Clone the repository
 
 ```sh
 git clone https://github.com/redis-developer/langgraph-pm-maestro.git
 cd langgraph-pm-maestro
 ```
 
-### Install Dependencies
+### Install dependencies
 
 ```sh
 npm install
 ```
 
-### Configure Environment Variables
+### Configure environment variables
 
 - Copy the example environment file to create your own configuration:
 
@@ -40,7 +40,7 @@ npm install
 cp .env.example .env
 ```
 
-- Main environment variables
+- Main environment variables to configure:
 
 ```sh title=".env"
 # OpenAI API
@@ -56,9 +56,9 @@ REDIS_URL=""
 
 Note :
 
-- To get an OPENAI_API_KEY : Sign up for an [OpenAI account](https://platform.openai.com/signup) and create an API key in the [API keys page](https://platform.openai.com/api-keys)
+- Obtain an `OPENAI_API_KEY` from [OpenAI](https://platform.openai.com/signup)
 
-- To get a TAVILY_API_KEY : You can sign up [here](https://tavily.com/)
+- Obtain a `TAVILY_API_KEY` from [Tavily](https://tavily.com/)
 
 ### Run the application
 
@@ -66,39 +66,48 @@ Note :
 npm run dev
 ```
 
-- Launches the agent locally and opens the studio interface in your browser at:
-  `https://smith.langchain.com/studio?baseUrl=http://localhost:2024` (Test in `chrome` browser)
+This launches the agent locally. Open LangGraph Studio in your browser at:
+
+```
+https://smith.langchain.com/studio?baseUrl=http://localhost:2024
+```
+
+(Test in Chrome browser recommended)
 
 ## Workflows
 
-Below are the main workflows `PM Maestro` agent can perform. These illustrate the broader capabilities of LangGraph-powered agents and can be adapted for other domains or roles:
+`PM Maestro` supports two main workflows that demonstrate broader LangGraph and Redis capabilities, adaptable to various domains or roles:
 
-- `Market research workflow` : It performs (competitor site) web searches for a given product feature and generates a feature matrix comparing different market players in a PDF format.
+**1.Market research workflow**
+Performs competitor analysis via web searches and generates a PDF feature matrix comparing market players.
 
-- `PRD (Product Requirements Document) generation workflow` : It drafts a concise Product Requirements Document (PRD) based on newly gathered market research data and existing systems data (customer demand from JIRA and Salesforce for particular feature). It includes proposed solution (MVP Scope), effort estimation, prioritized requirements, key technical considerations and other PRD template details.
+**2. PRD (Product Requirements Document) generation workflow**
+
+Generates a comprehensive PRD based on market research data and system integrations (Jira and Salesforce), detailing MVP scope, effort estimates, technical considerations, and prioritized requirements.
 
 ## Market research workflow
 
-Below is the workflow graph for the `Market research workflow`.
+The following graph depicts the Market Research workflow:
 
 ![Market Research Graph](./images/market-research-graph.png)
 
-Note : `competitorSubgraph` is a subgraph that contains further nodes to fetch the competitor list and feature details.
+Note : `competitorSubgraph` contains additional nodes fetching competitors and feature details.
 
 ![Market Research Graph Expanded](./images/market-research-graph-expand.png)
 
 Let's understand each node in the graph:
 
-- `extractProductFeature` : It extracts the product feature from the user's input. Eg: "Create PRD for stored procedures feature"
+- `extractProductFeature` : It extracts the product feature from the user's input.
 
 ```json
+// Sample input: "Create PRD for stored procedures feature"
 // Output
 {
   "productFeature": "stored procedures"
 }
 ```
 
-- `fetchCompetitorList` : It fetches the list of competitors for the given product feature using `Tavily` web search.
+- `fetchCompetitorList` : Uses `Tavily` web search to find competitors for the given product feature.
 
 ```json
 // Output
@@ -107,7 +116,7 @@ Let's understand each node in the graph:
 }
 ```
 
-- `fetchCompetitorFeatureDetails` : It fetches the feature details for the each competitor using `Tavily` web search.
+- `fetchCompetitorFeatureDetails` : Retrieves feature details for each competitor using `Tavily` web search.
 
 ```json
 // Output
@@ -125,28 +134,30 @@ Let's understand each node in the graph:
 }
 ```
 
-- `createCompetitorTableMatrix` : It creates a table matrix comparing the feature details of the competitors.
+- `createCompetitorTableMatrix` : Creates a comparison table about the feature details of the competitors.
 
-- `createCompetitorAnalysisPdf` : It creates a PDF of the earlier competitorFeatureDetails and competitorTableMatrix.
+- `createCompetitorAnalysisPdf` : Generates the final PDF file with the earlier `competitorFeatureDetails` and `competitorTableMatrix` data.
 
 - ![Execution flow](./images/market-research-graph-run-500.gif)
 
-- Once you run the workflow in langgraph studio, you will see the created file in the `./prd-files` folder with the name `competitor-analysis-<date-time>.pdf`.
+- Once you run the workflow in langgraph studio, PDF output will be saved in the `./prd-files` directory named `competitor-analysis-<date-time>.pdf`.
 
-Note : You can adjust the prompts in the `src/agent/prompts/` folder according to your needs.
+Note : Adjust prompts in the `src/agent/prompts/` folder as needed.
 
 ## PRD (Product Requirements Document) generation workflow
 
-Below is the workflow graph for the `PRD (Product Requirements Document) generation workflow`.
+The following graph depicts the PRD Generation workflow:
 
 - ![PRD Generation Graph](./images/prd-graph.png)
 - ![PRD Generation Graph Expanded](./images/prd-graph-expand.png)
 
-Note : `extractProductFeature` and `competitorSubgraph` are the same as in the `Market research workflow`. Let's understand other nodes in the graph:
+Note : `extractProductFeature` and `competitorSubgraph` are the same as in the `Market research workflow`.
 
-- `customerDemandAnalysis` : It aggregates customer demand data from multiple systems (JIRA and Salesforce) for the given product feature. It performs tool calls to both systems to fetch the data according to configured queries. There's a separate section the tutorial on how to set up Salesforce and Jira.
+Additional nodes explained:
 
-- `effortEstimation` : It estimates the effort required (T-shirt sizing) to implement the given product feature based on competitor analysis and (optional) customer demand data.
+- `customerDemandAnalysis` : Aggregates data from Jira and Salesforce for the given product feature.
+
+- `effortEstimation` : Estimates implementation effort and complexity based on competitor analysis and (optional) customer demand data.
 
 ```json
 {
@@ -169,21 +180,21 @@ Note : `extractProductFeature` and `competitorSubgraph` are the same as in the `
 }
 ```
 
-- `prdGenerationSubgraph` : It generates different sections of the PRD like executive summary, customer analysis, market research, product strategy, implementation strategy, etc.
+- `prdGenerationSubgraph` : Generates PRD sections like executive summary, customer analysis, market research, product strategy, implementation strategy, etc.
 
-- `markdownToPdf` : It converts the generated PRD markdown to a PDF file.
+- `markdownToPdf` : Converts the generated PRD markdown to a PDF file.
 
 - ![PRD Execution flow](./images/prd-graph-run-500.gif)
 
-- Once you run the workflow in langgraph studio, you will see the created file in the `./prd-files` folder with the name `mini-prd-<date-time>.pdf`.
+- Once you run the workflow in langgraph studio, PDF output will be saved in the `./prd-files` directory named `mini-prd-<date-time>.pdf`.
 
-Note : You can adjust the prompts in the `src/agent/prompts/` folder according to your needs.
+Note : Adjust prompts in the `src/agent/prompts/` folder as needed.
 
 ## Salesforce Integration (optional)
 
 Sign up at [salesforce](https://developer.salesforce.com/signup) to get `SF_USERNAME` and `SF_PASSWORD` keys. You can get `SF_SECURITY_TOKEN` from `Settings -> Personal Information -> Reset Security Token`.
 
-Then Set up below environment variables:
+Set up the following environment variables:
 
 ```sh
 # ==============================================
@@ -201,9 +212,9 @@ Note : Modify the `SF_SEARCH_FEATURE_QUERY` query to suit your Salesforce org an
 
 ## Jira Integration (optional)
 
-Sign up for an [Atlassian account](https://id.atlassian.com/signup) and create a JIRA Cloud instance for development.Generate an API token from your Atlassian profile (under Security settings).
+Sign up for an [Atlassian account](https://id.atlassian.com/signup) and create a JIRA Cloud instance for development. Generate an API token from your Atlassian profile (under Security settings).
 
-Then Set up below environment variables:
+Set up the following environment variables:
 
 ```sh
 # signed up profile
@@ -218,9 +229,7 @@ Note : Modify the `JIRA_JQL_QUERY` query to suit your JIRA project and object st
 
 ## Slack Bot Integration
 
-Follow the steps in [slack.md](https://github.com/redis-developer/langgraph-pm-maestro/blob/main/docs/how-tos/slack.md) to create a slack app and set up integration.
-
-Once you have below environment variables set up based on above steps, you can run the slack bot locally using `npm run slack-bot` and test it in your slack workspace.
+Follow the steps in [Slack integration guide](https://github.com/redis-developer/langgraph-pm-maestro/blob/main/docs/how-tos/slack.md) to create a Slack app.
 
 ```sh title=".env"
 SLACK_SIGNING_SECRET="your signing secret"
@@ -229,34 +238,56 @@ SLACK_APP_TOKEN="your app token"
 SLACK_BOT_PORT=8080
 ```
 
+Once you have the environment variables set up, you can run the Slack bot locally using `npm run slack-bot` and test it in your Slack workspace.
+
 ```sh
 npm run start-slack-bot
 # (console output) ⚡️ Slack bot is running and connected!
 ```
 
-- We have two slash commands in the bot to trigger each workflow:
+We have two Slack commands in the bot to trigger each workflow:
 
-  - `/pm-market-research` : runs the market research workflow
-  - `/pm-prd` : runs the PRD generation workflow
+- `/pm-market-research` : runs the market research workflow
+- `/pm-prd` : runs the PRD generation workflow
 
-- Go to your slack workspace and send a message to the bot `/pm-market-research stored procedures feature` or `/pm-prd stored procedures feature`
+- Go to your Slack workspace and test with a message `/pm-market-research stored procedures feature` or `/pm-prd stored procedures feature`
 
 - You will see the output (intermediate messages and final file) in the channel.
 
 ![Market Research Slack](./images/market-research-slack-run-500.gif)
 
-## Checkpointer
+## Checkpointer (Short-term memory)
 
-- Explain short term memory concept, then Redis as checkpointer in langgraph
+LangGraph uses a checkpointer to provide short-term memory for the agent, enabling it to persist and recover workflow state. In this demo, Redis is used as the checkpointer, ensuring reliability and resilience in workflow execution.
 
 Below is the screenshot of checkpointer data in [Redis Insight](https://redis.io/insight/)
 
 ![Redis Checkpointer](./images/redis-insight-checkpointer.png)
 
-## Cache (LangCache and JSON cache)
+## Cache (Semantic and JSON cache)
 
-- Explain LLM cache concept (speed + cost savings)
-- Tel them next time they run the workflow, they will get the same response from the Redis instead of calling the LLM again
+Caching is used to `speed up` repeated queries and `reduce costs`. When you rerun a workflow, cached responses are retrieved from Redis, avoiding redundant LLM calls and improving performance.
+
+- **Semantic Cache (Redis Langcache):**
+
+  - Uses vector embeddings (e.g., OpenAI embeddings) to store and retrieve cache entries based on semantic similarity, not just exact text matches.
+  - When a new prompt is processed, its embedding is compared to cached entries; if a similar enough entry exists (within a configurable similarity threshold), the cached response is reused.
+  - This allows the cache to return relevant results even if the prompt wording changes, as long as the meaning is similar.
+  - Redis Langcache is a service that manages embeddings, similarity search, and metadata in Redis.
+  - Best for use cases where prompts may be phrased differently but have the same intent.
+
+- **JSON Cache:**
+  - Stores and retrieves cache entries using exact matches on prompt text and associated metadata (like feature, node name, user, etc.).
+  - Uses Redis JSON search for fast lookup.
+  - Only returns a cached result if the prompt and metadata match exactly—no semantic similarity is considered.
+  - Simpler and faster for exact-repeat queries, but less flexible for natural language variations. Useful when your agent's node inputs are not dynamic.
+
+| Feature       | Semantic Cache (Langcache)    | JSON Cache                     |
+| ------------- | ----------------------------- | ------------------------------ |
+| Matching      | Semantic (vector similarity)  | Exact (text + metadata)        |
+| Backing Store | Langcache service + Redis     | Redis (JSON)                   |
+| Use Case      | Flexible, paraphrased prompts | Identical prompts/ inputs only |
+| Setup         | Requires Langcache service    | Redis only                     |
 
 Below is the screenshot of cache data in [Redis Insight](https://redis.io/insight/)
 
@@ -264,9 +295,11 @@ Below is the screenshot of cache data in [Redis Insight](https://redis.io/insigh
 
 ## Conclusion
 
+PM Maestro demonstrates the practical power of combining LangGraph JS, Redis, and modern AI techniques, enabling efficient and robust Product Management workflows. Customize and expand these workflows to fit your needs.
+
 ## Resources
 
-- Official python integrations for [Redis Langgraph checkpointer and store](https://github.com/redis-developer/langgraph-redis)
-- [Try Redis Cloud](https://redis.io/try-free/) : To try Redis Cloud for free
+- [Redis Langgraph checkpointer and store](https://github.com/redis-developer/langgraph-redis) (Python)
+- [Try Redis Cloud](https://redis.io/try-free/) for free
 - [Redis YouTube channel](https://www.youtube.com/c/Redisinc)
-- [Redis Insight](https://redis.io/insight/) : To view your Redis data or to play with raw Redis commands in the workbench
+- [Redis Insight](https://redis.io/insight/) is a tool to visualize your Redis data or to play with raw Redis commands in the workbench
