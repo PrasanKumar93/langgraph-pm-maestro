@@ -274,11 +274,11 @@ Below is a screenshot illustrating checkpointer data stored in [Redis Insight](h
 
 ![Redis Checkpointer](./images/redis-insight-checkpointer.png)
 
-**Note**: In this demo, a custom Redis checkpointer is implemented, as an official JavaScript integration is not yet available. For the official `Python` Redis checkpointer and store integration with LangGraph, refer to the [official Python integration repository](https://github.com/redis-developer/langgraph-redis).
+**Note**: In this demo, a custom Redis checkpointer is implemented, as an official JavaScript integration is not yet available. For the official `Python` Redis checkpointer and store integration with LangGraph, refer to the [Python integration repository](https://github.com/redis-developer/langgraph-redis).
 
 ## Cache (semantic and JSON cache)
 
-Caching is employed to **speed up repeated queries** and **reduce costs**. When you rerun a workflow, cached responses are retrieved directly from Redis, eliminating redundant LLM calls and enhancing overall performance.
+Caching is employed to `speed up repeated queries` and `reduce costs`. When you rerun a workflow, cached responses are retrieved directly from Redis, eliminating redundant LLM calls and enhancing overall performance.
 
 ### Semantic Cache (Redis Langcache)
 
@@ -298,7 +298,7 @@ Caching is employed to **speed up repeated queries** and **reduce costs**. When 
 | Feature       | Semantic Cache (Langcache)   | JSON Cache                      |
 | ------------- | ---------------------------- | ------------------------------- |
 | Matching      | Semantic (vector similarity) | Exact (text and metadata match) |
-| Backing Store | Langcache service + Redis    | Redis (JSON)                    |
+| Backing Store | Langcache service + Redis    | Redis                           |
 | Use Case      | Flexible, varied prompts     | Identical or static prompts     |
 | Setup         | Requires Langcache service   | Redis only                      |
 
@@ -306,7 +306,7 @@ Below is a screenshot illustrating cache data in [Redis Insight](https://redis.i
 
 ![Redis Cache](./images/redis-insight-cache.png)
 
-**Note**: By default, JSON cache is enabled in this demo, since after the product feature is extracted, most subsequent node inputs are predictable and well-suited for exact-match caching. However, you can enable semantic caching (Langcache) by configuring the following environment variables:
+**Note**: By default, JSON cache is enabled in this demo, since after the product feature is extracted, most subsequent node inputs are predictable keywords and well-suited for exact-match caching. However, you can enable semantic caching (Langcache) by configuring the following environment variables:
 
 ```sh
 LANGCACHE_URL="http://localhost:8080"
