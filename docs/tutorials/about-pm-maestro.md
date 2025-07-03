@@ -78,23 +78,23 @@ https://smith.langchain.com/studio?baseUrl=http://localhost:2024
 
 `PM Maestro` supports two primary workflows that demonstrate the capabilities of LangGraph and Redis. These workflows can be adapted easily to various domains or roles:
 
-### 1. Market Research Workflow
+### 1. Market research workflow
 
 This workflow performs competitor analysis through web searches and generates a PDF containing a feature comparison matrix of various market players.
 
-### 2. Product Requirements Document (PRD) Generation Workflow
+### 2. PRD generation workflow
 
-This workflow generates a comprehensive PRD by integrating market research data with information from Jira and Salesforce. The PRD includes MVP scope, effort estimations, technical considerations, and prioritized requirements.
+This workflow generates a comprehensive Product Requirements Document (PRD) by integrating market research data with information from Jira and Salesforce. The PRD includes MVP scope, effort estimations, technical considerations, and prioritized requirements.
 
 ## Market research workflow
 
 Below is the workflow graph illustrating the market research process:
 
-![Market Research Graph](./images/market-research-graph.png)
+![Market Research Graph](./images/pmm-market-research-graph.png)
 
 The `competitorSubgraph` includes additional nodes to retrieve competitor lists and detailed feature information.
 
-![Market Research Graph Expanded](./images/market-research-graph-expand.png)
+![Market Research Graph Expanded](./images/pmm-market-research-graph-expand.png)
 
 Let's examine each node in the workflow:
 
@@ -139,18 +139,18 @@ Let's examine each node in the workflow:
 
 - **createCompetitorAnalysisPdf**: Generates a PDF containing the competitors' feature details and the comparison matrix.
 
-![Execution flow](./images/market-research-graph-run-500.gif)
+![Execution flow](./images/pmm-market-research-graph-run-500.gif)
 
 After running the workflow in LangGraph Studio, the generated PDF is saved in the `./prd-files` folder as `competitor-analysis-<date-time>.pdf`.
 
 Note: You can customize the prompts located in the `src/agent/prompts/` directory as required.
 
-## PRD (Product Requirements Document) generation workflow
+## PRD generation workflow
 
-Below is the graph depicting the PRD Generation workflow:
+Below is the graph depicting the PRD (Product Requirements Document) generation workflow:
 
-![PRD Generation Graph](./images/prd-graph.png)
-![PRD Generation Graph Expanded](./images/prd-graph-expand.png)
+![PRD Generation Graph](./images/pmm-prd-graph.png)
+![PRD Generation Graph Expanded](./images/pmm-prd-graph-expand.png)
 
 The nodes `extractProductFeature` and `competitorSubgraph` are identical to those in the Market Research workflow.
 
@@ -185,7 +185,7 @@ Additional nodes are described below:
 
 - **markdownToPdf**: Converts the PRD markdown content into a PDF document.
 
-![PRD Execution flow](./images/prd-graph-run-500.gif)
+![PRD Execution flow](./images/pmm-prd-graph-run-500.gif)
 
 After executing the workflow in LangGraph Studio, the resulting PDF is saved in the `./prd-files` directory with the filename `mini-prd-<date-time>.pdf`.
 
@@ -262,7 +262,7 @@ In your Slack workspace, test the bot commands with messages like:
 
 The Slack channel displays intermediate messages and final results.
 
-![Market Research Slack](./images/market-research-slack-run-500.gif)
+![Market Research Slack](./images/pmm-market-research-slack-run-500.gif)
 
 ## Checkpointer (short-term memory)
 
@@ -272,15 +272,15 @@ LangGraph utilizes a checkpointer to implement short-term memory, allowing the a
 
 Below is a screenshot illustrating checkpointer data stored in [Redis Insight](https://redis.io/insight/):
 
-![Redis Checkpointer](./images/redis-insight-checkpointer.png)
+![Redis Checkpointer](./images/pmm-redis-insight-checkpointer.png)
 
 **Note**: In this demo, a custom Redis checkpointer is implemented, as an official JavaScript integration is not yet available. For the official `Python` Redis checkpointer and store integration with LangGraph, refer to the [Python integration repository](https://github.com/redis-developer/langgraph-redis).
 
-## Cache (semantic and JSON cache)
+## Cache
 
 Caching is employed to `speed up repeated queries` and `reduce costs`. When you rerun a workflow, cached responses are retrieved directly from Redis, eliminating redundant LLM calls and enhancing overall performance.
 
-### Semantic Cache (Redis Langcache)
+### Semantic cache (Redis Langcache)
 
 - Utilizes vector embeddings (such as OpenAI embeddings) to store and retrieve cache entries based on semantic similarity rather than exact textual matches.
 - When a new prompt is processed, its embedding is compared against cached entries. If a sufficiently similar entry exists, based on a configurable similarity threshold, the cached response is returned.
@@ -288,7 +288,7 @@ Caching is employed to `speed up repeated queries` and `reduce costs`. When you 
 - Managed by Redis, Langcache is a service that handles embeddings, similarity search, and metadata within Redis.
 - Ideal for scenarios where prompts may differ in phrasing but share the same intent or meaning.
 
-### JSON Cache
+### JSON cache
 
 - Stores and retrieves cached entries using exact matches on prompt text along with associated metadata (e.g., feature, node name, user).
 - Leverages Redis JSON capabilities for rapid lookups.
@@ -304,7 +304,7 @@ Caching is employed to `speed up repeated queries` and `reduce costs`. When you 
 
 Below is a screenshot illustrating cache data in [Redis Insight](https://redis.io/insight/):
 
-![Redis Cache](./images/redis-insight-cache.png)
+![Redis Cache](./images/pmm-redis-insight-cache.png)
 
 **Note**: By default, JSON cache is enabled in this demo, since after the product feature is extracted, most subsequent node inputs are predictable keywords and well-suited for exact-match caching. However, you can enable semantic caching (Langcache) by configuring the following environment variables:
 
