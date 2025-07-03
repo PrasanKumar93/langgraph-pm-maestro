@@ -6,20 +6,20 @@ PM Maestro is an AI-powered demonstration agent built using [LangGraph JS](https
 
 Product Managers frequently spend substantial time on repetitive yet essential tasks, such as collecting customer feedback, performing market research, estimating effort, and drafting product requirements. `PM Maestro`, powered by LangGraph JS, illustrates how these tasks can be effectively automated using AI agents. This repository serves as a practical demonstration of integrating LangGraph with advanced memory management features provided by `Redis`, including checkpointers, LLM caching, and vector databases, to create reliable, modular AI workflows.
 
-## Tech Stack
+## Tech stack
 
 - **Language**: TypeScript (NodeJS)
 - **Framework**: [LangGraph JS](https://langchain-ai.github.io/langgraphjs/) (Workflow orchestration)
-- **Database**: [Redis](https://redis.io/learn) (Checkpointers and LLM cache)
+- **Database**: [Redis](https://redis.io/learn) (Checkpointer and LLM cache)
 - **LLM Provider**: OpenAI
 - **Search Tool**: Tavily (Web search)
 - **Slack Bot Integration (Optional)**: Trigger workflows via Slack
 - **Salesforce Data Integration (Optional)**: Enrich context with Salesforce CRM data
 - **Jira Data Integration (Optional)**: Enrich context with Jira data
 
-## Project Setup
+## Project setup
 
-### Clone the Repository
+### Clone the repository
 
 ```sh
 git clone https://github.com/redis-developer/langgraph-pm-maestro.git
@@ -86,13 +86,13 @@ This workflow performs competitor analysis through web searches and generates a 
 
 This workflow generates a comprehensive PRD by integrating market research data with information from Jira and Salesforce. The PRD includes MVP scope, effort estimations, technical considerations, and prioritized requirements.
 
-## Market Research Workflow
+## Market research workflow
 
 Below is the workflow graph illustrating the market research process:
 
 ![Market Research Graph](./images/market-research-graph.png)
 
-**Note**: The `competitorSubgraph` includes additional nodes that retrieve competitor lists and detailed feature information.
+The `competitorSubgraph` includes additional nodes to retrieve competitor lists and detailed feature information.
 
 ![Market Research Graph Expanded](./images/market-research-graph-expand.png)
 
@@ -117,7 +117,7 @@ Let's examine each node in the workflow:
 }
 ```
 
-- **fetchCompetitorFeatureDetails**: Retrieves detailed information about each competitor’s implementation of the feature using `Tavily`.
+- **fetchCompetitorFeatureDetails**: Retrieves detailed information about each competitor's implementation of the feature using `Tavily`.
 
 ```json
 // Output
@@ -135,13 +135,13 @@ Let's examine each node in the workflow:
 }
 ```
 
-- **createCompetitorTableMatrix**: Compiles the competitor's feature details into a structured comparison table.
+- **createCompetitorTableMatrix**: Compiles competitors' feature details into a structured comparison table.
 
-- **createCompetitorAnalysisPdf**: Generates a PDF containing the competitors’ feature details and the comparison matrix.
+- **createCompetitorAnalysisPdf**: Generates a PDF containing the competitors' feature details and the comparison matrix.
 
-- ![Execution flow](./images/market-research-graph-run-500.gif)
+![Execution flow](./images/market-research-graph-run-500.gif)
 
-After running the workflow in LangGraph Studio, the generated PDF will be saved in the `./prd-files` folder as `competitor-analysis-<date-time>.pdf`.
+After running the workflow in LangGraph Studio, the generated PDF is saved in the `./prd-files` folder as `competitor-analysis-<date-time>.pdf`.
 
 Note: You can customize the prompts located in the `src/agent/prompts/` directory as required.
 
@@ -149,10 +149,10 @@ Note: You can customize the prompts located in the `src/agent/prompts/` director
 
 Below is the graph depicting the PRD Generation workflow:
 
-- ![PRD Generation Graph](./images/prd-graph.png)
-- ![PRD Generation Graph Expanded](./images/prd-graph-expand.png)
+![PRD Generation Graph](./images/prd-graph.png)
+![PRD Generation Graph Expanded](./images/prd-graph-expand.png)
 
-Note: The nodes `extractProductFeature` and `competitorSubgraph` are identical to those in the Market Research workflow.
+The nodes `extractProductFeature` and `competitorSubgraph` are identical to those in the Market Research workflow.
 
 Additional nodes are described below:
 
@@ -185,13 +185,13 @@ Additional nodes are described below:
 
 - **markdownToPdf**: Converts the PRD markdown content into a PDF document.
 
-- ![PRD Execution flow](./images/prd-graph-run-500.gif)
+![PRD Execution flow](./images/prd-graph-run-500.gif)
 
-After executing the workflow in LangGraph Studio, the resulting PDF will be saved in the `./prd-files` directory with the filename `mini-prd-<date-time>.pdf`.
+After executing the workflow in LangGraph Studio, the resulting PDF is saved in the `./prd-files` directory with the filename `mini-prd-<date-time>.pdf`.
 
 Note: You can adjust the prompts in the `src/agent/prompts/` folder to suit your specific needs.
 
-## Salesforce Integration (Optional)
+## Salesforce integration (optional)
 
 To integrate Salesforce, sign up at [Salesforce Developer](https://developer.salesforce.com/signup) to obtain your `SF_USERNAME` and `SF_PASSWORD`. You'll also need a `SF_SECURITY_TOKEN`, which you can get from your Salesforce account by navigating to `Settings -> Personal Information -> Reset Security Token`.
 
@@ -210,11 +210,11 @@ SF_LOGIN_URL="https://login.salesforce.com"
 SF_SEARCH_FEATURE_QUERY="FIND {SEARCH_FIELD} IN ALL FIELDS RETURNING TechnicalRequest(Id, Name, painPoint, featureRequestDetails, potentialDealSize, industry, priority, currentWorkaround, businessImpact)"
 ```
 
-Note: Customize `SF_SEARCH_FEATURE_QUERY` according to your Salesforce organization’s structure and objects. (Restart the application after updating the environment variables)
+Note: Customize `SF_SEARCH_FEATURE_QUERY` according to your Salesforce organization's structure and objects. Restart the application after updating the environment variables.
 
-## Jira Integration (optional)
+## Jira integration (optional)
 
-To integrate Jira, create an account on [Atlassian](https://id.atlassian.com/signup) and set up a Jira Cloud instance. Generate your API token from your Atlassian account’s security settings.
+To integrate Jira, create an account on [Atlassian](https://id.atlassian.com/signup) and set up a Jira Cloud instance. Generate your API token from your Atlassian account's security settings.
 
 Configure the following environment variables:
 
@@ -227,10 +227,9 @@ JIRA_API_TOKEN=your_api_token
 JIRA_JQL_QUERY="project = 'CPG' AND textfields ~ 'SEARCH_FIELD' ORDER BY created DESC"
 ```
 
-Note: Adjust the `JIRA_JQL_QUERY` to fit your specific Jira project and data structure.
-(Restart the application after updating the environment variables)
+Note: Adjust the `JIRA_JQL_QUERY` to fit your specific Jira project and data structure. Restart the application after updating the environment variables.
 
-## Slack Bot Integration
+## Slack bot integration
 
 Follow the [Slack integration guide](https://github.com/redis-developer/langgraph-pm-maestro/blob/main/docs/how-tos/slack.md) to create and configure your Slack app. After setup, configure the following environment variables in your .env file:
 
@@ -261,11 +260,11 @@ In your Slack workspace, test the bot commands with messages like:
 /pm-prd stored procedures feature
 ```
 
-The Slack channel will display intermediate messages and final results.
+The Slack channel displays intermediate messages and final results.
 
 ![Market Research Slack](./images/market-research-slack-run-500.gif)
 
-## Checkpointer (Short-Term Memory)
+## Checkpointer (short-term memory)
 
 In AI agents, short-term memory refers to the temporary storage of recent information or states that an agent needs immediate access to, enabling it to maintain context and continuity throughout its workflow execution.
 
@@ -275,25 +274,25 @@ Below is a screenshot illustrating checkpointer data stored in [Redis Insight](h
 
 ![Redis Checkpointer](./images/redis-insight-checkpointer.png)
 
-**Note**: In this demo, a custom Redis checkpointer is implemented, as an official JavaScript integration is not yet available. For the official `Python` Redis checkpointer and store integration with LangGraph, refer to the [official Python integration](https://github.com/redis-developer/langgraph-redis).
+**Note**: In this demo, a custom Redis checkpointer is implemented, as an official JavaScript integration is not yet available. For the official `Python` Redis checkpointer and store integration with LangGraph, refer to the [official Python integration repository](https://github.com/redis-developer/langgraph-redis).
 
-## Cache (Semantic and JSON Cache)
+## Cache (semantic and JSON cache)
 
 Caching is employed to **speed up repeated queries** and **reduce costs**. When you rerun a workflow, cached responses are retrieved directly from Redis, eliminating redundant LLM calls and enhancing overall performance.
 
 ### Semantic Cache (Redis Langcache)
 
 - Utilizes vector embeddings (such as OpenAI embeddings) to store and retrieve cache entries based on semantic similarity rather than exact textual matches.
-- When a new prompt is processed, its embedding is compared against cached entries. If a sufficiently similar entry exists (based on a configurable similarity threshold), the cached response is returned.
+- When a new prompt is processed, its embedding is compared against cached entries. If a sufficiently similar entry exists, based on a configurable similarity threshold, the cached response is returned.
 - Enables the retrieval of relevant cached results even when the wording of prompts changes, as long as the underlying meaning remains similar.
-- Managed by Redis Langcache, a service that handles embeddings, similarity search, and metadata within Redis.
+- Managed by Redis, Langcache is a service that handles embeddings, similarity search, and metadata within Redis.
 - Ideal for scenarios where prompts may differ in phrasing but share the same intent or meaning.
 
 ### JSON Cache
 
 - Stores and retrieves cached entries using exact matches on prompt text along with associated metadata (e.g., feature, node name, user).
 - Leverages Redis JSON capabilities for rapid lookups.
-- Returns cached responses only if the prompt and metadata match exactly; semantic similarity is not considered.
+- Returns cached responses only if the prompt and metadata match exactly. Semantic similarity is not considered.
 - Simpler and faster for identical, repeat queries but less adaptable to natural language variations. Recommended for workflows where agent node inputs remain static or predictable.
 
 | Feature       | Semantic Cache (Langcache)   | JSON Cache                      |
@@ -307,7 +306,7 @@ Below is a screenshot illustrating cache data in [Redis Insight](https://redis.i
 
 ![Redis Cache](./images/redis-insight-cache.png)
 
-**Note**: By default, JSON cache is enabled in this demo since, after the product feature is extracted, most subsequent node inputs are predictable and well-suited for exact-match caching. However, you can enable semantic caching (Langcache) by configuring the following environment variables:
+**Note**: By default, JSON cache is enabled in this demo, since after the product feature is extracted, most subsequent node inputs are predictable and well-suited for exact-match caching. However, you can enable semantic caching (Langcache) by configuring the following environment variables:
 
 ```sh
 LANGCACHE_URL="http://localhost:8080"
@@ -317,7 +316,7 @@ LANGCACHE_ENABLED=""
 
 ## Conclusion
 
-PM Maestro demonstrates the practical capabilities of combining LangGraph JS, Redis, and modern AI techniques to create efficient and robust workflows tailored for Product Management. You can further customize and expand these workflows according to your specific requirements.
+PM Maestro demonstrates the practical capabilities of combining LangGraph JS, Redis, and modern AI techniques to create efficient and robust workflows tailored for Product Management. You can further customize and expand these workflows to suit your specific requirements.
 
 ## Resources
 

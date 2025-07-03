@@ -2,8 +2,8 @@
 
 ## Initial Setup
 
-- Sign in to `https://api.slack.com/apps`
-- Create a new app using the manifest below
+- Sign in at [`https://api.slack.com/apps`](https://api.slack.com/apps)
+- Create a new app using the manifest provided below
 
 ### Sample App Manifest
 
@@ -71,9 +71,10 @@
 
 ### Enable Direct Messages
 
-- Navigate to "App Home" in the left sidebar
-- Find "Show Tabs" section
-- Enable "Messages Tab" by turning on "Allow users to send Slash commands and messages"
+- Navigate to `App Home` in the left sidebar
+- Under the `Show Tabs` section:
+  - Enable the `Messages Tab`
+  - Toggle `Allow users to send Slash commands and messages`
 
 ## Required Environment Variables
 
@@ -96,13 +97,13 @@ SLACK_BOT_TOKEN=
 
 ### Installation
 
-- Go to "OAuth & Permissions"
-- Click "Install to Workspace"
-- After any OAuth scope changes, click "Reinstall to Workspace"
+- Go to `OAuth & Permissions`
+- Click `Install to Workspace`
+- After modifying any OAuth scopes, click `Reinstall to Workspace`
 
 ## API Testing
 
-- Send message to channel
+- Send a message to a channel
 
 ```sh
 curl -X POST "https://slack.com/api/chat.postMessage" \
@@ -114,7 +115,7 @@ curl -X POST "https://slack.com/api/chat.postMessage" \
      }'
 ```
 
-- Get channel history
+- Retrieve Channel History
 
 ```sh
 curl -H "Authorization: Bearer $SLACK_BOT_TOKEN" \
@@ -124,12 +125,12 @@ curl -H "Authorization: Bearer $SLACK_BOT_TOKEN" \
 
 ## Socket Mode Logic
 
-Socket Mode creates a secure WebSocket connection between your app and Slack's servers. Here's how it works:
+Socket Mode establishes a secure WebSocket connection between your app and Slack’s servers. Here’s how it works:
 
 1. Initial Connection:
 
-   - Your local app establishes a WebSocket connection to Slack's servers using the App-Level Token (xapp-)
-   - This creates a persistent, bidirectional communication channel
+   - Your local app uses the App-Level Token (xapp-) to initiate a WebSocket connection with Slack
+   - This connection remains open and enables real-time, bidirectional communication
 
 2. Message Flow:
 
@@ -152,9 +153,9 @@ Socket Mode creates a secure WebSocket connection between your app and Slack's s
 
    - No public URLs needed
    - Real-time event delivery
-   - Secure connection using app-level tokens
+   - Secure WebSocket connection using app-level tokens
    - Works behind firewalls
-   - Reduced latency compared to HTTP webhooks
+   - Lower latency than HTTP-based webhooks
 
 4. Common Events:
    - Message events (new messages, edits, deletions)
@@ -163,4 +164,4 @@ Socket Mode creates a secure WebSocket connection between your app and Slack's s
    - File uploads
    - Interactive components (buttons, modals)
 
-Note: Socket Mode is ideal for development and testing,
+Note: Socket Mode is especially useful for local development and testing.
